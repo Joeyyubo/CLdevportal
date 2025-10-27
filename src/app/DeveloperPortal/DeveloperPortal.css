@@ -5,3 +5,38 @@
   width: auto !important;
   height: auto !important;
 }
+
+/* Disable focus state for read-only inputs */
+input[readonly],
+input[readonly]:focus,
+input[readonly]:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: #d0d0d0 !important;
+  cursor: default !important;
+}
+
+/* Remove shadow from PatternFly Alert components */
+.pf-c-alert,
+.pf-v6-c-alert,
+.pf-c-alert__body,
+[class*="pf-c-alert"],
+[class*="pf-v6-c-alert"] {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Remove shadow from Alert wrapper and all child elements */
+[class*="pf-c-alert"] *,
+[class*="pf-v6-c-alert"] * {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Remove shadow from specific alert */
+.no-shadow-alert,
+.no-shadow-alert * {
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}

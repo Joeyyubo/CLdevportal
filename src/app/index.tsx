@@ -4,6 +4,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AppLayout } from '@app/AppLayout/AppLayout';
 import { DeveloperPortal } from '@app/DeveloperPortal/DeveloperPortal';
 import { APIDetails } from '@app/DeveloperPortal/APIDetails';
+import { APIKeys } from '@app/DeveloperPortal/APIKeys';
+import { Observability } from '@app/DeveloperPortal/Observability';
+import { APIKeyDetails } from '@app/DeveloperPortal/APIKeyDetails';
+import { APIKeyRequestDetails } from '@app/DeveloperPortal/APIKeyRequestDetails';
 import { AppRoutes, routes } from '@app/routes';
 import '@app/app.css';
 
@@ -17,8 +21,20 @@ const App: React.FunctionComponent = () => {
         {/* Developer Portal page without AppLayout (has its own layout) */}
         <Route path="/developer-portal" element={<DeveloperPortal />} />
         
+        {/* API Keys page */}
+        <Route path="/developer-portal/api-keys" element={<APIKeys />} />
+        
+        {/* Observability page */}
+        <Route path="/developer-portal/observability" element={<Observability />} />
+        
         {/* API Details page with dynamic API name */}
         <Route path="/developer-portal/api-details/:apiName" element={<APIDetails />} />
+        
+        {/* API Key Details page with dynamic key name */}
+        <Route path="/developer-portal/api-key-details/:keyName" element={<APIKeyDetails />} />
+        
+        {/* API Key Request Details page with dynamic request name */}
+        <Route path="/developer-portal/api-key-request-details/:requestName" element={<APIKeyRequestDetails />} />
         
         {/* All other pages with AppLayout */}
         <Route
