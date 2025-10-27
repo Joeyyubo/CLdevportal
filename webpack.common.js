@@ -25,6 +25,12 @@ export default (env) => {
           ],
         },
         {
+          test: /\.m?js$/,
+          resolve: {
+            fullySpecified: false,
+          },
+        },
+        {
           test: /\.(svg|ttf|eot|woff|woff2)$/,
           type: 'asset/resource',
           // only process modules with this loader
@@ -115,7 +121,7 @@ export default (env) => {
       }),
     ],
     resolve: {
-      extensions: ['.js', '.ts', '.tsx', '.jsx'],
+      extensions: ['.js', '.mjs', '.ts', '.tsx', '.jsx'],
       plugins: [
         new TsconfigPathsPlugin({
           configFile: path.resolve('./tsconfig.json'),
