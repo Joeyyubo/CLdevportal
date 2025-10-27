@@ -773,7 +773,7 @@ const APIDetails: React.FunctionComponent = () => {
         isOpen={isGenerateModalOpen}
         onClose={() => setIsGenerateModalOpen(false)}
         variant="medium"
-        style={{ '--pf-v6-c-backdrop--BackgroundColor': 'rgba(8, 9, 10, 0.85)' }}
+        style={{ '--pf-v6-c-backdrop--BackgroundColor': 'rgba(0, 0, 0, 0.75)' }}
       >
         <ModalHeader title="Generate API key" />
         <ModalBody>
