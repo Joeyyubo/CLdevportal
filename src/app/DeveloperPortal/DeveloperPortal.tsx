@@ -137,12 +137,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
       <MastheadMain>
         <MastheadBrand>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <svg width="32" height="32" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="#0066CC" strokeWidth="2" strokeDasharray="3,3" />
-              <path d="M30 50 L70 30 L65 50 L30 70 Z" fill="#0066CC" />
-              <path d="M35 50 L60 40 L55 50 L35 60 Z" fill="#73BCF7" />
-            </svg>
-            <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#151515' }}>Smart Airline</span>
+            <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#151515' }}>RHCL Dev Portal</span>
           </div>
         </MastheadBrand>
       </MastheadMain>
