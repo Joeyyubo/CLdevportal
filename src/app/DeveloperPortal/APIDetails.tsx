@@ -772,14 +772,14 @@ const APIDetails: React.FunctionComponent = () => {
       <Modal
         isOpen={isGenerateModalOpen}
         onClose={() => setIsGenerateModalOpen(false)}
-        title="Generate API key"
         variant="medium"
+        style={{ '--pf-v6-c-backdrop--BackgroundColor': 'rgba(8, 9, 10, 0.85)' }}
       >
-        <ModalHeader>Generate API key</ModalHeader>
+        <ModalHeader title="Generate API key" />
         <ModalBody>
-          <p style={{ marginBottom: '24px', color: '#6a6e73' }}>Create API credential to use the API.</p>
+          <p style={{ marginBottom: '24px', fontSize: '14px', color: '#6a6e73' }}>Create API credential to use the API.</p>
           
-          <FormGroup label="API" isRequired fieldId="api-name">
+          <FormGroup label="API" isRequired fieldId="api-name" style={{ marginBottom: '16px' }}>
             <TextInput
               id="api-name"
               value={apiDetails.name}
@@ -787,17 +787,19 @@ const APIDetails: React.FunctionComponent = () => {
             />
           </FormGroup>
 
-          <FormGroup label="API plan" isRequired fieldId="api-plan">
+          <FormGroup label="API plan" isRequired fieldId="api-plan" style={{ marginBottom: '16px' }}>
             <select 
               id="api-plan"
               value={apiKeyPlan}
               onChange={(e) => setApiKeyPlan(e.target.value)}
               style={{
                 width: '100%',
-                padding: '6px 12px',
+                padding: '8px 12px',
                 fontSize: '14px',
+                lineHeight: '1.5',
                 border: '1px solid #8b8d90',
-                borderRadius: '4px'
+                borderRadius: '4px',
+                minHeight: '36px'
               }}
             >
               <option>Silver plan (100 reqs/day; 500reqs/week; 3000reqs/month)</option>
@@ -806,7 +808,7 @@ const APIDetails: React.FunctionComponent = () => {
             </select>
           </FormGroup>
 
-          <FormGroup label="Name" isRequired fieldId="key-name">
+          <FormGroup label="Name" isRequired fieldId="key-name" style={{ marginBottom: '16px' }}>
             <TextInput
               id="key-name"
               value={apiKeyName}
