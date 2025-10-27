@@ -529,7 +529,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
                 <Dropdown
                   isOpen={false}
-                  toggle={<MenuToggle>7 days</MenuToggle>}
+                  toggle={(toggleRef) => <MenuToggle ref={toggleRef}>7 days</MenuToggle>}
                 >
                   <DropdownList>
                     <DropdownItem>1 day</DropdownItem>
@@ -772,11 +772,11 @@ const APIKeyDetails: React.FunctionComponent = () => {
             }}
             style={{ '--pf-v6-c-backdrop--BackgroundColor': 'rgba(200, 200, 200, 0.8)' } as React.CSSProperties}
           >
-            <ModalHeader
-              title={keyDetails.status === 'Active' ? 'Update this API key?' : 'Reapply for this API key?'}
-              subTitle="Upgrade the API credential to use the API."
-              showClose
-            >
+            <ModalHeader>
+              <Title headingLevel="h2">{keyDetails.status === 'Active' ? 'Update this API key?' : 'Reapply for this API key?'}</Title>
+              <div style={{ fontSize: '14px', color: '#6a6e73', marginTop: '8px' }}>
+                Upgrade the API credential to use the API.
+              </div>
             </ModalHeader>
             <ModalBody>
               <Alert 
@@ -872,10 +872,8 @@ const APIKeyDetails: React.FunctionComponent = () => {
             }}
             style={{ '--pf-v6-c-backdrop--BackgroundColor': 'rgba(200, 200, 200, 0.8)' } as React.CSSProperties}
           >
-            <ModalHeader
-              title="Delete this API key?"
-              showClose
-            >
+            <ModalHeader>
+              <Title headingLevel="h2">Delete this API key?</Title>
             </ModalHeader>
             <ModalBody>
               <Alert 
