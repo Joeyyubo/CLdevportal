@@ -38,6 +38,13 @@ import {
   Alert,
   AlertActionLink,
   Tooltip,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  ModalFooter,
+  TextInput,
+  TextArea,
+  FormGroup,
 } from '@patternfly/react-core';
 import {
   UserIcon,
@@ -161,6 +168,10 @@ const APIDetails: React.FunctionComponent = () => {
   const [searchValue, setSearchValue] = React.useState('');
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
   const [currentRole, setCurrentRole] = React.useState('API consumer');
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = React.useState(false);
+  const [apiKeyName, setApiKeyName] = React.useState('Personal key');
+  const [apiKeyPlan, setApiKeyPlan] = React.useState('Silver plan (100 reqs/day; 500reqs/week; 3000reqs/month)');
+  const [useCase, setUseCase] = React.useState('It work for my personal flight application test.');
   const userToggleRef = React.useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
 
@@ -401,6 +412,11 @@ const APIDetails: React.FunctionComponent = () => {
                       </div>
                     </DescriptionListDescription>
                   </DescriptionListGroup>
+
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>API key request</DescriptionListTerm>
+                    <DescriptionListDescription>No approval needed</DescriptionListDescription>
+                  </DescriptionListGroup>
                 </DescriptionList>
               </CardBody>
             </Card>
@@ -522,7 +538,7 @@ const APIDetails: React.FunctionComponent = () => {
                     <Badge style={{ backgroundColor: '#89bf04', color: 'white' }}>OAS 3.1</Badge>
                   </div>
                 </div>
-                <Button variant="primary" style={{ backgroundColor: '#007bff', border: 'none' }}>Generate API key</Button>
+                <Button variant="primary" style={{ backgroundColor: '#007bff', border: 'none' }} onClick={() => setIsGenerateModalOpen(true)}>Generate API key</Button>
               </div>
             </div>
 
@@ -751,6 +767,70 @@ const APIDetails: React.FunctionComponent = () => {
         )}
         </PageSection>
       </Page>
+
+      {/* Generate API Key Modal */}
+      <Modal
+        isOpen={isGenerateModalOpen}
+        onClose={() => setIsGenerateModalOpen(false)}
+        title="Generate API key"
+        variant="medium"
+      >
+        <ModalHeader>Generate API key</ModalHeader>
+        <ModalBody>
+          <p style={{ marginBottom: '24px', color: '#6a6e73' }}>Create API credential to use the API.</p>
+          
+          <FormGroup label="API" isRequired fieldId="api-name">
+            <TextInput
+              id="api-name"
+              value={apiDetails.name}
+              isReadOnly
+            />
+          </FormGroup>
+
+          <FormGroup label="API plan" isRequired fieldId="api-plan">
+            <select 
+              id="api-plan"
+              value={apiKeyPlan}
+              onChange={(e) => setApiKeyPlan(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '6px 12px',
+                fontSize: '14px',
+                border: '1px solid #8b8d90',
+                borderRadius: '4px'
+              }}
+            >
+              <option>Silver plan (100 reqs/day; 500reqs/week; 3000reqs/month)</option>
+              <option>Gold plan (200 reqs/day; 1000reqs/week; 6000reqs/month)</option>
+              <option>Platinum plan (500 reqs/day; 2000reqs/week; 10000reqs/month)</option>
+            </select>
+          </FormGroup>
+
+          <FormGroup label="Name" isRequired fieldId="key-name">
+            <TextInput
+              id="key-name"
+              value={apiKeyName}
+              onChange={(_, value) => setApiKeyName(value)}
+            />
+          </FormGroup>
+
+          <FormGroup label="Use case & Description" fieldId="use-case">
+            <TextArea
+              id="use-case"
+              value={useCase}
+              onChange={(_, value) => setUseCase(value)}
+              rows={4}
+            />
+          </FormGroup>
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={() => setIsGenerateModalOpen(false)} variant="secondary">Cancel</Button>
+          <Button onClick={() => {
+            // Handle generate API key
+            setIsGenerateModalOpen(false);
+          }} variant="primary">Generate</Button>
+        </ModalFooter>
+      </Modal>
     </>
   );
 };
