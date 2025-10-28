@@ -272,10 +272,8 @@ const APIKeyDetails: React.FunctionComponent = () => {
       <MastheadMain>
         <MastheadBrand>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <ellipse cx="16" cy="10" rx="10" ry="6" fill="#CC0000"/>
-              <ellipse cx="16" cy="14" rx="12" ry="8" fill="#CC0000"/>
-              <ellipse cx="16" cy="22" rx="8" ry="1" fill="#CC0000"/>
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 8C18 8 22 5 28 7C34 9 38 12 39 17C40 22 38 26 36 28C34 30 30 32 25 32C20 32 15 30 13 28C11 26 9 22 10 17C11 12 13 8 18 8Z" fill="#CC0000"/>
             </svg>
             <div style={{ 
               backgroundColor: '#8b47ac', 
