@@ -375,7 +375,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const sidebar = (
     <PageSidebar>
       <PageSidebarBody>
-        <Nav aria-label="Developer portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
+        <Nav aria-label="API portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
             <NavItem itemId="home" icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
               Home
@@ -397,7 +397,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
             </NavItem>
             <Divider />
             <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-              Developer portal
+              API portal
             </NavItem>
             {currentRole === 'API owner' && (
               <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
@@ -423,9 +423,9 @@ const DeveloperPortal: React.FunctionComponent = () => {
       <PageSection>
         <div style={{ marginBottom: '24px' }}>
           <Title headingLevel="h1" size="2xl" style={{ marginBottom: '16px' }}>
-            Developer Portal
+            API Portal
           </Title>
-          <Tabs activeKey={activeTab} onSelect={handleTabClick} aria-label="Developer portal tabs" style={{ marginBottom: '24px' }}>
+          <Tabs activeKey={activeTab} onSelect={handleTabClick} aria-label="API portal tabs" style={{ marginBottom: '24px' }}>
             <Tab eventKey={0} title={<TabTitleText>API products</TabTitleText>} />
             <Tab eventKey={1} title={<TabTitleText>API keys</TabTitleText>} />
             <Tab eventKey={2} title={<TabTitleText>Observability</TabTitleText>} />

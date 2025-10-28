@@ -219,7 +219,7 @@ const SelfService: React.FunctionComponent = () => {
   const sidebar = (
     <PageSidebar>
       <PageSidebarBody>
-        <Nav aria-label="Developer portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
+        <Nav aria-label="API portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
             <NavItem itemId="home" icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
               Home
@@ -241,7 +241,7 @@ const SelfService: React.FunctionComponent = () => {
             </NavItem>
             <Divider />
             <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-              Developer portal
+              API portal
             </NavItem>
             {currentRole === 'API owner' && (
               <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
@@ -272,7 +272,7 @@ const SelfService: React.FunctionComponent = () => {
             Create new software components using standard templates
           </p>
           
-          {/* Divider line to match Developer Portal tabs styling */}
+          {/* Divider line to match API Portal tabs styling */}
           <div style={{ 
             borderBottom: '1px solid #d0d0d0', 
             marginBottom: '24px',

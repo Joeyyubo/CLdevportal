@@ -106,7 +106,7 @@ const Observability: React.FunctionComponent = () => {
   const sidebar = (
     <PageSidebar>
       <PageSidebarBody>
-        <Nav aria-label="Developer portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
+        <Nav aria-label="API portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
             <NavItem itemId="home" icon={<HomeIcon />}>
               Home
@@ -128,7 +128,7 @@ const Observability: React.FunctionComponent = () => {
             </NavItem>
             <Divider />
             <NavItem itemId="dev-portal" isActive icon={<CodeIcon />}>
-              Developer portal
+              API portal
             </NavItem>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />}>
@@ -177,7 +177,7 @@ const Observability: React.FunctionComponent = () => {
           <Breadcrumb style={{ marginBottom: '16px' }}>
             <BreadcrumbItem>
               <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-                Developer portal
+                API portal
               </Button>
             </BreadcrumbItem>
             <BreadcrumbItem>

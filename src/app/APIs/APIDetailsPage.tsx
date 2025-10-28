@@ -302,7 +302,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
   const sidebar = (
     <PageSidebar>
       <PageSidebarBody>
-        <Nav aria-label="Developer portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
+        <Nav aria-label="API portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
             <NavItem itemId="home" icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
               Home
@@ -324,7 +324,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
             </NavItem>
             <Divider />
             <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-              Developer portal
+              API portal
             </NavItem>
             {currentRole === 'API owner' && (
               <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>

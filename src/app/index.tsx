@@ -47,7 +47,7 @@ const App: React.FunctionComponent = () => {
         {/* Policy Details page */}
         <Route path="/policies/policy-details/:policyName" element={<PolicyDetails />} />
         
-        {/* Developer Portal page without AppLayout (has its own layout) */}
+        {/* API Portal page without AppLayout (has its own layout) */}
         <Route path="/developer-portal" element={<DeveloperPortal />} />
         
         {/* Create API Product page */}
