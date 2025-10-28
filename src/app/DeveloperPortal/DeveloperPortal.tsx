@@ -96,7 +96,18 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
   const userToggleRef = React.useRef<HTMLButtonElement>(null);
   const [apiData, setApiData] = React.useState(initialApiData);
-  const [currentRole, setCurrentRole] = React.useState('API consumer');
+  
+  // Get current role from localStorage or use default
+  const getCurrentRole = (): string => {
+    try {
+      const role = localStorage.getItem('currentRole');
+      return role || 'API consumer';
+    } catch {
+      return 'API consumer';
+    }
+  };
+  
+  const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
   const [apiKeysSectionFilter, setApiKeysSectionFilter] = React.useState('keys-owned'); // 'keys-owned', 'requests-owned'
   const [copiedApiKey, setCopiedApiKey] = React.useState<string | null>(null);
   
@@ -180,7 +191,16 @@ const DeveloperPortal: React.FunctionComponent = () => {
   };
 
   const handleUserDropdownSelect = (_event?: React.MouseEvent | undefined, role?: string | number | undefined) => {
-    setCurrentRole(String(role));
+    const newRole = String(role);
+    setCurrentRole(newRole);
+    // Save to localStorage
+    try {
+      localStorage.setItem('currentRole', newRole);
+      // Trigger storage event
+      window.dispatchEvent(new Event('storage'));
+    } catch (e) {
+      console.error('Failed to save role to localStorage:', e);
+    }
     setIsUserDropdownOpen(false);
     // Focus will be returned to the toggle button
     userToggleRef.current?.focus();
@@ -242,6 +262,12 @@ const DeveloperPortal: React.FunctionComponent = () => {
       try {
         const starred = localStorage.getItem('starredAPIs');
         setStarredAPIs(starred ? JSON.parse(starred) : []);
+        
+        // Also update role from localStorage
+        const role = localStorage.getItem('currentRole');
+        if (role) {
+          setCurrentRole(role);
+        }
       } catch {
         setStarredAPIs([]);
       }

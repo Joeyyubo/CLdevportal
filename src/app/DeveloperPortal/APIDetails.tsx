@@ -183,7 +183,18 @@ const APIDetails: React.FunctionComponent = () => {
   const [activeTab, setActiveTab] = React.useState(0);
   const [searchValue, setSearchValue] = React.useState('');
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
-  const [currentRole, setCurrentRole] = React.useState('API consumer');
+  
+  // Get current role from localStorage or use default
+  const getCurrentRole = (): string => {
+    try {
+      const role = localStorage.getItem('currentRole');
+      return role || 'API consumer';
+    } catch {
+      return 'API consumer';
+    }
+  };
+  
+  const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
   const [isGenerateModalOpen, setIsGenerateModalOpen] = React.useState(false);
   const [isAuthorizeModalOpen, setIsAuthorizeModalOpen] = React.useState(false);
   const [isAuthorized, setIsAuthorized] = React.useState(false);
@@ -243,7 +254,16 @@ const APIDetails: React.FunctionComponent = () => {
   };
 
   const handleUserDropdownSelect = (_event?: React.MouseEvent | undefined, role?: string | number | undefined) => {
-    setCurrentRole(String(role));
+    const newRole = String(role);
+    setCurrentRole(newRole);
+    // Save to localStorage
+    try {
+      localStorage.setItem('currentRole', newRole);
+      // Trigger storage event
+      window.dispatchEvent(new Event('storage'));
+    } catch (e) {
+      console.error('Failed to save role to localStorage:', e);
+    }
     setIsUserDropdownOpen(false);
     userToggleRef.current?.focus();
   };
@@ -256,6 +276,23 @@ const APIDetails: React.FunctionComponent = () => {
       navigate('/developer-portal');
     }
   };
+
+  // Listen to storage changes for role updates
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const role = localStorage.getItem('currentRole');
+        if (role) {
+          setCurrentRole(role);
+        }
+      } catch (e) {
+        console.error('Failed to read role from localStorage:', e);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const toggleEndpoint = (endpointKey: string) => {
     setExpandedEndpoints(prev => ({
