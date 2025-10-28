@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import RedLogo from '@app/bgimages/RedLogo.svg';
 import {
   Button,
   Masthead,
@@ -195,7 +196,7 @@ const PolicyDetails: React.FunctionComponent = () => {
       <MastheadMain>
         <MastheadBrand>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <img src="@app/bgimages/RedLogo.svg" alt="Logo" width="40" height="40" style={{ display: 'block' }} />
+            <span dangerouslySetInnerHTML={{ __html: RedLogo }} />
             <div style={{ 
               backgroundColor: '#8b47ac', 
               color: 'white', 
