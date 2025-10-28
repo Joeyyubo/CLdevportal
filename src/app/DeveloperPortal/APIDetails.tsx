@@ -351,12 +351,12 @@ const APIDetails: React.FunctionComponent = () => {
             <NavItem itemId="dev-portal" isActive icon={<CodeIcon />}>
               Developer portal
             </NavItem>
-            <Divider />
             {currentRole === 'API owner' && (
               <NavItem itemId="policies" icon={<ShieldAltIcon />}>
                 Policies
               </NavItem>
             )}
+            <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />}>
               Administration
             </NavItem>
