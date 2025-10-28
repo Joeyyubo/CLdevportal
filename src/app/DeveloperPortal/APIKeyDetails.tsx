@@ -241,6 +241,8 @@ const APIKeyDetails: React.FunctionComponent = () => {
   const handleNavClick = (itemId: string) => {
     if (itemId === 'dev-portal') {
       navigate('/developer-portal');
+    } else if (itemId === 'apis') {
+      navigate('/apis');
     } else {
       navigate('/developer-portal');
     }

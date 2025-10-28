@@ -184,7 +184,7 @@ const APIs: React.FunctionComponent = () => {
     if (itemId === 'dev-portal') {
       navigate('/developer-portal');
     } else if (itemId === 'apis') {
-      // Stay on current page
+      navigate('/apis');
     }
   };
 
