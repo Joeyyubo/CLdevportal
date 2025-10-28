@@ -65,21 +65,113 @@ import {
   ExclamationTriangleIcon,
   SyncIcon,
   CopyIcon,
+  ExternalLinkAltIcon,
+  PencilAltIcon,
 } from '@patternfly/react-icons';
 import './DeveloperPortal.css';
 
 // Initial API data
 const initialApiData = [
-  { name: 'Get Flights tickets', version: 'v1.1', contact: 'Jane doe', tag: 'Ticket', starred: true, owned: false },
-  { name: 'Get Booking Details', version: 'v1.1', contact: 'Ticket Team', tag: 'Payment', starred: true, owned: false },
-  { name: 'Create Booking', version: 'v1.1', contact: 'Ticket Team', tag: 'Ticket', starred: false, owned: false },
-  { name: 'Get Aircraft Details', version: 'v1.1', contact: 'Aircraft Team', tag: 'Aircraft', starred: false, owned: false },
-  { name: 'Get Aircraft Model Info', version: 'v1.1', contact: 'Aircraft Team', tag: 'Aircraft', starred: false, owned: false },
-  { name: 'Get Flight Status', version: 'v1.1', contact: 'Client Team', tag: 'Client', starred: false, owned: false },
-  { name: 'Register Client', version: 'v1.1', contact: 'Client Team', tag: 'Client', starred: false, owned: false },
-  { name: 'List My Bookings', version: 'v1.1', contact: 'Ticket Team', tag: 'Ticket', starred: false, owned: false },
-  { name: 'Get Loyalty Info', version: 'v1.1', contact: 'Client Team', tag: 'Client', starred: false, owned: false },
-  { name: 'Get Payment Status', version: 'v1.1', contact: 'Payment Team', tag: 'Payment', starred: false, owned: false },
+  { 
+    name: 'Airport information', 
+    type: 'openapi', 
+    owner: 'Ticket Team', 
+    lifecycle: 'production', 
+    description: 'Flight ticket information API for users to get flight details', 
+    tags: ['Ticket'], 
+    starred: true, 
+    owned: false 
+  },
+  { 
+    name: 'Flight-payment-api', 
+    type: 'openapi', 
+    owner: 'Payment Team', 
+    lifecycle: 'production', 
+    description: 'API for flight payment processing and transactions', 
+    tags: ['Payment'], 
+    starred: true, 
+    owned: false 
+  },
+  { 
+    name: 'Aircraft-app-api', 
+    type: 'openapi', 
+    owner: 'Aircraft Team', 
+    lifecycle: 'production', 
+    description: 'Aircraft application data and maintenance information', 
+    tags: ['Aircraft'], 
+    starred: false, 
+    owned: false 
+  },
+  { 
+    name: 'Client-api', 
+    type: 'openapi', 
+    owner: 'Client Team', 
+    lifecycle: 'production', 
+    description: 'API of client data management and customer information', 
+    tags: ['Client'], 
+    starred: false, 
+    owned: false 
+  },
+  { 
+    name: 'Aircraft-region-api', 
+    type: 'openapi', 
+    owner: 'Aircraft Team', 
+    lifecycle: 'production', 
+    description: 'Aircraft type in different regions with location data', 
+    tags: ['Aircraft'], 
+    starred: false, 
+    owned: false 
+  },
+  { 
+    name: 'Booking-management-api', 
+    type: 'openapi', 
+    owner: 'Ticket Team', 
+    lifecycle: 'production', 
+    description: 'Comprehensive booking management and reservation system', 
+    tags: ['Ticket'], 
+    starred: false, 
+    owned: false 
+  },
+  { 
+    name: 'Loyalty-program-api', 
+    type: 'openapi', 
+    owner: 'Client Team', 
+    lifecycle: 'production', 
+    description: 'Customer loyalty points and rewards program management', 
+    tags: ['Client'], 
+    starred: false, 
+    owned: false 
+  },
+  { 
+    name: 'Payment-processing-api', 
+    type: 'openapi', 
+    owner: 'Payment Team', 
+    lifecycle: 'production', 
+    description: 'Secure payment processing and transaction handling', 
+    tags: ['Payment'], 
+    starred: false, 
+    owned: false 
+  },
+  { 
+    name: 'Flight-status-api', 
+    type: 'openapi', 
+    owner: 'Ticket Team', 
+    lifecycle: 'production', 
+    description: 'Real-time flight status updates and schedule information', 
+    tags: ['Ticket'], 
+    starred: false, 
+    owned: false 
+  },
+  { 
+    name: 'Client-registration-api', 
+    type: 'openapi', 
+    owner: 'Client Team', 
+    lifecycle: 'production', 
+    description: 'Client account registration and profile management', 
+    tags: ['Client'], 
+    starred: false, 
+    owned: false 
+  },
 ];
 
 const DeveloperPortal: React.FunctionComponent = () => {
@@ -430,20 +522,18 @@ const DeveloperPortal: React.FunctionComponent = () => {
         {activeTab === 0 && (
           <>
             <Grid hasGutter style={{ marginBottom: '24px' }}>
-              <GridItem span={3}>
-                <SearchInput
-                  placeholder="Search APIs..."
-                  value={searchValue}
-                  onChange={(_, value) => setSearchValue(value)}
-                  style={{ width: '100%' }}
-                />
-              </GridItem>
-              <GridItem span={9}>
-                {currentRole === 'API owner' && (
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button variant="primary">Create API product</Button>
+              <GridItem span={12}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                  <div>
+                    <Title headingLevel="h1" size="2xl" style={{ marginBottom: '8px' }}>
+                      APIs
+                    </Title>
+                    <p style={{ fontSize: '14px', color: '#6a6e73', margin: 0 }}>
+                      Available APIs in organization for developers to browse discover, register and test
+                    </p>
                   </div>
-                )}
+                  <Button variant="primary">Register Existing API</Button>
+                </div>
               </GridItem>
             </Grid>
 
@@ -504,7 +594,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 </div>
               </div>
 
-              <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Organization</Title>
+              <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>My Org</Title>
               <div style={{ marginBottom: '16px' }}>
                 <div
                   role="button"
@@ -544,17 +634,27 @@ const DeveloperPortal: React.FunctionComponent = () => {
           <GridItem span={9}>
             <Card>
               <CardBody>
-                <Title headingLevel="h2" size="lg" style={{ marginBottom: '16px' }}>
-                  APIs
-                </Title>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <Title headingLevel="h2" size="lg" style={{ marginBottom: 0 }}>
+                    APIs
+                  </Title>
+                  <SearchInput
+                    placeholder="Search"
+                    value={searchValue}
+                    onChange={(_, value) => setSearchValue(value)}
+                    style={{ width: '250px' }}
+                  />
+                </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
                       <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Name</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>API version</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Contact</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Type</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Owner</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Lifecycle</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Description</th>
                       <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Tags</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '50px' }}></th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -569,15 +669,31 @@ const DeveloperPortal: React.FunctionComponent = () => {
                             {api.name}
                           </Button>
                         </td>
-                        <td style={{ padding: '12px' }}>{api.version}</td>
-                        <td style={{ padding: '12px' }}>{api.contact}</td>
-                        <td style={{ padding: '12px' }}>
-                          <Badge isRead>{api.tag}</Badge>
+                        <td style={{ padding: '12px' }}>{api.type}</td>
+                        <td style={{ padding: '12px' }}>{api.owner}</td>
+                        <td style={{ padding: '12px' }}>{api.lifecycle}</td>
+                        <td style={{ padding: '12px', fontSize: '14px', color: '#6a6e73', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {api.description}
                         </td>
                         <td style={{ padding: '12px' }}>
-                          <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(api.name)}>
-                            <StarIcon style={{ fill: api.starred ? '#0066CC' : 'inherit' }} />
-                          </Button>
+                          {api.tags && api.tags.map((tag, tagIdx) => (
+                            <Badge key={tagIdx} isRead style={{ marginRight: '4px' }}>
+                              {tag}
+                            </Badge>
+                          ))}
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Button variant="plain" aria-label="View">
+                              <ExternalLinkAltIcon />
+                            </Button>
+                            <Button variant="plain" aria-label="Edit">
+                              <PencilAltIcon />
+                            </Button>
+                            <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(api.name)}>
+                              <StarIcon style={{ fill: api.starred ? '#0066CC' : 'inherit' }} />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))}
