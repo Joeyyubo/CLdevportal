@@ -242,8 +242,8 @@ const APIDetails: React.FunctionComponent = () => {
     setIsUserDropdownOpen(!isUserDropdownOpen);
   };
 
-  const handleUserDropdownSelect = (role: string) => {
-    setCurrentRole(role);
+  const handleUserDropdownSelect = (_event?: React.MouseEvent | undefined, role?: string | number | undefined) => {
+    setCurrentRole(String(role));
     setIsUserDropdownOpen(false);
     userToggleRef.current?.focus();
   };
@@ -295,7 +295,7 @@ const APIDetails: React.FunctionComponent = () => {
         <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'flex-end' }}>
             <Dropdown
               isOpen={isUserDropdownOpen}
-              onSelect={(_, value) => handleUserDropdownSelect(String(value))}
+              onSelect={handleUserDropdownSelect}
               onOpenChange={(isOpen) => setIsUserDropdownOpen(isOpen)}
               toggle={(toggleRef) => (
                 <MenuToggle
@@ -352,6 +352,11 @@ const APIDetails: React.FunctionComponent = () => {
               Developer portal
             </NavItem>
             <Divider />
+            {currentRole === 'API owner' && (
+              <NavItem itemId="policies" icon={<ShieldAltIcon />}>
+                Policies
+              </NavItem>
+            )}
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />}>
               Administration
             </NavItem>
