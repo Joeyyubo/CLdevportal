@@ -301,6 +301,11 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const handleNavClick = (itemId: string) => {
     if (itemId === 'dev-portal') {
       navigate('/developer-portal');
+    } else if (itemId === 'apis') {
+      // Switch to APIs tab
+      setActiveTab(0);
+      // Clear search
+      setSearchValue('');
     } else {
       // For now, navigate to developer portal for other items
       navigate('/developer-portal');
