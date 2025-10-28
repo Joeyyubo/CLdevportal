@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import RedLogo from '@app/bgimages/RedLogo.svg';
 import {
   Button,
   Masthead,
