@@ -8,7 +8,14 @@ import { APIKeys } from '@app/DeveloperPortal/APIKeys';
 import { Observability } from '@app/DeveloperPortal/Observability';
 import { APIKeyDetails } from '@app/DeveloperPortal/APIKeyDetails';
 import { APIKeyRequestDetails } from '@app/DeveloperPortal/APIKeyRequestDetails';
+import CreateAPIProduct from '@app/DeveloperPortal/CreateAPIProduct';
 import APIs from '@app/APIs/APIs';
+import APIDetailsPage from '@app/APIs/APIDetailsPage';
+import SelfService from '@app/SelfService/SelfService';
+import RegisterComponent from '@app/RegisterComponent/RegisterComponent';
+import Policies from '@app/Policies/Policies';
+import PolicyDetails from '@app/Policies/PolicyDetails';
+import RequestPolicy from '@app/Policies/RequestPolicy';
 import { AppRoutes, routes } from '@app/routes';
 import '@app/app.css';
 
@@ -22,8 +29,29 @@ const App: React.FunctionComponent = () => {
         {/* APIs page without AppLayout (has its own layout) */}
         <Route path="/apis" element={<APIs />} />
         
+        {/* APIs Detail page */}
+        <Route path="/apis/api-details/:apiName" element={<APIDetailsPage />} />
+        
+        {/* Self-service page without AppLayout (has its own layout) */}
+        <Route path="/self-service" element={<SelfService />} />
+        
+        {/* Register component page without AppLayout (has its own layout) */}
+        <Route path="/register-component" element={<RegisterComponent />} />
+        
+        {/* Policies page without AppLayout (has its own layout) */}
+        <Route path="/policies" element={<Policies />} />
+        
+        {/* Request Policy page */}
+        <Route path="/policies/request" element={<RequestPolicy />} />
+        
+        {/* Policy Details page */}
+        <Route path="/policies/policy-details/:policyName" element={<PolicyDetails />} />
+        
         {/* Developer Portal page without AppLayout (has its own layout) */}
         <Route path="/developer-portal" element={<DeveloperPortal />} />
+        
+        {/* Create API Product page */}
+        <Route path="/developer-portal/create-api-product" element={<CreateAPIProduct />} />
         
         {/* API Keys page */}
         <Route path="/developer-portal/api-keys" element={<APIKeys />} />

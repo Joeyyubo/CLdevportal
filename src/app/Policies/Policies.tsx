@@ -26,6 +26,7 @@ import {
   CardBody,
   Badge,
   Tooltip,
+  Label,
 } from '@patternfly/react-core';
 import {
   HomeIcon,
@@ -43,148 +44,66 @@ import {
   ExternalLinkAltIcon,
   PencilAltIcon,
 } from '@patternfly/react-icons';
-import './APIs.css';
+import './Policies.css';
 
-// Sample standalone APIs data (These are different from API products in Developer Portal)
-const initialApiData = [
+// Sample policy data
+const initialPolicyData = [
   { 
-    name: 'Get Flights tickets', 
-    type: 'openapi', 
-    owner: 'Ticket Team', 
-    lifecycle: 'production', 
-    description: 'Flight ticket information API for users to get flight details', 
-    tags: ['Ticket'], 
-    starred: false,
-    owned: true 
+    name: 'Standard plan', 
+    state: 'Active', 
+    type: 'Plan policy', 
+    apiProduct: 'Get Flights tickets',
+    starred: true,
+    owned: false
   },
   { 
-    name: 'Get Booking Details', 
-    type: 'openapi', 
-    owner: 'Payment Team', 
-    lifecycle: 'production', 
-    description: 'API for flight payment processing and transactions', 
-    tags: ['Payment'], 
+    name: 'Advanced plan', 
+    state: 'Active', 
+    type: 'Plan policy', 
+    apiProduct: 'Get Flights tickets',
     starred: false,
-    owned: true 
+    owned: false
   },
   { 
-    name: 'Create Booking', 
-    type: 'openapi', 
-    owner: 'Ticket Team', 
-    lifecycle: 'production', 
-    description: 'Aircraft application data and maintenance information', 
-    tags: ['Aircraft'], 
+    name: 'Free plan', 
+    state: 'Active', 
+    type: 'Plan policy', 
+    apiProduct: 'Create Booking',
     starred: false,
-    owned: true 
+    owned: false
   },
   { 
-    name: 'Airport information', 
-    type: 'openapi', 
-    owner: 'Ticket Team', 
-    lifecycle: 'production', 
-    description: 'Flight ticket information API for users to get flight details', 
-    tags: ['Ticket'], 
+    name: 'A plan-policy', 
+    state: 'Active', 
+    type: 'Plan policy', 
+    apiProduct: 'Get Booking Details',
     starred: false,
-    owned: false 
+    owned: false
   },
   { 
-    name: 'Flight-payment-api', 
-    type: 'openapi', 
-    owner: 'Payment Team', 
-    lifecycle: 'production', 
-    description: 'API for flight payment processing and transactions', 
-    tags: ['Payment'], 
+    name: 'A plan-policy', 
+    state: 'Active', 
+    type: 'Plan policy', 
+    apiProduct: 'Get Aircraft Details',
     starred: false,
-    owned: false 
+    owned: false
   },
   { 
-    name: 'Aircraft-app-api', 
-    type: 'openapi', 
-    owner: 'Aircraft Team', 
-    lifecycle: 'production', 
-    description: 'Aircraft application data and maintenance information', 
-    tags: ['Aircraft'], 
+    name: 'A plan-policy', 
+    state: 'Active', 
+    type: 'Plan policy', 
+    apiProduct: 'Get Payment Status',
     starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Client-api', 
-    type: 'openapi', 
-    owner: 'Client Team', 
-    lifecycle: 'production', 
-    description: 'API of client data management and customer information', 
-    tags: ['Client'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Aircraft-region-api', 
-    type: 'openapi', 
-    owner: 'Aircraft Team', 
-    lifecycle: 'production', 
-    description: 'Aircraft type in different regions with location data', 
-    tags: ['Aircraft'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Booking-management-api', 
-    type: 'openapi', 
-    owner: 'Ticket Team', 
-    lifecycle: 'production', 
-    description: 'Comprehensive booking management and reservation system', 
-    tags: ['Ticket'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Loyalty-program-api', 
-    type: 'openapi', 
-    owner: 'Client Team', 
-    lifecycle: 'production', 
-    description: 'Customer loyalty points and rewards program management', 
-    tags: ['Client'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Payment-processing-api', 
-    type: 'openapi', 
-    owner: 'Payment Team', 
-    lifecycle: 'production', 
-    description: 'Secure payment processing and transaction handling', 
-    tags: ['Payment'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Flight-status-api', 
-    type: 'openapi', 
-    owner: 'Ticket Team', 
-    lifecycle: 'production', 
-    description: 'Real-time flight status updates and schedule information', 
-    tags: ['Ticket'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Client-registration-api', 
-    type: 'openapi', 
-    owner: 'Client Team', 
-    lifecycle: 'production', 
-    description: 'Client account registration and profile management', 
-    tags: ['Client'], 
-    starred: false,
-    owned: false 
+    owned: false
   },
 ];
 
-const APIs: React.FunctionComponent = () => {
+const Policies: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = React.useState('');
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
-  const [apiData, setApiData] = React.useState(initialApiData);
-  const [activeFilter, setActiveFilter] = React.useState('organization-all'); // 'owned', 'starred', 'organization-all'
+  const [policyData, setPolicyData] = React.useState(initialPolicyData);
+  const [activeFilter, setActiveFilter] = React.useState('organization-all');
   
   // Get current role from localStorage or use default
   const getCurrentRole = (): string => {
@@ -205,10 +124,8 @@ const APIs: React.FunctionComponent = () => {
   const handleUserDropdownSelect = (_event?: React.MouseEvent | undefined, role?: string | number | undefined) => {
     const newRole = String(role);
     setCurrentRole(newRole);
-    // Save to localStorage
     try {
       localStorage.setItem('currentRole', newRole);
-      // Trigger storage event
       window.dispatchEvent(new Event('storage'));
     } catch (e) {
       console.error('Failed to save role to localStorage:', e);
@@ -220,15 +137,12 @@ const APIs: React.FunctionComponent = () => {
     if (itemId === 'dev-portal') {
       navigate('/developer-portal');
     } else if (itemId === 'apis') {
-      // Already on APIs page
-      // Optionally you could reload or keep on current page
+      navigate('/apis');
     } else if (itemId === 'self-service') {
       navigate('/self-service');
     } else if (itemId === 'policies') {
       navigate('/policies');
     } else {
-      // For other items, navigate to developer portal
-      // You can add specific routes later if needed
       navigate('/developer-portal');
     }
   };
@@ -250,27 +164,26 @@ const APIs: React.FunctionComponent = () => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const handleStarClick = (apiName: string) => {
-    setApiData(prevData => 
-      prevData.map(api => 
-        api.name === apiName ? { ...api, starred: !api.starred } : api
+  const handleStarClick = (policyName: string) => {
+    setPolicyData(prevData => 
+      prevData.map(policy => 
+        policy.name === policyName ? { ...policy, starred: !policy.starred } : policy
       )
     );
   };
 
-  const ownedCount = apiData.filter(api => api.owned).length;
-  const starredCount = apiData.filter(api => api.starred).length;
+  const ownedCount = policyData.filter(policy => policy.owned).length;
+  const starredCount = policyData.filter(policy => policy.starred).length;
 
-  // Filter APIs based on activeFilter
-  const filteredApiData = React.useMemo(() => {
+  // Filter policies based on activeFilter
+  const filteredPolicyData = React.useMemo(() => {
     if (activeFilter === 'owned') {
-      return apiData.filter(api => api.owned);
+      return policyData.filter(policy => policy.owned);
     } else if (activeFilter === 'starred') {
-      return apiData.filter(api => api.starred);
+      return policyData.filter(policy => policy.starred);
     }
-    // 'organization-all' or default - show all
-    return apiData;
-  }, [apiData, activeFilter]);
+    return policyData;
+  }, [policyData, activeFilter]);
 
   const masthead = (
     <Masthead>
@@ -343,7 +256,7 @@ const APIs: React.FunctionComponent = () => {
             <NavItem itemId="catalog" icon={<ArchiveIcon />} onClick={() => handleNavClick('catalog')}>
               Catalog
             </NavItem>
-            <NavItem itemId="apis" isActive icon={<CogIcon />} onClick={() => handleNavClick('apis')}>
+            <NavItem itemId="apis" icon={<CogIcon />} onClick={() => handleNavClick('apis')}>
               APIs
             </NavItem>
             <NavItem itemId="docs" icon={<FileAltIcon />} onClick={() => handleNavClick('docs')}>
@@ -360,7 +273,7 @@ const APIs: React.FunctionComponent = () => {
               Developer portal
             </NavItem>
             {currentRole === 'API owner' && (
-              <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
+              <NavItem itemId="policies" isActive icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                 Policies
               </NavItem>
             )}
@@ -382,10 +295,10 @@ const APIs: React.FunctionComponent = () => {
       <PageSection>
         <div style={{ marginBottom: '24px' }}>
           <Title headingLevel="h1" size="2xl" style={{ marginBottom: '16px' }}>
-            APIs
+            Policies
           </Title>
-          <p style={{ fontSize: '14px', color: '#6a6e73', marginBottom: 0 }}>
-            Available APIs in organization for developers to browse discover, register and test
+          <p style={{ fontSize: '14px', color: '#6a6e73', marginBottom: '16px' }}>
+            Available policies in organization for developers to browse discover, register and test
           </p>
           
           {/* Divider line to match Developer Portal tabs styling */}
@@ -400,7 +313,7 @@ const APIs: React.FunctionComponent = () => {
         <Grid hasGutter style={{ marginBottom: '24px' }}>
           <GridItem span={3} style={{ display: 'flex', alignItems: 'flex-end' }}>
             <SearchInput
-              placeholder="Search APIs..."
+              placeholder="Search"
               value={searchValue}
               onChange={(_, value) => setSearchValue(value)}
               onClear={() => setSearchValue('')}
@@ -408,7 +321,7 @@ const APIs: React.FunctionComponent = () => {
             />
           </GridItem>
           <GridItem span={9} style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
-            <Button variant="primary" onClick={() => navigate('/register-component')}>Register Existing API</Button>
+            <Button variant="primary" onClick={() => navigate('/policies/request')}>Request policy</Button>
           </GridItem>
         </Grid>
 
@@ -419,9 +332,8 @@ const APIs: React.FunctionComponent = () => {
               <Title headingLevel="h3" size="md" style={{ marginBottom: '8px' }}>Type</Title>
               <select style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}>
                 <option value="all">All</option>
-                <option value="openapi">OpenAPI</option>
-                <option value="graphql">GraphQL</option>
-                <option value="rest">REST</option>
+                <option value="plan">Plan policy</option>
+                <option value="rate-limit">Rate limit policy</option>
               </select>
 
               <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Personal</Title>
@@ -509,80 +421,71 @@ const APIs: React.FunctionComponent = () => {
               <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Owner</Title>
               <select style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}>
                 <option value="all">All</option>
-                <option value="ticket-team">Ticket Team</option>
-                <option value="payment-team">Payment Team</option>
-                <option value="aircraft-team">Aircraft Team</option>
-                <option value="client-team">Client Team</option>
+                <option value="policy-team">Policy Team</option>
+                <option value="platform-team">Platform Team</option>
               </select>
 
-              <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Lifecycle</Title>
-              <select style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}>
-                <option value="all">All</option>
-                <option value="production">Production</option>
-                <option value="development">Development</option>
-                <option value="deprecated">Deprecated</option>
-              </select>
-
-              <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Tags</Title>
+              <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>State</Title>
               <select style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px' }}>
                 <option value="all">All</option>
-                <option value="ticket">Ticket</option>
-                <option value="payment">Payment</option>
-                <option value="aircraft">Aircraft</option>
-                <option value="client">Client</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
               </select>
             </div>
           </GridItem>
 
-          {/* Right Content - API Table */}
+          {/* Right Content - Policy Table */}
           <GridItem span={9}>
             <Card>
               <CardBody>
                 <Title headingLevel="h2" size="lg" style={{ marginBottom: '16px' }}>
-                  APIs
+                  Policies
                 </Title>
 
                 <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Name</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}>Type</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Owner</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Lifecycle</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '28%' }}>Description</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}>Tags</th>
-                      <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '5%' }}></th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '25%' }}>Name</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>State</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '18%' }}>Type</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '35%' }}>API product</th>
+                      <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredApiData.map((api, idx) => (
+                    {filteredPolicyData.map((policy, idx) => (
                       <tr key={idx} style={{ borderBottom: '1px solid #d0d0d0' }}>
                         <td style={{ padding: '12px' }}>
                           <Button 
                             variant="link" 
                             isInline 
-                            onClick={() => navigate(`/apis/api-details/${encodeURIComponent(api.name)}`)}
+                            onClick={() => navigate(`/policies/policy-details/${encodeURIComponent(policy.name)}`)}
                           >
-                            {api.name}
+                            {policy.name}
                           </Button>
-                        </td>
-                        <td style={{ padding: '12px' }}>{api.type}</td>
-                        <td style={{ padding: '12px' }}>{api.owner}</td>
-                        <td style={{ padding: '12px' }}>{api.lifecycle}</td>
-                        <td style={{ padding: '12px', fontSize: '14px', color: '#6a6e73', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {api.description}
                         </td>
                         <td style={{ padding: '12px' }}>
-                          {api.tags && api.tags.map((tag, tagIdx) => (
-                            <Badge key={tagIdx} isRead style={{ marginRight: '4px' }}>
-                              {tag}
-                            </Badge>
-                          ))}
+                          <Label color="green">{policy.state}</Label>
+                        </td>
+                        <td style={{ padding: '12px' }}>{policy.type}</td>
+                        <td style={{ padding: '12px' }}>
+                          <Button 
+                            variant="link" 
+                            isInline 
+                            onClick={() => navigate(`/developer-portal/api-details/${encodeURIComponent(policy.apiProduct)}`)}
+                          >
+                            {policy.apiProduct}
+                          </Button>
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
-                          <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(api.name)}>
-                            <StarIcon style={{ fontSize: '16px', fill: api.starred ? '#0066CC' : 'inherit' }} />
-                          </Button>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                            <Button variant="plain" aria-label="Edit">
+                              <PencilAltIcon style={{ fontSize: '16px' }} />
+                            </Button>
+                            <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(policy.name)}>
+                              <StarIcon style={{ fontSize: '16px', fill: policy.starred ? '#0066CC' : 'inherit' }} />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -597,4 +500,5 @@ const APIs: React.FunctionComponent = () => {
   );
 };
 
-export default APIs;
+export default Policies;
+

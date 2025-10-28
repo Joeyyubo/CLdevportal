@@ -68,11 +68,11 @@ import {
 } from '@patternfly/react-icons';
 import './DeveloperPortal.css';
 
-// Initial API data
+// Initial API products data (API products are different from standalone APIs)
 const initialApiData = [
-  { name: 'Get Flights tickets', version: 'v1.1', contact: 'Jane doe', tag: 'Ticket', starred: true, owned: false },
-  { name: 'Get Booking Details', version: 'v1.1', contact: 'Ticket Team', tag: 'Payment', starred: true, owned: false },
-  { name: 'Create Booking', version: 'v1.1', contact: 'Ticket Team', tag: 'Ticket', starred: false, owned: false },
+  { name: 'Get Flights tickets', version: 'v1.1', contact: 'Jane doe', tag: 'Ticket', starred: true, owned: true },
+  { name: 'Get Booking Details', version: 'v1.1', contact: 'Ticket Team', tag: 'Payment', starred: true, owned: true },
+  { name: 'Create Booking', version: 'v1.1', contact: 'Ticket Team', tag: 'Ticket', starred: false, owned: true },
   { name: 'Get Aircraft Details', version: 'v1.1', contact: 'Aircraft Team', tag: 'Aircraft', starred: false, owned: false },
   { name: 'Get Aircraft Model Info', version: 'v1.1', contact: 'Aircraft Team', tag: 'Aircraft', starred: false, owned: false },
   { name: 'Get Flight Status', version: 'v1.1', contact: 'Client Team', tag: 'Client', starred: false, owned: false },
@@ -211,6 +211,10 @@ const DeveloperPortal: React.FunctionComponent = () => {
       navigate('/developer-portal');
     } else if (itemId === 'apis') {
       navigate('/apis');
+    } else if (itemId === 'self-service') {
+      navigate('/self-service');
+    } else if (itemId === 'policies') {
+      navigate('/policies');
     } else {
       // For now, navigate to developer portal for other items
       navigate('/developer-portal');
@@ -373,38 +377,38 @@ const DeveloperPortal: React.FunctionComponent = () => {
       <PageSidebarBody>
         <Nav aria-label="Developer portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
-            <NavItem itemId="home" icon={<HomeIcon />}>
+            <NavItem itemId="home" icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
               Home
             </NavItem>
-            <NavItem itemId="catalog" icon={<ArchiveIcon />}>
+            <NavItem itemId="catalog" icon={<ArchiveIcon />} onClick={() => handleNavClick('catalog')}>
               Catalog
             </NavItem>
-            <NavItem itemId="apis" icon={<CogIcon />}>
+            <NavItem itemId="apis" icon={<CogIcon />} onClick={() => handleNavClick('apis')}>
               APIs
             </NavItem>
-            <NavItem itemId="docs" icon={<FileAltIcon />}>
+            <NavItem itemId="docs" icon={<FileAltIcon />} onClick={() => handleNavClick('docs')}>
               Docs
             </NavItem>
-            <NavItem itemId="learning" icon={<GraduationCapIcon />}>
+            <NavItem itemId="learning" icon={<GraduationCapIcon />} onClick={() => handleNavClick('learning')}>
               Learning Paths
             </NavItem>
-            <NavItem itemId="self-service" icon={<PlusCircleIcon />}>
+            <NavItem itemId="self-service" icon={<PlusCircleIcon />} onClick={() => handleNavClick('self-service')}>
               Self-service
             </NavItem>
             <Divider />
-            <NavItem itemId="dev-portal" isActive icon={<CodeIcon />}>
+            <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
               Developer portal
             </NavItem>
             {currentRole === 'API owner' && (
-              <NavItem itemId="policies" icon={<ShieldAltIcon />}>
+              <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                 Policies
               </NavItem>
             )}
             <Divider />
-            <NavItem itemId="administration" icon={<ExclamationCircleIcon />}>
+            <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
               Administration
             </NavItem>
-            <NavItem itemId="settings" icon={<CogIcon />}>
+            <NavItem itemId="settings" icon={<CogIcon />} onClick={() => handleNavClick('settings')}>
               Settings
             </NavItem>
           </NavList>
@@ -422,19 +426,19 @@ const DeveloperPortal: React.FunctionComponent = () => {
             Developer Portal
           </Title>
           <Tabs activeKey={activeTab} onSelect={handleTabClick} aria-label="Developer portal tabs" style={{ marginBottom: '24px' }}>
-            <Tab eventKey={0} title={<TabTitleText>APIs</TabTitleText>} />
+            <Tab eventKey={0} title={<TabTitleText>API products</TabTitleText>} />
             <Tab eventKey={1} title={<TabTitleText>API keys</TabTitleText>} />
             <Tab eventKey={2} title={<TabTitleText>Observability</TabTitleText>} />
           </Tabs>
         </div>
 
-        {/* Tab 0: APIs content */}
+        {/* Tab 0: API products content */}
         {activeTab === 0 && (
           <>
             <Grid hasGutter style={{ marginBottom: '24px' }}>
               <GridItem span={3}>
                 <SearchInput
-                  placeholder="Search APIs..."
+                  placeholder="Search API products..."
                   value={searchValue}
                   onChange={(_, value) => setSearchValue(value)}
                   style={{ width: '100%' }}
@@ -443,7 +447,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
               <GridItem span={9}>
                 {currentRole === 'API owner' && (
                   <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button variant="primary">Create API product</Button>
+                    <Button variant="primary" onClick={() => navigate('/developer-portal/create-api-product')}>Create API product</Button>
                   </div>
                 )}
               </GridItem>
@@ -470,12 +474,13 @@ const DeveloperPortal: React.FunctionComponent = () => {
                     gap: '8px',
                     backgroundColor: ownedCount === 0 ? '#fafafa' : '#ffffff',
                     color: ownedCount === 0 ? '#8b8d90' : '#151515',
-                    border: selectedFilter === 'Owned' ? '2px solid #0066CC' : '1px solid #d0d0d0',
+                    border: selectedFilter === 'Owned' ? '2px solid #0066CC' : '2px solid transparent',
                     borderRadius: '6px',
                     padding: '8px 12px',
                     cursor: ownedCount === 0 ? 'not-allowed' : 'pointer',
                     textAlign: 'left',
-                    opacity: ownedCount === 0 ? 0.6 : 1
+                    opacity: ownedCount === 0 ? 0.6 : 1,
+                    boxSizing: 'border-box'
                   }}
                 >
                   <span>Owned</span>
@@ -494,11 +499,12 @@ const DeveloperPortal: React.FunctionComponent = () => {
                     gap: '8px',
                     backgroundColor: '#ffffff',
                     color: '#151515',
-                    border: selectedFilter === 'Starred' ? '2px solid #0066CC' : '1px solid #d0d0d0',
+                    border: selectedFilter === 'Starred' ? '2px solid #0066CC' : '2px solid transparent',
                     borderRadius: '6px',
                     padding: '8px 12px',
                     cursor: 'pointer',
-                    textAlign: 'left'
+                    textAlign: 'left',
+                    boxSizing: 'border-box'
                   }}
                 >
                   <span>Starred</span>
@@ -519,11 +525,12 @@ const DeveloperPortal: React.FunctionComponent = () => {
                     gap: '8px',
                     backgroundColor: '#ffffff',
                     color: '#151515',
-                    border: selectedFilter === 'All' ? '2px solid #0066CC' : '1px solid #d0d0d0',
+                    border: selectedFilter === 'All' ? '2px solid #0066CC' : '2px solid transparent',
                     borderRadius: '6px',
                     padding: '8px 12px',
                     cursor: 'pointer',
-                    textAlign: 'left'
+                    textAlign: 'left',
+                    boxSizing: 'border-box'
                   }}
                 >
                   <span>All</span>
@@ -547,16 +554,16 @@ const DeveloperPortal: React.FunctionComponent = () => {
             <Card>
               <CardBody>
                 <Title headingLevel="h2" size="lg" style={{ marginBottom: '16px' }}>
-                  APIs
+                  API products
                 </Title>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Name</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>API version</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Contact</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Tags</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '50px' }}></th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '30%' }}>Name</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>API version</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '25%' }}>Contact</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Tags</th>
+                      <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -576,7 +583,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                         <td style={{ padding: '12px' }}>
                           <Badge isRead>{api.tag}</Badge>
                         </td>
-                        <td style={{ padding: '12px' }}>
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
                           <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(api.name)}>
                             <StarIcon style={{ fill: api.starred ? '#0066CC' : 'inherit' }} />
                           </Button>
@@ -1060,7 +1067,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
         <ModalHeader>
           <Title headingLevel="h2">Generate API key</Title>
           <div style={{ fontSize: '14px', color: '#6a6e73', marginTop: '8px' }}>
-            Generate the API credential to use the APIs.
+            Generate the API credential to use the API products.
           </div>
         </ModalHeader>
         <ModalBody>

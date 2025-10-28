@@ -420,7 +420,7 @@ const APIDetails: React.FunctionComponent = () => {
             </BreadcrumbItem>
             <BreadcrumbItem>
               <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-                APIs
+                API products
               </Button>
             </BreadcrumbItem>
           </Breadcrumb>
