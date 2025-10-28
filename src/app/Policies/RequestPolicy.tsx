@@ -145,9 +145,7 @@ const RequestPolicy: React.FunctionComponent = () => {
       <MastheadMain>
         <MastheadBrand>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 8C18 8 22 5 28 7C34 9 38 12 39 17C40 22 38 26 36 28C34 30 30 32 25 32C20 32 15 30 13 28C11 26 9 22 10 17C11 12 13 8 18 8Z" fill="#CC0000"/>
-            </svg>
+            <img src="@app/bgimages/RedLogo.svg" alt="Logo" width="40" height="40" style={{ display: 'block' }} />
             <div style={{ 
               backgroundColor: '#8b47ac', 
               color: 'white', 
