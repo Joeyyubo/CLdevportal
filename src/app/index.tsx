@@ -8,6 +8,7 @@ import { APIKeys } from '@app/DeveloperPortal/APIKeys';
 import { Observability } from '@app/DeveloperPortal/Observability';
 import { APIKeyDetails } from '@app/DeveloperPortal/APIKeyDetails';
 import { APIKeyRequestDetails } from '@app/DeveloperPortal/APIKeyRequestDetails';
+import { APIs } from '@app/APIs/APIs';
 import { AppRoutes, routes } from '@app/routes';
 import '@app/app.css';
 
@@ -17,6 +18,9 @@ const App: React.FunctionComponent = () => {
       <Routes>
         {/* Root redirects to developer-portal */}
         <Route path="/" element={<Navigate to="/developer-portal" replace />} />
+        
+        {/* APIs page without AppLayout (has its own layout) */}
+        <Route path="/apis" element={<APIs />} />
         
         {/* Developer Portal page without AppLayout (has its own layout) */}
         <Route path="/developer-portal" element={<DeveloperPortal />} />
