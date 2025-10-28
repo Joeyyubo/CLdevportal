@@ -8,7 +8,7 @@ import { APIKeys } from '@app/DeveloperPortal/APIKeys';
 import { Observability } from '@app/DeveloperPortal/Observability';
 import { APIKeyDetails } from '@app/DeveloperPortal/APIKeyDetails';
 import { APIKeyRequestDetails } from '@app/DeveloperPortal/APIKeyRequestDetails';
-import { APIs } from '@app/APIs/APIs';
+import APIs from '@app/APIs/APIs';
 import { AppRoutes, routes } from '@app/routes';
 import '@app/app.css';
 
