@@ -87,7 +87,11 @@ const APIKeys: React.FunctionComponent = () => {
       <MastheadMain>
         <MastheadBrand>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3C9.79 3 8 4.79 8 7C8 9.21 9.79 11 12 11C14.21 11 16 9.21 16 7C16 4.79 14.21 3 12 3Z" fill="#EE0000"/><path d="M8 11C8 12.1 8.9 13 10 13H14C15.1 13 16 12.1 16 11V10H8V11Z" fill="#EE0000"/><ellipse cx="12" cy="17" rx="6" ry="1" fill="#EE0000"/></svg><span style={{ fontSize: '18px', fontWeight: 'bold', color: '#151515' }}>API portal</span>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="16" cy="10" rx="10" ry="6" fill="#CC0000"/>
+              <ellipse cx="16" cy="14" rx="12" ry="8" fill="#CC0000"/>
+              <ellipse cx="16" cy="22" rx="8" ry="1" fill="#CC0000"/>
+            </svg>
           </div>
         </MastheadBrand>
       </MastheadMain>
