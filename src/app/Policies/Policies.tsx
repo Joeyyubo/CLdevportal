@@ -186,6 +186,8 @@ const Policies: React.FunctionComponent = () => {
 
   const ownedCount = policyData.filter(policy => policy.owned).length;
   const starredCount = policyData.filter(policy => policy.starred).length;
+  // For Platform engineer, show requests count - using total policies as a proxy for requests
+  const requestsCount = currentRole === 'Platform engineer' ? 8 : starredCount;
 
   // Filter policies based on activeFilter
   const filteredPolicyData = React.useMemo(() => {
@@ -360,7 +362,7 @@ const Policies: React.FunctionComponent = () => {
             />
           </GridItem>
           <GridItem span={9} style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
-            <Button variant="primary" onClick={() => navigate('/policies/request')}>Request policy</Button>
+            <Button variant="primary" onClick={() => navigate('/self-service')}>{currentRole === 'Platform engineer' ? 'Register policy' : 'Request policy'}</Button>
           </GridItem>
         </Grid>
 
@@ -379,22 +381,22 @@ const Policies: React.FunctionComponent = () => {
               <div style={{ marginBottom: '16px' }}>
                 <div
                   role="button"
-                  onClick={() => ownedCount > 0 && setActiveFilter(activeFilter === 'owned' ? 'organization-all' : 'owned')}
+                  onClick={() => (ownedCount > 0 || currentRole === 'Platform engineer') && setActiveFilter(activeFilter === 'owned' ? 'organization-all' : 'owned')}
                   style={{ 
                     width: '100%', 
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     gap: '8px',
-                    backgroundColor: ownedCount === 0 ? '#fafafa' : '#ffffff',
-                    color: ownedCount === 0 ? '#8b8d90' : '#151515',
+                    backgroundColor: (ownedCount === 0 && currentRole !== 'Platform engineer') ? '#fafafa' : '#ffffff',
+                    color: (ownedCount === 0 && currentRole !== 'Platform engineer') ? '#8b8d90' : '#151515',
                     border: activeFilter === 'owned' ? '2px solid #0066CC' : '2px solid transparent',
                     borderRadius: '6px',
                     padding: '8px 12px',
-                    cursor: ownedCount === 0 ? 'not-allowed' : 'pointer',
+                    cursor: (ownedCount === 0 && currentRole !== 'Platform engineer') ? 'not-allowed' : 'pointer',
                     textAlign: 'left',
                     marginBottom: '8px',
-                    opacity: ownedCount === 0 ? 0.6 : 1,
+                    opacity: (ownedCount === 0 && currentRole !== 'Platform engineer') ? 0.6 : 1,
                     boxSizing: 'border-box'
                   }}
                 >
@@ -424,10 +426,10 @@ const Policies: React.FunctionComponent = () => {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <StarIcon style={{ fontSize: '16px' }} />
-                    <span>Starred</span>
+                    {currentRole === 'Platform engineer' ? <FileAltIcon style={{ fontSize: '16px' }} /> : <StarIcon style={{ fontSize: '16px' }} />}
+                    <span>{currentRole === 'Platform engineer' ? 'Requests' : 'Starred'}</span>
                   </div>
-                  <span style={{ fontWeight: 'bold' }}>{starredCount}</span>
+                  <span style={{ fontWeight: 'bold' }}>{currentRole === 'Platform engineer' ? requestsCount : starredCount}</span>
                 </div>
               </div>
 
