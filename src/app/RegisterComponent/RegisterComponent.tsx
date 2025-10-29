@@ -253,7 +253,22 @@ const RegisterComponent: React.FunctionComponent = () => {
   const onSubmit = () => {
     // Handle form submission
     console.log('Submitting registration...');
-    navigate('/developer-portal');
+    
+    // Determine where to navigate based on source parameter or role
+    const source = searchParams.get('source');
+    
+    if (source === 'apis') {
+      navigate('/apis');
+    } else if (source === 'self-service') {
+      navigate('/self-service');
+    } else {
+      // Default behavior: navigate to APIs for API owner, self-service for others
+      if (currentRole === 'API owner') {
+        navigate('/apis');
+      } else {
+        navigate('/self-service');
+      }
+    }
   };
 
   return (

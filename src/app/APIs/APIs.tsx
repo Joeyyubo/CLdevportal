@@ -458,7 +458,7 @@ const APIs: React.FunctionComponent = () => {
             />
           </GridItem>
           <GridItem span={9} style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
-            <Button variant="primary" onClick={() => navigate('/register-component')}>Register Existing API</Button>
+            <Button variant="primary" onClick={() => navigate('/register-component?source=apis')}>Register Existing API</Button>
           </GridItem>
         </Grid>
 

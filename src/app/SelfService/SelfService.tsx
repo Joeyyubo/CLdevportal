@@ -338,7 +338,7 @@ const SelfService: React.FunctionComponent = () => {
             <Button variant="link" isInline style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <QuestionCircleIcon /> <span>Support</span>
             </Button>
-            <Button variant="primary" onClick={() => navigate('/register-component')}>Register existing component</Button>
+            <Button variant="primary" onClick={() => navigate('/register-component?source=self-service')}>Register existing component</Button>
           </GridItem>
         </Grid>
 
