@@ -209,7 +209,7 @@ const RegisterComponent: React.FunctionComponent = () => {
             <NavItem itemId="learning" icon={<GraduationCapIcon />} onClick={() => handleNavClick('learning')}>
               Learning Paths
             </NavItem>
-            <NavItem itemId="self-service" icon={<PlusCircleIcon />} onClick={() => handleNavClick('self-service')}>
+            <NavItem itemId="self-service" icon={<PlusCircleIcon />} onClick={() => handleNavClick('self-service')} isActive>
               Self-service
             </NavItem>
             <Divider />
