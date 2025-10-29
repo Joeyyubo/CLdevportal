@@ -284,20 +284,27 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
             </BreadcrumbItem>
           </Breadcrumb>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-            <Title headingLevel="h1" size="2xl">
-              {requestDetails.name}
-            </Title>
-            <Button variant="plain" aria-label="Star">
-              <StarIcon style={{ fill: '#0066CC' }} />
-            </Button>
-            <Label
-              variant="outline"
-              icon={requestDetails.status === 'Pending' ? <ClockIcon /> : <TimesCircleIcon />}
-              color={requestDetails.status === 'Pending' ? 'blue' : 'red'}
-            >
-              {requestDetails.status}
-            </Label>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Title headingLevel="h1" size="2xl">
+                {requestDetails.name}
+              </Title>
+              <Button variant="plain" aria-label="Star">
+                <StarIcon style={{ fill: '#0066CC' }} />
+              </Button>
+              <Label
+                variant="outline"
+                icon={requestDetails.status === 'Pending' ? <ClockIcon /> : <TimesCircleIcon />}
+                color={requestDetails.status === 'Pending' ? 'blue' : 'red'}
+              >
+                {requestDetails.status}
+              </Label>
+            </div>
+            {requestDetails.status === 'Rejected' && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Button variant="primary">Reapply</Button>
+              </div>
+            )}
           </div>
 
           <Tabs activeKey={activeTab} onSelect={handleTabClick} style={{ marginBottom: '24px' }}>
@@ -397,29 +404,31 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
                 </Alert>
               )}
 
-              {/* API key request update section */}
-              <Card style={{ border: '1px solid #67b350', marginBottom: '24px' }}>
-                <CardBody>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                    <div style={{ 
-                      width: '24px', 
-                      height: '24px', 
-                      borderRadius: '50%', 
-                      backgroundColor: '#67b350',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <ArrowUpIcon style={{ color: 'white', fontSize: '16px' }} />
+              {/* API key request update section - only show if not rejected */}
+              {requestDetails.status !== 'Rejected' && (
+                <Card style={{ border: '1px solid #67b350', marginBottom: '24px' }}>
+                  <CardBody>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                      <div style={{ 
+                        width: '24px', 
+                        height: '24px', 
+                        borderRadius: '50%', 
+                        backgroundColor: '#67b350',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <ArrowUpIcon style={{ color: 'white', fontSize: '16px' }} />
+                      </div>
+                      <Title headingLevel="h3" size="lg">API key request update</Title>
                     </div>
-                    <Title headingLevel="h3" size="lg">API key request update</Title>
-                  </div>
-                  <p style={{ marginBottom: '16px', color: '#151515' }}>
-                    Edit this API key request.
-                  </p>
-                  <Button variant="primary" onClick={() => setIsEditModalOpen(true)}>Edit API key request</Button>
-                </CardBody>
-              </Card>
+                    <p style={{ marginBottom: '16px', color: '#151515' }}>
+                      Edit this API key request.
+                    </p>
+                    <Button variant="primary" onClick={() => setIsEditModalOpen(true)}>Edit API key request</Button>
+                  </CardBody>
+                </Card>
+              )}
 
               {/* Danger zone section */}
               <Card style={{ border: '1px solid #c9190b' }}>
