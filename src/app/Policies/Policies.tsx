@@ -55,7 +55,9 @@ const initialPolicyData = [
     type: 'Plan policy', 
     apiProduct: 'Get Flights tickets',
     starred: true,
-    owned: false
+    owned: false,
+    requester: undefined,
+    requestStatus: undefined
   },
   { 
     name: 'Advanced plan', 
@@ -63,7 +65,9 @@ const initialPolicyData = [
     type: 'Plan policy', 
     apiProduct: 'Get Flights tickets',
     starred: false,
-    owned: false
+    owned: true, // For Platform engineer, show in Owned
+    requester: undefined,
+    requestStatus: undefined
   },
   { 
     name: 'Free plan', 
@@ -71,7 +75,9 @@ const initialPolicyData = [
     type: 'Plan policy', 
     apiProduct: 'Create Booking',
     starred: false,
-    owned: false
+    owned: true, // For Platform engineer, show in Owned
+    requester: undefined,
+    requestStatus: undefined
   },
   { 
     name: 'A plan-policy', 
@@ -79,7 +85,9 @@ const initialPolicyData = [
     type: 'Plan policy', 
     apiProduct: 'Get Booking Details',
     starred: false,
-    owned: false
+    owned: false,
+    requester: undefined,
+    requestStatus: undefined
   },
   { 
     name: 'A plan-policy', 
@@ -87,7 +95,9 @@ const initialPolicyData = [
     type: 'Plan policy', 
     apiProduct: 'Get Aircraft Details',
     starred: false,
-    owned: false
+    owned: false,
+    requester: undefined,
+    requestStatus: undefined
   },
   { 
     name: 'A plan-policy', 
@@ -95,7 +105,50 @@ const initialPolicyData = [
     type: 'Plan policy', 
     apiProduct: 'Get Payment Status',
     starred: false,
-    owned: false
+    owned: false,
+    requester: undefined,
+    requestStatus: undefined
+  },
+  // Request data for Platform engineer
+  { 
+    name: 'Premium plan request', 
+    state: 'Pending', 
+    type: 'Plan policy', 
+    apiProduct: 'Get Flights tickets',
+    starred: true,
+    owned: false,
+    requester: 'John Doe',
+    requestStatus: 'Pending'
+  },
+  { 
+    name: 'Enterprise plan request', 
+    state: 'Approved', 
+    type: 'Plan policy', 
+    apiProduct: 'Create Booking',
+    starred: true,
+    owned: false,
+    requester: 'Jane Smith',
+    requestStatus: 'Approved'
+  },
+  { 
+    name: 'Basic plan request', 
+    state: 'Rejected', 
+    type: 'Plan policy', 
+    apiProduct: 'Get Booking Details',
+    starred: true,
+    owned: false,
+    requester: 'Bob Johnson',
+    requestStatus: 'Rejected'
+  },
+  { 
+    name: 'Custom plan request', 
+    state: 'Pending', 
+    type: 'Rate limit policy', 
+    apiProduct: 'Get Aircraft Details',
+    starred: true,
+    owned: false,
+    requester: 'Alice Williams',
+    requestStatus: 'Pending'
   },
 ];
 
@@ -186,18 +239,26 @@ const Policies: React.FunctionComponent = () => {
 
   const ownedCount = policyData.filter(policy => policy.owned).length;
   const starredCount = policyData.filter(policy => policy.starred).length;
-  // For Platform engineer, show requests count - using total policies as a proxy for requests
-  const requestsCount = currentRole === 'Platform engineer' ? 8 : starredCount;
+  // For Platform engineer, count policies with requestStatus
+  const requestsCount = currentRole === 'Platform engineer' 
+    ? policyData.filter(policy => policy.requestStatus !== undefined).length 
+    : starredCount;
 
   // Filter policies based on activeFilter
   const filteredPolicyData = React.useMemo(() => {
     if (activeFilter === 'owned') {
+      // For Platform engineer, show policies that are owned (which are also in Organization all)
       return policyData.filter(policy => policy.owned);
     } else if (activeFilter === 'starred') {
-      return policyData.filter(policy => policy.starred);
+      // For Platform engineer, show requests (policies with requestStatus), otherwise show starred
+      if (currentRole === 'Platform engineer') {
+        return policyData.filter(policy => policy.requestStatus !== undefined);
+      } else {
+        return policyData.filter(policy => policy.starred);
+      }
     }
     return policyData;
-  }, [policyData, activeFilter]);
+  }, [policyData, activeFilter, currentRole]);
 
   const masthead = (
     <Masthead>
@@ -486,11 +547,24 @@ const Policies: React.FunctionComponent = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '25%' }}>Name</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>State</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '18%' }}>Type</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '35%' }}>API product</th>
-                      <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}>Actions</th>
+                      {currentRole === 'Platform engineer' && activeFilter === 'starred' ? (
+                        <>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Name</th>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Status</th>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Type</th>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '25%' }}>API product</th>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '18%' }}>Requester</th>
+                          <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}>Actions</th>
+                        </>
+                      ) : (
+                        <>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '25%' }}>Name</th>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>State</th>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '18%' }}>Type</th>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '35%' }}>API product</th>
+                          <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}>Actions</th>
+                        </>
+                      )}
                     </tr>
                   </thead>
                   <tbody>
@@ -505,29 +579,66 @@ const Policies: React.FunctionComponent = () => {
                             {policy.name}
                           </Button>
                         </td>
-                        <td style={{ padding: '12px' }}>
-                          <Label color="green">{policy.state}</Label>
-                        </td>
-                        <td style={{ padding: '12px' }}>{policy.type}</td>
-                        <td style={{ padding: '12px' }}>
-                          <Button 
-                            variant="link" 
-                            isInline 
-                            onClick={() => navigate(`/developer-portal/api-details/${encodeURIComponent(policy.apiProduct)}`)}
-                          >
-                            {policy.apiProduct}
-                          </Button>
-                        </td>
-                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                            <Button variant="plain" aria-label="Edit">
-                              <PencilAltIcon style={{ fontSize: '16px' }} />
-                            </Button>
-                            <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(policy.name)}>
-                              <StarIcon style={{ fontSize: '16px', fill: policy.starred ? '#0066CC' : 'inherit' }} />
-                            </Button>
-                          </div>
-                        </td>
+                        {currentRole === 'Platform engineer' && activeFilter === 'starred' ? (
+                          <>
+                            <td style={{ padding: '12px' }}>
+                              <Label color={
+                                policy.requestStatus === 'Approved' ? 'green' : 
+                                policy.requestStatus === 'Rejected' ? 'red' : 
+                                'orange'
+                              }>
+                                {policy.requestStatus || policy.state}
+                              </Label>
+                            </td>
+                            <td style={{ padding: '12px' }}>{policy.type}</td>
+                            <td style={{ padding: '12px' }}>
+                              <Button 
+                                variant="link" 
+                                isInline 
+                                onClick={() => navigate(`/developer-portal/api-details/${encodeURIComponent(policy.apiProduct)}`)}
+                              >
+                                {policy.apiProduct}
+                              </Button>
+                            </td>
+                            <td style={{ padding: '12px' }}>{policy.requester || '-'}</td>
+                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                                <Button variant="plain" aria-label="Edit">
+                                  <PencilAltIcon style={{ fontSize: '16px' }} />
+                                </Button>
+                                <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(policy.name)}>
+                                  <StarIcon style={{ fontSize: '16px', fill: policy.starred ? '#0066CC' : 'inherit' }} />
+                                </Button>
+                              </div>
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td style={{ padding: '12px' }}>
+                              <Label color="green">{policy.state}</Label>
+                            </td>
+                            <td style={{ padding: '12px' }}>{policy.type}</td>
+                            <td style={{ padding: '12px' }}>
+                              <Button 
+                                variant="link" 
+                                isInline 
+                                onClick={() => navigate(`/developer-portal/api-details/${encodeURIComponent(policy.apiProduct)}`)}
+                              >
+                                {policy.apiProduct}
+                              </Button>
+                            </td>
+                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                                <Button variant="plain" aria-label="Edit">
+                                  <PencilAltIcon style={{ fontSize: '16px' }} />
+                                </Button>
+                                <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(policy.name)}>
+                                  <StarIcon style={{ fontSize: '16px', fill: policy.starred ? '#0066CC' : 'inherit' }} />
+                                </Button>
+                              </div>
+                            </td>
+                          </>
+                        )}
                       </tr>
                     ))}
                   </tbody>
