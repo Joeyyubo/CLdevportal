@@ -50,8 +50,7 @@ interface APIKey {
   name: string;
   status: 'Active' | 'Expired';
   api: string;
-  requester: string;
-  requestTime: string;
+  user: string;
 }
 
 const APIKeys: React.FunctionComponent = () => {
@@ -62,16 +61,16 @@ const APIKeys: React.FunctionComponent = () => {
   const [requestStateFilter, setRequestStateFilter] = React.useState('All');
 
   const apiKeys: APIKey[] = [
-    { name: 'personal keys', status: 'Active', api: 'Get Flights tickets', requester: 'John Doe', requestTime: 'Jan 20,2026' },
-    { name: 'development keys', status: 'Active', api: 'List My Bookings', requester: 'Jane Smith', requestTime: 'Oct 25,2025' },
-    { name: 'Production keys', status: 'Expired', api: 'Create Booking', requester: 'Bob Johnson', requestTime: 'Sep 05,2025' },
-    { name: 'Dev test keys', status: 'Active', api: 'Get Refund Status', requester: 'Alice Williams', requestTime: 'Nov 01,2025' },
-    { name: 'Research key', status: 'Active', api: 'Get Payment Status', requester: 'Charlie Brown', requestTime: 'Dec 25,2026' },
-    { name: 'Integration keys', status: 'Active', api: 'Get Flights tickets', requester: 'David Lee', requestTime: 'May 10,2027' },
-    { name: 'test-Key_1', status: 'Expired', api: 'Get Booking Details', requester: 'Emma Davis', requestTime: 'May 11,2028' },
-    { name: 'learn-Key_2', status: 'Active', api: 'Create Booking', requester: 'Frank Miller', requestTime: 'April 20,2029' },
-    { name: 'try-Key_3', status: 'Active', api: 'List My Bookings', requester: 'Grace Wilson', requestTime: 'Mar 06,2026' },
-    { name: 'Trial-Key_4', status: 'Active', api: 'Get Flights tickets', requester: 'Henry Moore', requestTime: 'May 20,2025' },
+    { name: 'personal keys', status: 'Active', api: 'Get Flights tickets', user: 'John Doe' },
+    { name: 'development keys', status: 'Active', api: 'List My Bookings', user: 'Jane Smith' },
+    { name: 'Production keys', status: 'Expired', api: 'Create Booking', user: 'Bob Johnson' },
+    { name: 'Dev test keys', status: 'Active', api: 'Get Refund Status', user: 'Alice Williams' },
+    { name: 'Research key', status: 'Active', api: 'Get Payment Status', user: 'Charlie Brown' },
+    { name: 'Integration keys', status: 'Active', api: 'Get Flights tickets', user: 'David Lee' },
+    { name: 'test-Key_1', status: 'Expired', api: 'Get Booking Details', user: 'Emma Davis' },
+    { name: 'learn-Key_2', status: 'Active', api: 'Create Booking', user: 'Frank Miller' },
+    { name: 'try-Key_3', status: 'Active', api: 'List My Bookings', user: 'Grace Wilson' },
+    { name: 'Trial-Key_4', status: 'Active', api: 'Get Flights tickets', user: 'Henry Moore' },
   ];
 
   const handleNavClick = (itemId: string) => {
@@ -282,8 +281,7 @@ const APIKeys: React.FunctionComponent = () => {
                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Name</th>
                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Status</th>
                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>API</th>
-                        <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Requester</th>
-                        <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Request time</th>
+                        <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>User</th>
                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '50px' }}></th>
                       </tr>
                     </thead>
@@ -306,10 +304,7 @@ const APIKeys: React.FunctionComponent = () => {
                             </Button>
                           </td>
                           <td style={{ padding: '12px', color: '#151515' }}>
-                            {key.requester}
-                          </td>
-                          <td style={{ padding: '12px', color: '#6a6e73' }}>
-                            {key.requestTime}
+                            {key.user}
                           </td>
                           <td style={{ padding: '12px' }}>
                             <Button variant="plain" aria-label="Actions">
