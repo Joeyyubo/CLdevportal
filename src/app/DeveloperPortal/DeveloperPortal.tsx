@@ -491,9 +491,21 @@ const DeveloperPortal: React.FunctionComponent = () => {
       <Page masthead={masthead} sidebar={sidebar}>
       <PageSection>
         <div style={{ marginBottom: 'var(--pf-t-global--spacer--xl)' }}>
-          <Title headingLevel="h1" size="2xl" style={{ marginBottom: 'var(--pf-t-global--spacer--md)' }}>
-            API Portal
-          </Title>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--pf-t-global--spacer--md)' }}>
+            <Title headingLevel="h1" size="2xl">
+              API Portal
+            </Title>
+            {currentRole === 'Platform engineer' && (
+              <Button
+                variant="plain"
+                aria-label="Portal configuration"
+                onClick={() => navigate('/settings/general')}
+                icon={<CogIcon />}
+              >
+                Configure
+              </Button>
+            )}
+          </div>
           <Tabs activeKey={activeTab} onSelect={handleTabClick} aria-label="API portal tabs" style={{ marginBottom: 'var(--pf-t-global--spacer--xl)' }}>
             <Tab eventKey={0} title={<TabTitleText>API products</TabTitleText>} />
             <Tab eventKey={1} title={<TabTitleText>API keys</TabTitleText>} />
