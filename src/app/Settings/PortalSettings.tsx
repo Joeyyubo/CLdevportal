@@ -30,6 +30,7 @@ import {
   DropdownList,
   DropdownItem,
   MenuToggle,
+  Tooltip,
 } from '@patternfly/react-core';
 import {
   HomeIcon,
@@ -43,6 +44,7 @@ import {
   CodeIcon,
   UserIcon,
   StarIcon,
+  ExclamationTriangleIcon,
 } from '@patternfly/react-icons';
 
 const PortalSettings: React.FunctionComponent = () => {
@@ -108,7 +110,7 @@ const PortalSettings: React.FunctionComponent = () => {
     <Masthead>
       <MastheadMain>
         <MastheadBrand>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="16" cy="16" r="14" fill="#CC0000"/>
@@ -117,6 +119,24 @@ const PortalSettings: React.FunctionComponent = () => {
                 <span style={{ fontSize: '20px', fontWeight: 'bold' }}>RedHat</span>
                 <span style={{ fontSize: '16px' }}>Developer Hub</span>
               </div>
+            </div>
+            <div style={{ 
+              backgroundColor: '#8b47ac', 
+              color: 'white', 
+              padding: '4px 12px', 
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              <span>UXD PROTOTYPE</span>
+              <Tooltip content="This prototype demonstrates the RHCL dev portal and policy management features for 1.3. Not all features and interactions are fully represented and this does not represent a commitment on the part of Red Hat.">
+                <Button variant="plain" style={{ color: 'white', padding: 0, minWidth: 'auto' }}>
+                  <ExclamationTriangleIcon style={{ fontSize: '16px' }} />
+                </Button>
+              </Tooltip>
             </div>
           </div>
         </MastheadBrand>
