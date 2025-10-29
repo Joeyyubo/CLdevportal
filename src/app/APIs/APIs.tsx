@@ -250,6 +250,13 @@ const APIs: React.FunctionComponent = () => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
+  // If role is API consumer and owned filter is active, reset to organization-all
+  React.useEffect(() => {
+    if (currentRole === 'API consumer' && activeFilter === 'owned') {
+      setActiveFilter('organization-all');
+    }
+  }, [currentRole, activeFilter]);
+
   const handleStarClick = (apiName: string) => {
     setApiData(prevData => 
       prevData.map(api => 
@@ -258,19 +265,25 @@ const APIs: React.FunctionComponent = () => {
     );
   };
 
-  const ownedCount = apiData.filter(api => api.owned).length;
+  // For API consumer, ownedCount is always 0 as they don't own any APIs
+  // For API owner, count the actual owned APIs
+  const ownedCount = currentRole === 'API consumer' ? 0 : apiData.filter(api => api.owned).length;
   const starredCount = apiData.filter(api => api.starred).length;
 
   // Filter APIs based on activeFilter
   const filteredApiData = React.useMemo(() => {
     if (activeFilter === 'owned') {
-      return apiData.filter(api => api.owned);
+      // Only allow 'owned' filter for API owner role
+      if (currentRole === 'API owner') {
+        return apiData.filter(api => api.owned);
+      }
+      return apiData; // Return all for API consumer
     } else if (activeFilter === 'starred') {
       return apiData.filter(api => api.starred);
     }
     // 'organization-all' or default - show all
     return apiData;
-  }, [apiData, activeFilter]);
+  }, [apiData, activeFilter, currentRole]);
 
   const masthead = (
     <Masthead>
@@ -436,22 +449,22 @@ const APIs: React.FunctionComponent = () => {
               <div style={{ marginBottom: '16px' }}>
                 <div
                   role="button"
-                  onClick={() => ownedCount > 0 && currentRole === 'API owner' && setActiveFilter(activeFilter === 'owned' ? 'organization-all' : 'owned')}
+                  onClick={() => ownedCount > 0 && setActiveFilter(activeFilter === 'owned' ? 'organization-all' : 'owned')}
                   style={{ 
                     width: '100%', 
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     gap: '8px',
-                    backgroundColor: (ownedCount === 0 || currentRole === 'API consumer') ? '#fafafa' : '#ffffff',
-                    color: (ownedCount === 0 || currentRole === 'API consumer') ? '#8b8d90' : '#151515',
-                    border: (activeFilter === 'owned' && currentRole === 'API owner') ? '2px solid #0066CC' : '2px solid transparent',
+                    backgroundColor: ownedCount === 0 ? '#fafafa' : '#ffffff',
+                    color: ownedCount === 0 ? '#8b8d90' : '#151515',
+                    border: activeFilter === 'owned' ? '2px solid #0066CC' : '2px solid transparent',
                     borderRadius: '6px',
                     padding: '8px 12px',
-                    cursor: (ownedCount === 0 || currentRole === 'API consumer') ? 'not-allowed' : 'pointer',
+                    cursor: ownedCount === 0 ? 'not-allowed' : 'pointer',
                     textAlign: 'left',
                     marginBottom: '8px',
-                    opacity: (ownedCount === 0 || currentRole === 'API consumer') ? 0.6 : 1,
+                    opacity: ownedCount === 0 ? 0.6 : 1,
                     boxSizing: 'border-box'
                   }}
                 >
