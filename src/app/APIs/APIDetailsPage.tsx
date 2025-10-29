@@ -249,9 +249,9 @@ const APIDetailsPage: React.FunctionComponent = () => {
             <Button variant="plain" onClick={() => navigate('/apis')} style={{ padding: '4px', marginRight: '8px' }}>
               <AngleLeftIcon />
             </Button>
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="20" cy="20" r="18" fill="#CC0000"/>
-            </svg>
+              <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="14" fill="#CC0000"/>
+              </svg>
             <div style={{ 
               backgroundColor: '#8b47ac', 
               color: 'white', 

@@ -162,8 +162,8 @@ const SelfService: React.FunctionComponent = () => {
         <MastheadBrand>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 5C30.4934 5 39 13.5066 39 24C39 34.4934 30.4934 43 20 43C9.50659 43 1 34.4934 1 24C1 13.5066 9.50659 5 20 5Z" fill="#CC0000"/>
+              <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="14" fill="#CC0000"/>
               </svg>
               <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
                 <span style={{ fontSize: '20px', fontWeight: 'bold' }}>RedHat</span>
