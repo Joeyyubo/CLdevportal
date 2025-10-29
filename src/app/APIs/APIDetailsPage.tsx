@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import RedLogo from '@app/bgimages/RedLogo.svg';
 import {
   Button,
   Masthead,
@@ -250,7 +249,9 @@ const APIDetailsPage: React.FunctionComponent = () => {
             <Button variant="plain" onClick={() => navigate('/apis')} style={{ padding: '4px', marginRight: '8px' }}>
               <AngleLeftIcon />
             </Button>
-            <span dangerouslySetInnerHTML={{ __html: RedLogo }} />
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="20" cy="20" r="18" fill="#CC0000"/>
+            </svg>
             <div style={{ 
               backgroundColor: '#8b47ac', 
               color: 'white', 

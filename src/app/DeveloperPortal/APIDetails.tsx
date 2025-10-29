@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import RedLogo from '@app/bgimages/RedLogo.svg';
 import {
   Button,
   Masthead,
@@ -309,7 +308,15 @@ const APIDetails: React.FunctionComponent = () => {
       <MastheadMain>
         <MastheadBrand>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <span dangerouslySetInnerHTML={{ __html: RedLogo }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 5C30.4934 5 39 13.5066 39 24C39 34.4934 30.4934 43 20 43C9.50659 43 1 34.4934 1 24C1 13.5066 9.50659 5 20 5Z" fill="#CC0000"/>
+              </svg>
+              <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
+                <span style={{ fontSize: '20px', fontWeight: 'bold' }}>RedHat</span>
+                <span style={{ fontSize: '16px' }}>Developer Hub</span>
+              </div>
+            </div>
             <div style={{ 
               backgroundColor: '#8b47ac', 
               color: 'white', 
