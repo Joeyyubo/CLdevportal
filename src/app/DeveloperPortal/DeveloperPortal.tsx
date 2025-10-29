@@ -637,20 +637,6 @@ const DeveloperPortal: React.FunctionComponent = () => {
         {/* Tab 1: API Keys content */}
         {activeTab === 1 && (
           <>
-            {showRevokeSuccess && (
-              <Alert
-                variant="info"
-                title="API key request revoked"
-                className="no-shadow-alert"
-                isLiveRegion
-                style={{ marginBottom: '24px' }}
-              >
-                <div style={{ marginBottom: '8px' }}>
-                  <strong>"{revokedRequestName}"</strong> request has been revoked.
-                </div>
-              </Alert>
-            )}
-            
             <Grid hasGutter style={{ marginBottom: '24px' }}>
               <GridItem span={3}>
                 <SearchInput
@@ -1307,6 +1293,42 @@ const DeveloperPortal: React.FunctionComponent = () => {
           </Button>
         </ModalFooter>
       </Modal>
+
+      {/* Floating Toast Alert for revoked API key/key request */}
+      {showRevokeSuccess && (
+        <div style={{
+          position: 'fixed',
+          top: '80px',
+          right: '20px',
+          zIndex: 1000,
+          backgroundColor: '#67b350',
+          color: 'white',
+          padding: '16px 20px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
+          maxWidth: '400px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <CheckCircleIcon style={{ fontSize: '20px', flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '14px' }}>
+              API key request revoked successfully
+            </div>
+            <div style={{ fontSize: '13px', opacity: 0.9 }}>
+              <strong>"{revokedRequestName}"</strong> has been revoked.
+            </div>
+          </div>
+          <Button
+            variant="plain"
+            onClick={() => setShowRevokeSuccess(false)}
+            style={{ color: 'white', padding: '4px', minWidth: 'auto' }}
+          >
+            <TimesCircleIcon />
+          </Button>
+        </div>
+      )}
     </>
   );
 };
