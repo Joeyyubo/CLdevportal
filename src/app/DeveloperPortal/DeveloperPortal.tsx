@@ -490,8 +490,8 @@ const DeveloperPortal: React.FunctionComponent = () => {
     <>
       <Page masthead={masthead} sidebar={sidebar}>
       <PageSection>
-        <div style={{ marginBottom: '24px' }}>
-          <Title headingLevel="h1" size="2xl" style={{ marginBottom: '16px' }}>
+        <div style={{ marginBottom: 'var(--pf-t-global--spacer--xl)' }}>
+          <Title headingLevel="h1" size="2xl" style={{ marginBottom: 'var(--pf-t-global--spacer--md)' }}>
             API Portal
           </Title>
           <Tabs activeKey={activeTab} onSelect={handleTabClick} aria-label="API portal tabs" style={{ marginBottom: '24px' }}>
@@ -626,11 +626,11 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 </Title>
                 <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '30%' }}>Name</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>API version</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '25%' }}>Contact</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Tags</th>
+                    <tr style={{ borderBottom: `1px solid var(--pf-t--global--border--color--default)` }}>
+                      <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '30%' }}>Name</th>
+                      <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '15%' }}>API version</th>
+                      <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '25%' }}>Contact</th>
+                      <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '20%' }}>Tags</th>
                       <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}></th>
                     </tr>
                   </thead>
@@ -842,7 +842,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                         <Button
                                           variant="link"
                                           isInline
-                                          style={{ fontFamily: 'monospace', fontSize: '13px', color: '#6a6e73', padding: 0 }}
+                                          style={{ fontFamily: 'monospace', fontSize: 'var(--pf-t--global--font--size--sm)', color: 'var(--pf-t--global--text--color--subtle)', padding: 0 }}
                                           onClick={() => {
                                             navigator.clipboard.writeText(key.apiKey);
                                             setCopiedApiKey(key.apiKey);
@@ -854,7 +854,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                       </Tooltip>
                                     </div>
                                   ) : (
-                                    <span style={{ color: '#6a6e73' }}>-</span>
+                                    <span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>-</span>
                                   )}
                                 </td>
                               )}
@@ -872,7 +872,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                   {key.user}
                                 </td>
                               ) : (
-                                <td style={{ padding: '12px', color: '#6a6e73' }}>
+                                <td style={{ padding: 'var(--pf-t-global--spacer--md)', color: 'var(--pf-t--global--text--color--subtle)' }}>
                                   {key.expirationDay}
                                 </td>
                               )}
