@@ -942,10 +942,9 @@ const APIKeyDetails: React.FunctionComponent = () => {
               <Button 
                 variant="danger" 
                 onClick={() => {
-                  // Add delete logic here
                   setIsDeleteModalOpen(false);
                   setDeleteConfirmText('');
-                  navigate('/developer-portal#api-keys');
+                  navigate(`/developer-portal?revoked=${encodeURIComponent(keyDetails.name)}&type=key#api-keys`);
                 }}
                 isDisabled={deleteConfirmText !== keyDetails.name}
               >

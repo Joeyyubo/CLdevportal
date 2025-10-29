@@ -633,7 +633,7 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
             onClick={() => {
               setIsRevokeModalOpen(false);
               setRevokeConfirmText('');
-              navigate(`/developer-portal?revoked=${encodeURIComponent(requestDetails.name)}#api-keys`);
+              navigate(`/developer-portal?revoked=${encodeURIComponent(requestDetails.name)}&type=request#api-keys`);
             }}
           >
             Revoke

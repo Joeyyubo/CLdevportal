@@ -113,6 +113,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const [copiedApiKey, setCopiedApiKey] = React.useState<string | null>(null);
   const [showRevokeSuccess, setShowRevokeSuccess] = React.useState(false);
   const [revokedRequestName, setRevokedRequestName] = React.useState('');
+  const [revokedType, setRevokedType] = React.useState<'key' | 'request'>('request');
   
   // Generate API key modal states
   const [isGenerateModalOpen, setIsGenerateModalOpen] = React.useState(false);
@@ -303,12 +304,14 @@ const DeveloperPortal: React.FunctionComponent = () => {
     });
   }, [starredAPIs]);
 
-  // Check for revoked API key request parameter in URL
+  // Check for revoked API key/key request parameter in URL
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const revokedName = urlParams.get('revoked');
+    const type = urlParams.get('type') as 'key' | 'request' | null;
     if (revokedName) {
       setRevokedRequestName(revokedName);
+      setRevokedType(type === 'key' ? 'key' : 'request');
       setShowRevokeSuccess(true);
       // Clean up URL parameter
       const newUrl = window.location.pathname + window.location.hash;
@@ -1296,38 +1299,23 @@ const DeveloperPortal: React.FunctionComponent = () => {
 
       {/* Floating Toast Alert for revoked API key/key request */}
       {showRevokeSuccess && (
-        <div style={{
-          position: 'fixed',
-          top: '80px',
-          right: '20px',
-          zIndex: 1000,
-          backgroundColor: '#67b350',
-          color: 'white',
-          padding: '16px 20px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
-          maxWidth: '400px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px'
-        }}>
-          <CheckCircleIcon style={{ fontSize: '20px', flexShrink: 0 }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '14px' }}>
-              API key request revoked successfully
-            </div>
-            <div style={{ fontSize: '13px', opacity: 0.9 }}>
-              <strong>"{revokedRequestName}"</strong> has been revoked.
-            </div>
+        <Alert
+          variant="success"
+          title={revokedType === 'key' ? 'API key revoked successfully' : 'API key request revoked successfully'}
+          isLiveRegion
+          style={{
+            position: 'fixed',
+            top: '80px',
+            right: '20px',
+            zIndex: 1000,
+            maxWidth: '400px',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+          }}
+        >
+          <div>
+            <strong>"{revokedRequestName}"</strong> has been revoked.
           </div>
-          <Button
-            variant="plain"
-            onClick={() => setShowRevokeSuccess(false)}
-            style={{ color: 'white', padding: '4px', minWidth: 'auto' }}
-          >
-            <TimesCircleIcon />
-          </Button>
-        </div>
+        </Alert>
       )}
     </>
   );
