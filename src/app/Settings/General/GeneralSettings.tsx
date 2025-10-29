@@ -207,7 +207,7 @@ const GeneralSettings: React.FunctionComponent = () => {
         <Breadcrumb style={{ marginBottom: 'var(--pf-t-global--spacer--md)' }}>
           <BreadcrumbItem>
             <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-              Developer portal
+              API portal
             </Button>
           </BreadcrumbItem>
           <BreadcrumbItem>Settings</BreadcrumbItem>
