@@ -34,6 +34,7 @@ import {
   CodeIcon,
   UserIcon,
   ExclamationTriangleIcon,
+  StarIcon,
 } from '@patternfly/react-icons';
 
 const Docs: React.FunctionComponent = () => {
