@@ -690,9 +690,11 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 />
               </GridItem>
               <GridItem span={9}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <Button variant="primary" onClick={() => setIsGenerateModalOpen(true)}>Generate API key</Button>
-                </div>
+                {currentRole !== 'API owner' && currentRole !== 'Platform engineer' && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button variant="primary" onClick={() => setIsGenerateModalOpen(true)}>Generate API key</Button>
+                  </div>
+                )}
               </GridItem>
             </Grid>
 
