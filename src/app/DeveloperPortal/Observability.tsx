@@ -245,23 +245,24 @@ const Observability: React.FunctionComponent = () => {
 
   return (
     <Page masthead={masthead} sidebar={sidebar}>
-        <PageSection>
-          <Breadcrumb style={{ marginBottom: '16px' }}>
-            <BreadcrumbItem>
-              <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-                API portal
-              </Button>
-            </BreadcrumbItem>
-            <BreadcrumbItem>
-              Observability
-            </BreadcrumbItem>
-          </Breadcrumb>
-
-          <Title headingLevel="h1" size="2xl" style={{ marginBottom: '24px' }}>
+      <PageSection>
+        <div style={{ marginBottom: '24px' }}>
+          <Title headingLevel="h1" size="2xl" style={{ marginBottom: '16px' }}>
             Observability
           </Title>
+          <p style={{ fontSize: '14px', color: '#6a6e73', marginBottom: '16px' }}>
+            Monitor API usage, performance, and errors across your API portfolio
+          </p>
+          
+          {/* Divider line to match Policies page styling */}
+          <div style={{ 
+            borderBottom: '1px solid #d0d0d0', 
+            marginBottom: '24px',
+            marginTop: '8px'
+          }} />
+        </div>
 
-          {/* KPI Cards */}
+        {/* KPI Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
             {kpiData.map((kpi, index) => (
               <Card key={index}>
