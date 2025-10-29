@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Button,
   Masthead,
@@ -84,6 +84,46 @@ const initialPolicyData = [
     requestStatus: undefined
   },
   { 
+    name: 'Rate limit policy - Basic', 
+    state: 'Active', 
+    type: 'Rate limit policy', 
+    apiProduct: 'Get Flights tickets',
+    starred: false,
+    owned: true, // For Platform engineer, show in Owned
+    requester: undefined,
+    requestStatus: undefined
+  },
+  { 
+    name: 'Rate limit policy - Advanced', 
+    state: 'Active', 
+    type: 'Rate limit policy', 
+    apiProduct: 'List My Bookings',
+    starred: false,
+    owned: true, // For Platform engineer, show in Owned
+    requester: undefined,
+    requestStatus: undefined
+  },
+  { 
+    name: 'Quota policy - Standard', 
+    state: 'Active', 
+    type: 'Quota policy', 
+    apiProduct: 'Get Booking Details',
+    starred: false,
+    owned: true, // For Platform engineer, show in Owned
+    requester: undefined,
+    requestStatus: undefined
+  },
+  { 
+    name: 'Security policy - OAuth', 
+    state: 'Active', 
+    type: 'Security policy', 
+    apiProduct: 'Create Booking',
+    starred: false,
+    owned: true, // For Platform engineer, show in Owned
+    requester: undefined,
+    requestStatus: undefined
+  },
+  { 
     name: 'A plan-policy', 
     state: 'Active', 
     type: 'Plan policy', 
@@ -158,10 +198,13 @@ const initialPolicyData = [
 
 const Policies: React.FunctionComponent = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [searchValue, setSearchValue] = React.useState('');
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
   const [policyData, setPolicyData] = React.useState(initialPolicyData);
-  const [activeFilter, setActiveFilter] = React.useState('organization-all');
+  // Check URL parameter for initial filter
+  const initialFilter = searchParams.get('filter') === 'owned' ? 'owned' : 'organization-all';
+  const [activeFilter, setActiveFilter] = React.useState(initialFilter);
   const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
   const [kebabDropdownOpen, setKebabDropdownOpen] = React.useState<Record<number, boolean>>({});
   

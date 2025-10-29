@@ -285,7 +285,7 @@ const RegisterComponent: React.FunctionComponent = () => {
     } else if (source === 'self-service') {
       navigate('/self-service');
     } else if (source === 'policies') {
-      navigate('/policies');
+      navigate('/policies?filter=owned');
     } else {
       // Default behavior: navigate to APIs for API owner, self-service for others
       if (currentRole === 'API owner') {
