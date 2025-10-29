@@ -93,12 +93,20 @@ const RequestPolicy: React.FunctionComponent = () => {
   };
 
   const handleNavClick = (itemId: string) => {
-    if (itemId === 'dev-portal') {
-      navigate('/developer-portal');
+    if (itemId === 'home') {
+      navigate('/home');
+    } else if (itemId === 'catalog') {
+      navigate('/catalog');
     } else if (itemId === 'apis') {
       navigate('/apis');
+    } else if (itemId === 'docs') {
+      navigate('/docs');
+    } else if (itemId === 'learning') {
+      navigate('/learning');
     } else if (itemId === 'self-service') {
       navigate('/self-service');
+    } else if (itemId === 'dev-portal') {
+      navigate('/developer-portal');
     } else if (itemId === 'policies') {
       navigate('/policies');
     } else {

@@ -219,18 +219,24 @@ const APIs: React.FunctionComponent = () => {
   };
 
   const handleNavClick = (itemId: string) => {
-    if (itemId === 'dev-portal') {
-      navigate('/developer-portal');
+    if (itemId === 'home') {
+      navigate('/home');
+    } else if (itemId === 'catalog') {
+      navigate('/catalog');
     } else if (itemId === 'apis') {
       // Already on APIs page
       // Optionally you could reload or keep on current page
+    } else if (itemId === 'docs') {
+      navigate('/docs');
+    } else if (itemId === 'learning') {
+      navigate('/learning');
     } else if (itemId === 'self-service') {
       navigate('/self-service');
+    } else if (itemId === 'dev-portal') {
+      navigate('/developer-portal');
     } else if (itemId === 'policies') {
       navigate('/policies');
     } else {
-      // For other items, navigate to developer portal
-      // You can add specific routes later if needed
       navigate('/developer-portal');
     }
   };
