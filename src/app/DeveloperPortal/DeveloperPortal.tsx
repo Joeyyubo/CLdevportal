@@ -288,7 +288,9 @@ const DeveloperPortal: React.FunctionComponent = () => {
 
   // Calculate counts
   const starredCount = apiData.filter(api => api.starred).length;
-  const ownedCount = apiData.filter(api => api.owned).length;
+  // For API consumer, owned count is always 0 as they don't own any APIs
+  // For API owner, count the actual owned APIs
+  const ownedCount = currentRole === 'API consumer' ? 0 : apiData.filter(api => api.owned).length;
   const totalCount = apiData.length;
   
   // Update API data based on localStorage
@@ -315,6 +317,13 @@ const DeveloperPortal: React.FunctionComponent = () => {
       setTimeout(() => setShowRevokeSuccess(false), 5000);
     }
   }, []);
+
+  // Reset filter if current role is API consumer and Owned filter is selected
+  React.useEffect(() => {
+    if (currentRole === 'API consumer' && selectedFilter === 'Owned') {
+      setSelectedFilter('Starred');
+    }
+  }, [currentRole, selectedFilter]);
 
   // Filter API data based on selectedFilter
   const filteredApiData = apiData.filter(api => {
