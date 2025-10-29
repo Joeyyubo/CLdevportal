@@ -12,7 +12,7 @@ import {
   Nav,
   NavList,
   NavItem,
-  NavGroup,
+  NavExpandable,
   PageSection,
   Divider,
   Dropdown,
@@ -119,6 +119,7 @@ const PolicyDetails: React.FunctionComponent = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState(0);
   const [isStarred, setIsStarred] = React.useState(false);
+  const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
   
   const getCurrentRole = (): string => {
     try {
@@ -283,7 +284,12 @@ const PolicyDetails: React.FunctionComponent = () => {
               Self-service
             </NavItem>
             <Divider />
-            <NavGroup title="Connectivity Link" id="connectivity-link-group">
+            <NavExpandable
+              title="Connectivity Link"
+              id="connectivity-link-group"
+              isExpanded={connectivityLinkExpanded}
+              onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
+            >
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
                 API portal
               </NavItem>
@@ -292,7 +298,7 @@ const PolicyDetails: React.FunctionComponent = () => {
                   Policies
                 </NavItem>
               )}
-            </NavGroup>
+            </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
               Administration

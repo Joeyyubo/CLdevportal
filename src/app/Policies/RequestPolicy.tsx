@@ -12,7 +12,7 @@ import {
   Nav,
   NavList,
   NavItem,
-  NavGroup,
+  NavExpandable,
   PageSection,
   Divider,
   Dropdown,
@@ -57,6 +57,7 @@ const RequestPolicy: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
   const [viewState, setViewState] = React.useState<'form' | 'yaml'>('form');
+  const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
   const [policyName, setPolicyName] = React.useState('basic limit plan');
   const [policyType, setPolicyType] = React.useState('Plan policy');
   const [configPairs, setConfigPairs] = React.useState<ConfigPair[]>([
@@ -233,7 +234,12 @@ const RequestPolicy: React.FunctionComponent = () => {
               Self-service
             </NavItem>
             <Divider />
-            <NavGroup title="Connectivity Link" id="connectivity-link-group">
+            <NavExpandable
+              title="Connectivity Link"
+              id="connectivity-link-group"
+              isExpanded={connectivityLinkExpanded}
+              onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
+            >
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
                 API portal
               </NavItem>
@@ -242,7 +248,7 @@ const RequestPolicy: React.FunctionComponent = () => {
                   Policies
                 </NavItem>
               )}
-            </NavGroup>
+            </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
               Administration

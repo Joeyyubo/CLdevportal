@@ -20,7 +20,7 @@ import {
   Nav,
   NavList,
   NavItem,
-  NavGroup,
+  NavExpandable,
   PageSection,
   Divider,
   Dropdown,
@@ -114,6 +114,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const [showRevokeSuccess, setShowRevokeSuccess] = React.useState(false);
   const [revokedRequestName, setRevokedRequestName] = React.useState('');
   const [revokedType, setRevokedType] = React.useState<'key' | 'request'>('request');
+  const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
   
   // Generate API key modal states
   const [isGenerateModalOpen, setIsGenerateModalOpen] = React.useState(false);
@@ -434,7 +435,12 @@ const DeveloperPortal: React.FunctionComponent = () => {
               Self-service
             </NavItem>
             <Divider />
-            <NavGroup title="Connectivity Link" id="connectivity-link-group">
+            <NavExpandable
+              title="Connectivity Link"
+              id="connectivity-link-group"
+              isExpanded={connectivityLinkExpanded}
+              onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
+            >
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
                 API portal
               </NavItem>
@@ -443,7 +449,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                   Policies
                 </NavItem>
               )}
-            </NavGroup>
+            </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
               Administration

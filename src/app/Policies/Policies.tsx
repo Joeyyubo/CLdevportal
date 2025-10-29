@@ -12,7 +12,7 @@ import {
   Nav,
   NavList,
   NavItem,
-  NavGroup,
+  NavExpandable,
   PageSection,
   Divider,
   Dropdown,
@@ -105,6 +105,7 @@ const Policies: React.FunctionComponent = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
   const [policyData, setPolicyData] = React.useState(initialPolicyData);
   const [activeFilter, setActiveFilter] = React.useState('organization-all');
+  const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
   
   // Get current role from localStorage or use default
   const getCurrentRole = (): string => {
@@ -278,7 +279,12 @@ const Policies: React.FunctionComponent = () => {
               Self-service
             </NavItem>
             <Divider />
-            <NavGroup title="Connectivity Link" id="connectivity-link-group">
+            <NavExpandable
+              title="Connectivity Link"
+              id="connectivity-link-group"
+              isExpanded={connectivityLinkExpanded}
+              onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
+            >
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
                 API portal
               </NavItem>
@@ -287,7 +293,7 @@ const Policies: React.FunctionComponent = () => {
                   Policies
                 </NavItem>
               )}
-            </NavGroup>
+            </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
               Administration
