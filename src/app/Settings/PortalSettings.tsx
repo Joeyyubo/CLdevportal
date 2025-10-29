@@ -189,7 +189,7 @@ const PortalSettings: React.FunctionComponent = () => {
               isExpanded={connectivityLinkExpanded}
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
-              <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+              <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
                 API portal
               </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
@@ -205,7 +205,7 @@ const PortalSettings: React.FunctionComponent = () => {
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
               Administration
             </NavItem>
-            <NavItem itemId="settings" icon={<CogIcon />} isActive onClick={() => handleNavClick('settings')}>
+            <NavItem itemId="settings" icon={<CogIcon />} onClick={() => handleNavClick('settings')}>
               Settings
             </NavItem>
           </NavList>
