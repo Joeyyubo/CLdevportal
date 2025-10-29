@@ -220,7 +220,6 @@ const APIKeyDetails: React.FunctionComponent = () => {
   const [updatedPlan, setUpdatedPlan] = React.useState<string>('');
   const [lastSelectedPlan, setLastSelectedPlan] = React.useState<string>('');
   const [isReapplyModalOpen, setIsReapplyModalOpen] = React.useState(false);
-  const [showReapplyToast, setShowReapplyToast] = React.useState(true);
   const [reapplyDescriptionText, setReapplyDescriptionText] = React.useState('');
   const [selectedReapplyPlan, setSelectedReapplyPlan] = React.useState('Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;');
   const [isReapplyPlanDropdownOpen, setIsReapplyPlanDropdownOpen] = React.useState(false);
@@ -381,60 +380,25 @@ const APIKeyDetails: React.FunctionComponent = () => {
             </BreadcrumbItem>
           </Breadcrumb>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-            <Title headingLevel="h1" size="2xl">
-              {keyDetails.name}
-            </Title>
-            <Label
-              variant="outline"
-              icon={keyDetails.status === 'Active' ? <CheckCircleIcon /> : <TimesCircleIcon />}
-              color={keyDetails.status === 'Active' ? 'green' : 'red'}
-            >
-              {keyDetails.status}
-            </Label>
-          </div>
-
-          {/* Floating Toast Alert for Expired API keys */}
-          {keyDetails.status === 'Expired' && showReapplyToast && (
-            <div style={{
-              position: 'fixed',
-              top: '80px',
-              right: '20px',
-              zIndex: 1000,
-              backgroundColor: '#0066CC',
-              color: 'white',
-              padding: '16px 20px',
-              borderRadius: '8px',
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
-              maxWidth: '400px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '14px' }}>
-                  API key expired
-                </div>
-                <div style={{ fontSize: '13px', opacity: 0.9 }}>
-                  Reapply for the API credential to use the API.
-                </div>
-              </div>
-              <Button
-                variant="primary"
-                onClick={() => setIsReapplyModalOpen(true)}
-                style={{ flexShrink: 0 }}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Title headingLevel="h1" size="2xl">
+                {keyDetails.name}
+              </Title>
+              <Label
+                variant="outline"
+                icon={keyDetails.status === 'Active' ? <CheckCircleIcon /> : <TimesCircleIcon />}
+                color={keyDetails.status === 'Active' ? 'green' : 'red'}
               >
+                {keyDetails.status}
+              </Label>
+            </div>
+            {keyDetails.status === 'Expired' && (
+              <Button variant="primary" onClick={() => setIsReapplyModalOpen(true)}>
                 Reapply
               </Button>
-              <Button
-                variant="plain"
-                onClick={() => setShowReapplyToast(false)}
-                style={{ color: 'white', padding: '4px', minWidth: 'auto' }}
-              >
-                <TimesCircleIcon />
-              </Button>
-            </div>
-          )}
+            )}
+          </div>
 
           <Tabs activeKey={activeTab} onSelect={handleTabClick} style={{ marginBottom: '24px' }}>
             <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>} />
@@ -783,9 +747,13 @@ const APIKeyDetails: React.FunctionComponent = () => {
                   <Button 
                     variant="primary" 
                     onClick={() => {
-                      setIsUpdateModalOpen(true);
-                      setSelectedPlan('Gold plan (1000 reqs/day, 5000 reqs/week; 30000 reqs/month)');
-                      setIsPlanDropdownOpen(false);
+                      if (keyDetails.status === 'Active') {
+                        setIsUpdateModalOpen(true);
+                        setSelectedPlan('Gold plan (1000 reqs/day, 5000 reqs/week; 30000 reqs/month)');
+                        setIsPlanDropdownOpen(false);
+                      } else {
+                        setIsReapplyModalOpen(true);
+                      }
                     }}
                   >
                     {keyDetails.status === 'Active' ? 'Update' : 'Reapply'}
