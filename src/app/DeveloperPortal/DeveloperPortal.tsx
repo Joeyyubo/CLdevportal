@@ -501,9 +501,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 aria-label="Portal configuration"
                 onClick={() => navigate('/settings/general')}
                 icon={<CogIcon />}
-              >
-                Configure
-              </Button>
+              />
             )}
           </div>
           <Tabs activeKey={activeTab} onSelect={handleTabClick} aria-label="API portal tabs" style={{ marginBottom: 'var(--pf-t-global--spacer--xl)' }}>
