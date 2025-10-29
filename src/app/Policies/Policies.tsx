@@ -44,6 +44,10 @@ import {
   StarIcon,
   ExternalLinkAltIcon,
   PencilAltIcon,
+  EllipsisVIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  TimesCircleIcon,
 } from '@patternfly/react-icons';
 import './Policies.css';
 
@@ -159,6 +163,7 @@ const Policies: React.FunctionComponent = () => {
   const [policyData, setPolicyData] = React.useState(initialPolicyData);
   const [activeFilter, setActiveFilter] = React.useState('organization-all');
   const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
+  const [kebabDropdownOpen, setKebabDropdownOpen] = React.useState<Record<number, boolean>>({});
   
   // Get current role from localStorage or use default
   const getCurrentRole = (): string => {
@@ -230,11 +235,31 @@ const Policies: React.FunctionComponent = () => {
   }, []);
 
   const handleStarClick = (policyName: string) => {
-    setPolicyData(prevData => 
-      prevData.map(policy => 
+    setPolicyData(prevData =>
+      prevData.map(policy =>
         policy.name === policyName ? { ...policy, starred: !policy.starred } : policy
       )
     );
+  };
+
+  const handleKebabToggle = (index: number) => {
+    setKebabDropdownOpen(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
+  const handleKebabSelect = (index: number, action: string) => {
+    if (action === 'edit') {
+      // Handle edit action
+      console.log('Edit policy:', filteredPolicyData[index].name);
+    } else if (action === 'star') {
+      handleStarClick(filteredPolicyData[index].name);
+    }
+    setKebabDropdownOpen(prev => ({
+      ...prev,
+      [index]: false
+    }));
   };
 
   const ownedCount = policyData.filter(policy => policy.owned).length;
@@ -582,11 +607,19 @@ const Policies: React.FunctionComponent = () => {
                         {currentRole === 'Platform engineer' && activeFilter === 'starred' ? (
                           <>
                             <td style={{ padding: '12px' }}>
-                              <Label color={
-                                policy.requestStatus === 'Approved' ? 'green' : 
-                                policy.requestStatus === 'Rejected' ? 'red' : 
-                                'orange'
-                              }>
+                              <Label
+                                variant="outline"
+                                icon={
+                                  policy.requestStatus === 'Approved' ? <CheckCircleIcon /> :
+                                  policy.requestStatus === 'Rejected' ? <TimesCircleIcon /> :
+                                  <ClockIcon />
+                                }
+                                color={
+                                  policy.requestStatus === 'Approved' ? 'green' : 
+                                  policy.requestStatus === 'Rejected' ? 'red' : 
+                                  'blue'
+                                }
+                              >
                                 {policy.requestStatus || policy.state}
                               </Label>
                             </td>
@@ -602,14 +635,30 @@ const Policies: React.FunctionComponent = () => {
                             </td>
                             <td style={{ padding: '12px' }}>{policy.requester || '-'}</td>
                             <td style={{ padding: '12px', textAlign: 'center' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                                <Button variant="plain" aria-label="Edit">
-                                  <PencilAltIcon style={{ fontSize: '16px' }} />
-                                </Button>
-                                <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(policy.name)}>
-                                  <StarIcon style={{ fontSize: '16px', fill: policy.starred ? '#0066CC' : 'inherit' }} />
-                                </Button>
-                              </div>
+                              <Dropdown
+                                isOpen={kebabDropdownOpen[idx] || false}
+                                onSelect={(_, action) => handleKebabSelect(idx, String(action))}
+                                onOpenChange={(isOpen) => setKebabDropdownOpen(prev => ({ ...prev, [idx]: isOpen }))}
+                                popperProps={{ appendTo: () => document.body }}
+                                toggle={(toggleRef) => (
+                                  <MenuToggle
+                                    ref={toggleRef}
+                                    variant="plain"
+                                    aria-label={`Actions for ${policy.name}`}
+                                    isExpanded={kebabDropdownOpen[idx] || false}
+                                  >
+                                    <EllipsisVIcon />
+                                  </MenuToggle>
+                                )}
+                              >
+                                <DropdownList>
+                                  <DropdownItem value="edit">Edit</DropdownItem>
+                                  <Divider />
+                                  <DropdownItem value="star">
+                                    {policy.starred ? 'Unstar' : 'Star'}
+                                  </DropdownItem>
+                                </DropdownList>
+                              </Dropdown>
                             </td>
                           </>
                         ) : (
@@ -628,14 +677,41 @@ const Policies: React.FunctionComponent = () => {
                               </Button>
                             </td>
                             <td style={{ padding: '12px', textAlign: 'center' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                                <Button variant="plain" aria-label="Edit">
-                                  <PencilAltIcon style={{ fontSize: '16px' }} />
-                                </Button>
-                                <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(policy.name)}>
-                                  <StarIcon style={{ fontSize: '16px', fill: policy.starred ? '#0066CC' : 'inherit' }} />
-                                </Button>
-                              </div>
+                              {currentRole === 'Platform engineer' ? (
+                                <Dropdown
+                                  isOpen={kebabDropdownOpen[idx] || false}
+                                  onSelect={(_, action) => handleKebabSelect(idx, String(action))}
+                                  onOpenChange={(isOpen) => setKebabDropdownOpen(prev => ({ ...prev, [idx]: isOpen }))}
+                                  popperProps={{ appendTo: () => document.body }}
+                                  toggle={(toggleRef) => (
+                                    <MenuToggle
+                                      ref={toggleRef}
+                                      variant="plain"
+                                      aria-label={`Actions for ${policy.name}`}
+                                      isExpanded={kebabDropdownOpen[idx] || false}
+                                    >
+                                      <EllipsisVIcon />
+                                    </MenuToggle>
+                                  )}
+                                >
+                                  <DropdownList>
+                                    <DropdownItem value="edit">Edit</DropdownItem>
+                                    <Divider />
+                                    <DropdownItem value="star">
+                                      {policy.starred ? 'Unstar' : 'Star'}
+                                    </DropdownItem>
+                                  </DropdownList>
+                                </Dropdown>
+                              ) : (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                                  <Button variant="plain" aria-label="Edit">
+                                    <PencilAltIcon style={{ fontSize: '16px' }} />
+                                  </Button>
+                                  <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(policy.name)}>
+                                    <StarIcon style={{ fontSize: '16px', fill: policy.starred ? '#0066CC' : 'inherit' }} />
+                                  </Button>
+                                </div>
+                              )}
                             </td>
                           </>
                         )}
