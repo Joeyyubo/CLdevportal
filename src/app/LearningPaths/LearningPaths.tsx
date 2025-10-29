@@ -164,7 +164,7 @@ const LearningPaths: React.FunctionComponent = () => {
       <PageSidebarBody>
         <Nav aria-label="Navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
-            <NavItem itemId="home" isActive icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
+            <NavItem itemId="home" icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
               Home
             </NavItem>
             <NavItem itemId="catalog" icon={<ArchiveIcon />} onClick={() => handleNavClick('catalog')}>
