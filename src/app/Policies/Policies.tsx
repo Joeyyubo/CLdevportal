@@ -269,21 +269,35 @@ const Policies: React.FunctionComponent = () => {
     ? policyData.filter(policy => policy.requestStatus !== undefined).length 
     : starredCount;
 
-  // Filter policies based on activeFilter
+  // Filter policies based on activeFilter and searchValue
   const filteredPolicyData = React.useMemo(() => {
+    let filtered = policyData;
+    
+    // Apply filter based on activeFilter
     if (activeFilter === 'owned') {
       // For Platform engineer, show policies that are owned (which are also in Organization all)
-      return policyData.filter(policy => policy.owned);
+      filtered = filtered.filter(policy => policy.owned);
     } else if (activeFilter === 'starred') {
       // For Platform engineer, show requests (policies with requestStatus), otherwise show starred
       if (currentRole === 'Platform engineer') {
-        return policyData.filter(policy => policy.requestStatus !== undefined);
+        filtered = filtered.filter(policy => policy.requestStatus !== undefined);
       } else {
-        return policyData.filter(policy => policy.starred);
+        filtered = filtered.filter(policy => policy.starred);
       }
     }
-    return policyData;
-  }, [policyData, activeFilter, currentRole]);
+    
+    // Apply search filter
+    if (searchValue.trim()) {
+      const searchLower = searchValue.toLowerCase();
+      filtered = filtered.filter(policy =>
+        policy.name.toLowerCase().includes(searchLower) ||
+        policy.type.toLowerCase().includes(searchLower) ||
+        policy.apiProduct.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    return filtered;
+  }, [policyData, activeFilter, currentRole, searchValue]);
 
   const masthead = (
     <Masthead>
