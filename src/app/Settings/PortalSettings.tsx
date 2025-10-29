@@ -252,12 +252,22 @@ const PortalSettings: React.FunctionComponent = () => {
               <Select
                 id="portal-visibility"
                 isOpen={isPortalVisibilityOpen}
-                onToggle={() => setIsPortalVisibilityOpen(!isPortalVisibilityOpen)}
+                onToggle={(_, isOpen) => setIsPortalVisibilityOpen(isOpen)}
                 selected={portalVisibility}
                 onSelect={(_, value) => {
                   setPortalVisibility(value as string);
                   setIsPortalVisibilityOpen(false);
                 }}
+                toggle={(toggleRef) => (
+                  <MenuToggle
+                    ref={toggleRef}
+                    onClick={() => setIsPortalVisibilityOpen(!isPortalVisibilityOpen)}
+                    isExpanded={isPortalVisibilityOpen}
+                    style={{ width: '100%' }}
+                  >
+                    {portalVisibility}
+                  </MenuToggle>
+                )}
               >
                 <SelectOption value="Private (Only authenticated users can view pages and APIs)">
                   Private (Only authenticated users can view pages and APIs)
