@@ -40,6 +40,7 @@ import {
   FormGroup,
   Select,
   SelectOption,
+  Alert,
 } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import {
@@ -110,6 +111,8 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
   const [apiKeysSectionFilter, setApiKeysSectionFilter] = React.useState('keys-owned'); // 'keys-owned', 'requests-owned'
   const [copiedApiKey, setCopiedApiKey] = React.useState<string | null>(null);
+  const [showRevokeSuccess, setShowRevokeSuccess] = React.useState(false);
+  const [revokedRequestName, setRevokedRequestName] = React.useState('');
   
   // Generate API key modal states
   const [isGenerateModalOpen, setIsGenerateModalOpen] = React.useState(false);
@@ -297,6 +300,21 @@ const DeveloperPortal: React.FunctionComponent = () => {
       }));
     });
   }, [starredAPIs]);
+
+  // Check for revoked API key request parameter in URL
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const revokedName = urlParams.get('revoked');
+    if (revokedName) {
+      setRevokedRequestName(revokedName);
+      setShowRevokeSuccess(true);
+      // Clean up URL parameter
+      const newUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, '', newUrl);
+      // Auto hide after 5 seconds
+      setTimeout(() => setShowRevokeSuccess(false), 5000);
+    }
+  }, []);
 
   // Filter API data based on selectedFilter
   const filteredApiData = apiData.filter(api => {
@@ -610,6 +628,20 @@ const DeveloperPortal: React.FunctionComponent = () => {
         {/* Tab 1: API Keys content */}
         {activeTab === 1 && (
           <>
+            {showRevokeSuccess && (
+              <Alert
+                variant="info"
+                title="API key request revoked"
+                className="no-shadow-alert"
+                isLiveRegion
+                style={{ marginBottom: '24px' }}
+              >
+                <div style={{ marginBottom: '8px' }}>
+                  <strong>"{revokedRequestName}"</strong> request has been revoked.
+                </div>
+              </Alert>
+            )}
+            
             <Grid hasGutter style={{ marginBottom: '24px' }}>
               <GridItem span={3}>
                 <SearchInput
