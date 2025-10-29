@@ -178,6 +178,8 @@ const RegisterComponent: React.FunctionComponent = () => {
       navigate('/developer-portal');
     } else if (itemId === 'policies') {
       navigate('/policies');
+    } else if (itemId === 'observability') {
+      navigate('/observability');
     } else {
       navigate('/developer-portal');
     }

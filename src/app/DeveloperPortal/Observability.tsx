@@ -12,6 +12,7 @@ import {
   Nav,
   NavList,
   NavItem,
+  NavExpandable,
   PageSection,
   SearchInput,
   Title,
@@ -36,6 +37,7 @@ import {
   PlusCircleIcon,
   ShieldAltIcon,
   ExclamationCircleIcon,
+  ExclamationTriangleIcon,
   StarIcon,
   CodeIcon,
   UserIcon,
@@ -50,7 +52,20 @@ const Observability: React.FunctionComponent = () => {
   const [timeFilter, setTimeFilter] = React.useState('Last 7 days');
   const [isTimeDropdownOpen, setIsTimeDropdownOpen] = React.useState(false);
   const [isRefreshDropdownOpen, setIsRefreshDropdownOpen] = React.useState(false);
-  const [currentRole, setCurrentRole] = React.useState('API consumer');
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
+  const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
+  
+  // Get current role from localStorage or use default
+  const getCurrentRole = (): string => {
+    try {
+      const role = localStorage.getItem('currentRole');
+      return role || 'API consumer';
+    } catch {
+      return 'API consumer';
+    }
+  };
+  
+  const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
 
   const kpiData = [
     { label: 'Total calls', value: '1000 calls', color: '#0066CC' },
@@ -59,8 +74,42 @@ const Observability: React.FunctionComponent = () => {
     { label: 'Error rate', value: '2%', color: '#f0ab00' },
   ];
 
+  const handleUserDropdownToggle = () => {
+    setIsUserDropdownOpen(!isUserDropdownOpen);
+  };
+
+  const handleUserDropdownSelect = (_event?: React.MouseEvent | undefined, role?: string | number | undefined) => {
+    const newRole = String(role);
+    setCurrentRole(newRole);
+    try {
+      localStorage.setItem('currentRole', newRole);
+      window.dispatchEvent(new Event('storage'));
+    } catch (e) {
+      console.error('Failed to save role to localStorage:', e);
+    }
+    setIsUserDropdownOpen(false);
+  };
+
   const handleNavClick = (itemId: string) => {
-    if (itemId === 'dev-portal') {
+    if (itemId === 'home') {
+      navigate('/home');
+    } else if (itemId === 'catalog') {
+      navigate('/catalog');
+    } else if (itemId === 'apis') {
+      navigate('/apis');
+    } else if (itemId === 'docs') {
+      navigate('/docs');
+    } else if (itemId === 'learning') {
+      navigate('/learning');
+    } else if (itemId === 'self-service') {
+      navigate('/self-service');
+    } else if (itemId === 'dev-portal') {
+      navigate('/developer-portal');
+    } else if (itemId === 'policies') {
+      navigate('/policies');
+    } else if (itemId === 'observability') {
+      navigate('/observability');
+    } else {
       navigate('/developer-portal');
     }
   };
@@ -69,7 +118,7 @@ const Observability: React.FunctionComponent = () => {
     <Masthead>
       <MastheadMain>
         <MastheadBrand>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="16" cy="16" r="14" fill="#CC0000"/>
@@ -79,31 +128,53 @@ const Observability: React.FunctionComponent = () => {
                 <span style={{ fontSize: '16px' }}>Developer Hub</span>
               </div>
             </div>
+            <div style={{ 
+              backgroundColor: '#8b47ac', 
+              color: 'white', 
+              padding: '4px 12px', 
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              <span>UXD PROTOTYPE</span>
+              <Tooltip content="This prototype demonstrates the RHCL dev portal and policy management features for 1.3. Not all features and interactions are fully represented and this does not represent a commitment on the part of Red Hat.">
+                <Button variant="plain" style={{ color: 'white', padding: 0, minWidth: 'auto' }}>
+                  <ExclamationTriangleIcon style={{ fontSize: '16px' }} />
+                </Button>
+              </Tooltip>
+            </div>
           </div>
         </MastheadBrand>
       </MastheadMain>
       <MastheadContent>
         <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'flex-end' }}>
           <Dropdown
-            isOpen={false}
-            onOpenChange={() => {}}
+            isOpen={isUserDropdownOpen}
+            onSelect={handleUserDropdownSelect}
+            onOpenChange={(isOpen) => setIsUserDropdownOpen(isOpen)}
             toggle={(toggleRef) => (
               <MenuToggle
                 ref={toggleRef}
+                onClick={handleUserDropdownToggle}
+                aria-expanded={isUserDropdownOpen}
                 aria-label="User account menu"
                 variant="plainText"
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <UserIcon />
-                  <span>API consumer</span>
+                  <span>{currentRole}</span>
                 </div>
               </MenuToggle>
             )}
+            popperProps={{ appendTo: () => document.body }}
           >
             <DropdownList>
-              <DropdownItem>API consumer</DropdownItem>
-              <DropdownItem>API owner</DropdownItem>
-              <DropdownItem>Platform engineer</DropdownItem>
+              <DropdownItem value="API consumer">API consumer</DropdownItem>
+              <DropdownItem value="API owner">API owner</DropdownItem>
+              <DropdownItem value="Platform engineer">Platform engineer</DropdownItem>
             </DropdownList>
           </Dropdown>
         </div>
@@ -112,37 +183,52 @@ const Observability: React.FunctionComponent = () => {
   );
 
   const sidebar = (
-    <PageSidebar>
+      <PageSidebar>
       <PageSidebarBody>
-        <Nav aria-label="API portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
+        <Nav aria-label="Navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
-            <NavItem itemId="home" icon={<HomeIcon />}>
+            <NavItem itemId="home" icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
               Home
             </NavItem>
-            <NavItem itemId="catalog" icon={<ArchiveIcon />}>
+            <NavItem itemId="catalog" icon={<ArchiveIcon />} onClick={() => handleNavClick('catalog')}>
               Catalog
             </NavItem>
-            <NavItem itemId="apis" icon={<CogIcon />}>
+            <NavItem itemId="apis" icon={<CogIcon />} onClick={() => handleNavClick('apis')}>
               APIs
             </NavItem>
-            <NavItem itemId="docs" icon={<FileAltIcon />}>
+            <NavItem itemId="docs" icon={<FileAltIcon />} onClick={() => handleNavClick('docs')}>
               Docs
             </NavItem>
-            <NavItem itemId="learning" icon={<GraduationCapIcon />}>
+            <NavItem itemId="learning" icon={<GraduationCapIcon />} onClick={() => handleNavClick('learning')}>
               Learning Paths
             </NavItem>
-            <NavItem itemId="self-service" icon={<PlusCircleIcon />}>
+            <NavItem itemId="self-service" icon={<PlusCircleIcon />} onClick={() => handleNavClick('self-service')}>
               Self-service
             </NavItem>
             <Divider />
-            <NavItem itemId="dev-portal" isActive icon={<CodeIcon />}>
-              API portal
-            </NavItem>
+            <NavExpandable
+              title="Connectivity Link"
+              id="connectivity-link-group"
+              isExpanded={connectivityLinkExpanded}
+              onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
+            >
+              <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                API portal
+              </NavItem>
+              {currentRole === 'API owner' && (
+                <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
+                  Policies
+                </NavItem>
+              )}
+              <NavItem itemId="observability" isActive icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
+                Observability
+              </NavItem>
+            </NavExpandable>
             <Divider />
-            <NavItem itemId="administration" icon={<ExclamationCircleIcon />}>
+            <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
               Administration
             </NavItem>
-            <NavItem itemId="settings" icon={<CogIcon />}>
+            <NavItem itemId="settings" icon={<CogIcon />} onClick={() => handleNavClick('settings')}>
               Settings
             </NavItem>
           </NavList>
@@ -158,29 +244,7 @@ const Observability: React.FunctionComponent = () => {
   ];
 
   return (
-    <>
-      <div style={{ 
-        backgroundColor: '#8b47ac', 
-        color: 'white', 
-        padding: '6px 0', 
-        textAlign: 'center',
-        fontWeight: 'bold',
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        fontSize: '14px'
-      }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-          <span>UXD PROTOTYPE</span>
-          <Tooltip content="This prototype demonstrates the RHCL dev portal and policy management features for 1.3.">
-            <Button variant="plain" style={{ color: 'white', padding: 0, minWidth: 'auto' }}>
-              <ExclamationCircleIcon />
-            </Button>
-          </Tooltip>
-        </div>
-      </div>
-
-      <Page masthead={masthead} sidebar={sidebar}>
+    <Page masthead={masthead} sidebar={sidebar}>
         <PageSection>
           <Breadcrumb style={{ marginBottom: '16px' }}>
             <BreadcrumbItem>
@@ -189,9 +253,7 @@ const Observability: React.FunctionComponent = () => {
               </Button>
             </BreadcrumbItem>
             <BreadcrumbItem>
-              <Button variant="link" isInline>
-                Observability
-              </Button>
+              Observability
             </BreadcrumbItem>
           </Breadcrumb>
 
@@ -296,7 +358,6 @@ const Observability: React.FunctionComponent = () => {
           </Card>
         </PageSection>
       </Page>
-    </>
   );
 };
 

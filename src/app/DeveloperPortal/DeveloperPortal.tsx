@@ -228,6 +228,8 @@ const DeveloperPortal: React.FunctionComponent = () => {
       navigate('/developer-portal');
     } else if (itemId === 'policies') {
       navigate('/policies');
+    } else if (itemId === 'observability') {
+      navigate('/observability');
     } else {
       navigate('/developer-portal');
     }
@@ -456,6 +458,9 @@ const DeveloperPortal: React.FunctionComponent = () => {
                   Policies
                 </NavItem>
               )}
+              <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
+                Observability
+              </NavItem>
             </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
@@ -481,7 +486,6 @@ const DeveloperPortal: React.FunctionComponent = () => {
           <Tabs activeKey={activeTab} onSelect={handleTabClick} aria-label="API portal tabs" style={{ marginBottom: '24px' }}>
             <Tab eventKey={0} title={<TabTitleText>API products</TabTitleText>} />
             <Tab eventKey={1} title={<TabTitleText>API keys</TabTitleText>} />
-            <Tab eventKey={2} title={<TabTitleText>Observability</TabTitleText>} />
           </Tabs>
         </div>
 
@@ -894,204 +898,6 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 )}
               </GridItem>
             </Grid>
-          </>
-        )}
-
-        {/* Tab 2: Observability content */}
-        {activeTab === 2 && (
-          <>
-            {/* KPI Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
-              <Card>
-                <CardBody>
-                  <div style={{ fontSize: '14px', color: '#6a6e73', marginBottom: '8px' }}>Total calls</div>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#0066CC' }}>1000 calls</div>
-                </CardBody>
-              </Card>
-              <Card>
-                <CardBody>
-                  <div style={{ fontSize: '14px', color: '#6a6e73', marginBottom: '8px' }}>Average latency</div>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#0066CC' }}>20.35 ms</div>
-                </CardBody>
-              </Card>
-              <Card>
-                <CardBody>
-                  <div style={{ fontSize: '14px', color: '#6a6e73', marginBottom: '8px' }}>Total errors</div>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#8b6914' }}>20 errors</div>
-                </CardBody>
-              </Card>
-              <Card>
-                <CardBody>
-                  <div style={{ fontSize: '14px', color: '#6a6e73', marginBottom: '8px' }}>Error rate</div>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#f0ab00' }}>2%</div>
-                </CardBody>
-              </Card>
-            </div>
-
-            {/* Search and Filters */}
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', alignItems: 'center' }}>
-              <div style={{ flex: 1 }}>
-                <SearchInput
-                  placeholder="Search by API name, keywords, capability"
-                  value={searchValue}
-                  onChange={(_, value) => setSearchValue(value)}
-                  onClear={() => setSearchValue('')}
-                />
-              </div>
-              <Button variant="secondary" icon={<SyncIcon />}>
-                Refresh
-              </Button>
-            </div>
-
-            {/* API Usage Trends Chart */}
-            <Card>
-              <CardBody>
-                <Title headingLevel="h3" size="xl" style={{ marginBottom: '24px' }}>
-                  API usage trends
-                </Title>
-                
-                {/* Chart container with PatternFly styling */}
-                <div style={{ 
-                  position: 'relative', 
-                  height: '400px', 
-                  padding: '24px', 
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #d0d0d0', 
-                  borderRadius: '4px' 
-                }}>
-                  {/* Y-axis labels */}
-                  <div style={{ position: 'absolute', left: '0', top: '24px', bottom: '40px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: '40px' }}>
-                    {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0].map((value) => (
-                      <div key={`y-${value}`} style={{ fontSize: '12px', color: '#6a6e73', textAlign: 'right', paddingRight: '8px' }}>
-                        {value}
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {/* Chart area */}
-                  <div style={{ marginLeft: '50px', position: 'relative', height: '336px' }}>
-                    {/* Grid lines */}
-                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
-                      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
-                        <div 
-                          key={`grid-h-${i}`} 
-                          style={{ 
-                            position: 'absolute', 
-                            top: `${i * 10}%`, 
-                            left: 0, 
-                            right: 0, 
-                            height: '1px', 
-                            backgroundColor: '#e5e5e5',
-                            zIndex: 0 
-                          }} 
-                        />
-                      ))}
-                      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-                        <div 
-                          key={`grid-v-${i}`} 
-                          style={{ 
-                            position: 'absolute', 
-                            left: `${i * 10}%`, 
-                            top: 0, 
-                            bottom: 0, 
-                            width: '1px', 
-                            backgroundColor: '#e5e5e5',
-                            zIndex: 0 
-                          }} 
-                        />
-                      ))}
-                    </div>
-                    
-                    {/* Stacked area chart */}
-                    <svg width="100%" height="100%" style={{ position: 'relative', zIndex: 1 }}>
-                      <defs>
-                        <linearGradient id="gradient-blue" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" style={{ stopColor: '#0066CC', stopOpacity: 0.8 }} />
-                          <stop offset="100%" style={{ stopColor: '#0066CC', stopOpacity: 0.3 }} />
-                        </linearGradient>
-                        <linearGradient id="gradient-cyan" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" style={{ stopColor: '#61affe', stopOpacity: 0.8 }} />
-                          <stop offset="100%" style={{ stopColor: '#61affe', stopOpacity: 0.3 }} />
-                        </linearGradient>
-                        <linearGradient id="gradient-purple" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" style={{ stopColor: '#4c5fd5', stopOpacity: 0.8 }} />
-                          <stop offset="100%" style={{ stopColor: '#4c5fd5', stopOpacity: 0.3 }} />
-                        </linearGradient>
-                      </defs>
-                      
-                      {/* Calculate points for stacked area chart */}
-                      {/* Flight schedule (bottom layer) */}
-                      <path
-                        d="M 0,270 L 50,268 L 100,267 L 150,252 L 200,252 L 250,267 L 300,267 L 350,263 L 400,267 L 450,250 L 500,231 L 500,270 L 450,270 L 400,270 L 350,270 L 300,270 L 250,270 L 200,270 L 150,270 L 100,270 L 50,270 L 0,270 Z"
-                        fill="#4c5fd5"
-                        fillOpacity="0.6"
-                        stroke="#4c5fd5"
-                        strokeWidth="1.5"
-                      />
-                      
-                      {/* Get booking (middle layer) */}
-                      <path
-                        d="M 0,231 L 50,236 L 100,238 L 150,264 L 200,254 L 250,266 L 300,280 L 350,250 L 400,212 L 450,223 L 500,223 L 500,270 L 450,270 L 400,270 L 350,270 L 300,270 L 250,270 L 200,270 L 150,270 L 100,270 L 50,270 L 0,270 L 0,270 Z"
-                        fill="#61affe"
-                        fillOpacity="0.6"
-                        stroke="#61affe"
-                        strokeWidth="1.5"
-                      />
-                      
-                      {/* Get flight tickets (top layer) */}
-                      <path
-                        d="M 0,0 L 50,236 L 100,238 L 150,264 L 200,254 L 250,229 L 300,191 L 350,158 L 400,146 L 450,97 L 500,45 L 500,223 L 450,223 L 400,212 L 350,250 L 300,280 L 250,266 L 200,254 L 150,264 L 100,238 L 50,236 L 0,231 L 0,0 Z"
-                        fill="#0066CC"
-                        fillOpacity="0.6"
-                        stroke="#0066CC"
-                        strokeWidth="1.5"
-                      />
-                    </svg>
-                    
-                    {/* X-axis labels */}
-                    <div style={{ 
-                      position: 'absolute', 
-                      bottom: '-20px', 
-                      left: '0', 
-                      right: '0', 
-                      display: 'flex', 
-                      justifyContent: 'space-between',
-                      paddingTop: '8px' 
-                    }}>
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => (
-                        <div key={`x-${value}`} style={{ fontSize: '12px', color: '#6a6e73', flex: 1, textAlign: 'center' }}>
-                          {value}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* Legend */}
-                  <div style={{ 
-                    position: 'absolute', 
-                    right: '24px', 
-                    top: '24px', 
-                    backgroundColor: '#ffffff', 
-                    padding: '12px',
-                    borderRadius: '4px',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                      <div style={{ width: '12px', height: '12px', backgroundColor: '#0066CC', marginRight: '8px', borderRadius: '2px' }} />
-                      <span style={{ fontSize: '14px', color: '#151515' }}>Get flight tickets</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                      <div style={{ width: '12px', height: '12px', backgroundColor: '#61affe', marginRight: '8px', borderRadius: '2px' }} />
-                      <span style={{ fontSize: '14px', color: '#151515' }}>Get booking</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <div style={{ width: '12px', height: '12px', backgroundColor: '#4c5fd5', marginRight: '8px', borderRadius: '2px' }} />
-                      <span style={{ fontSize: '14px', color: '#151515' }}>Flight schedule</span>
-                    </div>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
           </>
         )}
       </PageSection>

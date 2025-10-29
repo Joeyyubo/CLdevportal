@@ -63,6 +63,9 @@ const App: React.FunctionComponent = () => {
         {/* Learning Paths page without AppLayout (has its own layout) */}
         <Route path="/learning" element={<LearningPaths />} />
         
+        {/* Observability page without AppLayout (has its own layout) */}
+        <Route path="/observability" element={<Observability />} />
+        
         {/* API Portal page without AppLayout (has its own layout) */}
         <Route path="/developer-portal" element={<DeveloperPortal />} />
         
@@ -71,9 +74,6 @@ const App: React.FunctionComponent = () => {
         
         {/* API Keys page */}
         <Route path="/developer-portal/api-keys" element={<APIKeys />} />
-        
-        {/* Observability page */}
-        <Route path="/developer-portal/observability" element={<Observability />} />
         
         {/* API Details page with dynamic API name */}
         <Route path="/developer-portal/api-details/:apiName" element={<APIDetails />} />
