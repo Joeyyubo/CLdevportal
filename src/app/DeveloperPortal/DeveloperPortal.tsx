@@ -434,14 +434,16 @@ const DeveloperPortal: React.FunctionComponent = () => {
               Self-service
             </NavItem>
             <Divider />
-            <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-              API portal
-            </NavItem>
-            {currentRole === 'API owner' && (
-              <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
-                Policies
+            <NavGroup title="Connectivity Link" id="connectivity-link-group">
+              <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                API portal
               </NavItem>
-            )}
+              {currentRole === 'API owner' && (
+                <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
+                  Policies
+                </NavItem>
+              )}
+            </NavGroup>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
               Administration
