@@ -45,6 +45,7 @@ import {
   ExclamationTriangleIcon,
   AngleLeftIcon,
   TrashIcon,
+  StarIcon,
 } from '@patternfly/react-icons';
 import './Policies.css';
 

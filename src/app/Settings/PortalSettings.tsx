@@ -21,8 +21,6 @@ import {
   TabTitleText,
   TextArea,
   FormGroup,
-  Select,
-  SelectOption,
   ActionGroup,
   Breadcrumb,
   BreadcrumbItem,
@@ -269,15 +267,9 @@ const PortalSettings: React.FunctionComponent = () => {
             </FormGroup>
 
             <FormGroup label="Portal visibility" fieldId="portal-visibility" style={{ marginTop: '24px' }}>
-              <Select
-                id="portal-visibility"
+              <Dropdown
                 isOpen={isPortalVisibilityOpen}
-                onToggle={(_, isOpen) => setIsPortalVisibilityOpen(isOpen)}
-                selected={portalVisibility}
-                onSelect={(_, value) => {
-                  setPortalVisibility(value as string);
-                  setIsPortalVisibilityOpen(false);
-                }}
+                onOpenChange={(isOpen) => setIsPortalVisibilityOpen(isOpen)}
                 toggle={(toggleRef) => (
                   <MenuToggle
                     ref={toggleRef}
@@ -289,13 +281,25 @@ const PortalSettings: React.FunctionComponent = () => {
                   </MenuToggle>
                 )}
               >
-                <SelectOption value="Private (Only authenticated users can view pages and APIs)">
-                  Private (Only authenticated users can view pages and APIs)
-                </SelectOption>
-                <SelectOption value="Public (Anyone can view pages and APIs)">
-                  Public (Anyone can view pages and APIs)
-                </SelectOption>
-              </Select>
+                <DropdownList>
+                  <DropdownItem
+                    onClick={() => {
+                      setPortalVisibility('Private (Only authenticated users can view pages and APIs)');
+                      setIsPortalVisibilityOpen(false);
+                    }}
+                  >
+                    Private (Only authenticated users can view pages and APIs)
+                  </DropdownItem>
+                  <DropdownItem
+                    onClick={() => {
+                      setPortalVisibility('Public (Anyone can view pages and APIs)');
+                      setIsPortalVisibilityOpen(false);
+                    }}
+                  >
+                    Public (Anyone can view pages and APIs)
+                  </DropdownItem>
+                </DropdownList>
+              </Dropdown>
             </FormGroup>
 
             <ActionGroup style={{ marginTop: '32px' }}>

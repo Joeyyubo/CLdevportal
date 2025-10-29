@@ -331,7 +331,7 @@ const CreateAPIProduct: React.FunctionComponent = () => {
                   id="api-key-request"
                   label="API key request"
                   isChecked={isKeyRequestEnabled}
-                  onChange={(checked) => setIsKeyRequestEnabled(checked)}
+                  onChange={(_, checked) => setIsKeyRequestEnabled(checked)}
                   aria-label="Enable API key request"
                 />
               </div>

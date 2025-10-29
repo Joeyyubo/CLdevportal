@@ -41,7 +41,6 @@ import {
   ExclamationCircleIcon,
   CodeIcon,
   StarIcon,
-  ExclamationTriangleIcon,
 } from '@patternfly/react-icons';
 
 const RegisterComponent: React.FunctionComponent = () => {
