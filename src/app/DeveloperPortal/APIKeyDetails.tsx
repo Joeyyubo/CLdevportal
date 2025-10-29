@@ -12,6 +12,7 @@ import {
   Nav,
   NavList,
   NavItem,
+  NavExpandable,
   PageSection,
   Divider,
   Breadcrumb,
@@ -211,6 +212,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
   const [activeTab, setActiveTab] = React.useState(0);
   const [copiedCode, setCopiedCode] = React.useState(false);
   const [copiedApiKey, setCopiedApiKey] = React.useState(false);
+  const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = React.useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = React.useState('');
@@ -223,6 +225,18 @@ const APIKeyDetails: React.FunctionComponent = () => {
   const [reapplyDescriptionText, setReapplyDescriptionText] = React.useState('');
   const [selectedReapplyPlan, setSelectedReapplyPlan] = React.useState('Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;');
   const [isReapplyPlanDropdownOpen, setIsReapplyPlanDropdownOpen] = React.useState(false);
+
+  // Get current role from localStorage or use default
+  const getCurrentRole = (): string => {
+    try {
+      const role = localStorage.getItem('currentRole');
+      return role || 'API consumer';
+    } catch {
+      return 'API consumer';
+    }
+  };
+  
+  const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
 
   // Decode the key name from URL
   const decodedKeyName = keyName ? decodeURIComponent(keyName) : null;
@@ -244,10 +258,24 @@ const APIKeyDetails: React.FunctionComponent = () => {
   };
 
   const handleNavClick = (itemId: string) => {
-    if (itemId === 'dev-portal') {
-      navigate('/developer-portal');
+    if (itemId === 'home') {
+      navigate('/home');
+    } else if (itemId === 'catalog') {
+      navigate('/catalog');
     } else if (itemId === 'apis') {
       navigate('/apis');
+    } else if (itemId === 'docs') {
+      navigate('/docs');
+    } else if (itemId === 'learning') {
+      navigate('/learning');
+    } else if (itemId === 'self-service') {
+      navigate('/self-service');
+    } else if (itemId === 'dev-portal') {
+      navigate('/developer-portal');
+    } else if (itemId === 'policies') {
+      navigate('/policies');
+    } else if (itemId === 'observability') {
+      navigate('/observability');
     } else {
       navigate('/developer-portal');
     }
@@ -328,33 +356,57 @@ const APIKeyDetails: React.FunctionComponent = () => {
       <PageSidebarBody>
         <Nav aria-label="API portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
-            <NavItem itemId="home" icon={<HomeIcon />}>
+            <NavItem itemId="home" icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
               Home
             </NavItem>
-            <NavItem itemId="catalog" icon={<ArchiveIcon />}>
+            <NavItem itemId="catalog" icon={<ArchiveIcon />} onClick={() => handleNavClick('catalog')}>
               Catalog
             </NavItem>
-            <NavItem itemId="apis" icon={<CogIcon />}>
+            <NavItem itemId="apis" icon={<CogIcon />} onClick={() => handleNavClick('apis')}>
               APIs
             </NavItem>
-            <NavItem itemId="docs" icon={<FileAltIcon />}>
+            <NavItem itemId="docs" icon={<FileAltIcon />} onClick={() => handleNavClick('docs')}>
               Docs
             </NavItem>
-            <NavItem itemId="learning" icon={<GraduationCapIcon />}>
+            <NavItem itemId="learning" icon={<GraduationCapIcon />} onClick={() => handleNavClick('learning')}>
               Learning Paths
             </NavItem>
-            <NavItem itemId="self-service" icon={<PlusCircleIcon />}>
+            <NavItem itemId="self-service" icon={<PlusCircleIcon />} onClick={() => handleNavClick('self-service')}>
               Self-service
             </NavItem>
             <Divider />
-            <NavItem itemId="dev-portal" isActive icon={<CodeIcon />}>
-              API portal
-            </NavItem>
+            <NavExpandable
+              title={
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                    <rect width="16" height="16" rx="3" fill="black"/>
+                    <path d="M 5 6 L 8 4 L 11 6 L 11 10 L 8 12 L 5 10 Z" stroke="white" strokeWidth="1" fill="none" strokeLinejoin="round"/>
+                    <path d="M 6 7 L 9 5 L 12 7 L 12 11 L 9 13 L 6 11 Z" stroke="#CC0000" strokeWidth="1.5" fill="none" strokeLinejoin="round" opacity="0.8"/>
+                  </svg>
+                  Connectivity Link
+                </span>
+              }
+              id="connectivity-link-group"
+              isExpanded={connectivityLinkExpanded}
+              onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
+            >
+              <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                API portal
+              </NavItem>
+              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
+                <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
+                  Policies
+                </NavItem>
+              )}
+              <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
+                Observability
+              </NavItem>
+            </NavExpandable>
             <Divider />
-            <NavItem itemId="administration" icon={<ExclamationCircleIcon />}>
+            <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
               Administration
             </NavItem>
-            <NavItem itemId="settings" icon={<CogIcon />}>
+            <NavItem itemId="settings" icon={<CogIcon />} onClick={() => handleNavClick('settings')}>
               Settings
             </NavItem>
           </NavList>
