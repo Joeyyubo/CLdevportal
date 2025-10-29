@@ -436,22 +436,22 @@ const APIs: React.FunctionComponent = () => {
               <div style={{ marginBottom: '16px' }}>
                 <div
                   role="button"
-                  onClick={() => ownedCount > 0 && setActiveFilter(activeFilter === 'owned' ? 'organization-all' : 'owned')}
+                  onClick={() => ownedCount > 0 && currentRole === 'API owner' && setActiveFilter(activeFilter === 'owned' ? 'organization-all' : 'owned')}
                   style={{ 
                     width: '100%', 
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     gap: '8px',
-                    backgroundColor: ownedCount === 0 ? '#fafafa' : '#ffffff',
-                    color: ownedCount === 0 ? '#8b8d90' : '#151515',
-                    border: activeFilter === 'owned' ? '2px solid #0066CC' : '2px solid transparent',
+                    backgroundColor: (ownedCount === 0 || currentRole === 'API consumer') ? '#fafafa' : '#ffffff',
+                    color: (ownedCount === 0 || currentRole === 'API consumer') ? '#8b8d90' : '#151515',
+                    border: (activeFilter === 'owned' && currentRole === 'API owner') ? '2px solid #0066CC' : '2px solid transparent',
                     borderRadius: '6px',
                     padding: '8px 12px',
-                    cursor: ownedCount === 0 ? 'not-allowed' : 'pointer',
+                    cursor: (ownedCount === 0 || currentRole === 'API consumer') ? 'not-allowed' : 'pointer',
                     textAlign: 'left',
                     marginBottom: '8px',
-                    opacity: ownedCount === 0 ? 0.6 : 1,
+                    opacity: (ownedCount === 0 || currentRole === 'API consumer') ? 0.6 : 1,
                     boxSizing: 'border-box'
                   }}
                 >
