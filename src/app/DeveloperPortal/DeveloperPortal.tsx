@@ -490,8 +490,8 @@ const DeveloperPortal: React.FunctionComponent = () => {
     <>
       <Page masthead={masthead} sidebar={sidebar}>
       <PageSection>
-        <div style={{ marginBottom: 'var(--pf-t-global--spacer--xl)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--pf-t-global--spacer--md)' }}>
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <Title headingLevel="h1" size="2xl">
               API Portal
             </Title>
@@ -499,12 +499,12 @@ const DeveloperPortal: React.FunctionComponent = () => {
               <Button
                 variant="plain"
                 aria-label="Portal configuration"
-                onClick={() => navigate('/settings/general')}
+                onClick={() => navigate('/settings/portal')}
                 icon={<CogIcon />}
               />
             )}
           </div>
-          <Tabs activeKey={activeTab} onSelect={handleTabClick} aria-label="API portal tabs" style={{ marginBottom: 'var(--pf-t-global--spacer--xl)' }}>
+          <Tabs activeKey={activeTab} onSelect={handleTabClick} aria-label="API portal tabs" style={{ marginBottom: '24px' }}>
             <Tab eventKey={0} title={<TabTitleText>API products</TabTitleText>} />
             <Tab eventKey={1} title={<TabTitleText>API keys</TabTitleText>} />
           </Tabs>
@@ -513,7 +513,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
         {/* Tab 0: API products content */}
         {activeTab === 0 && (
           <>
-            <Grid hasGutter style={{ marginBottom: 'var(--pf-t-global--spacer--xl)' }}>
+            <Grid hasGutter style={{ marginBottom: '24px' }}>
               <GridItem span={3}>
                 <SearchInput
                   placeholder="Search API products..."
@@ -533,14 +533,14 @@ const DeveloperPortal: React.FunctionComponent = () => {
 
             <Grid hasGutter>
           <GridItem span={3}>
-            <div style={{ background: 'var(--pf-t--global--background--color--secondary--default)', padding: 'var(--pf-t-global--spacer--xl)', borderRadius: 'var(--pf-t--global--border--radius--sm)' }}>
+            <div style={{ background: '#f5f5f5', padding: '24px', borderRadius: '4px' }}>
               <Title headingLevel="h3" size="md" style={{ marginBottom: '8px' }}>Type</Title>
-              <select style={{ width: '100%', padding: 'var(--pf-t-global--spacer--sm)', border: '1px solid var(--pf-t--global--border--color--default)', borderRadius: 'var(--pf-t--global--border--radius--sm)', marginBottom: 'var(--pf-t-global--spacer--md)' }}>
+              <select style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}>
                 <option value="all">All</option>
               </select>
 
-              <Title headingLevel="h3" size="md" style={{ marginBottom: 'var(--pf-t-global--spacer--sm)', marginTop: 'var(--pf-t-global--spacer--md)' }}>Personal</Title>
-              <div style={{ marginBottom: 'var(--pf-t-global--spacer--sm)' }}>
+              <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Personal</Title>
+              <div style={{ marginBottom: '8px' }}>
                 <div
                   role="button"
                   onClick={() => ownedCount > 0 && handleFilterClick('Owned')}
@@ -550,11 +550,11 @@ const DeveloperPortal: React.FunctionComponent = () => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     gap: '8px',
-                    backgroundColor: ownedCount === 0 ? 'var(--pf-t--global--background--color--disabled--default)' : 'var(--pf-t--global--background--color--primary--default)',
-                    color: ownedCount === 0 ? 'var(--pf-t--global--text--color--subtle)' : 'var(--pf-t--global--text--color--regular)',
-                    border: selectedFilter === 'Owned' ? `2px solid var(--pf-t--global--interactive--color--active)` : '2px solid transparent',
-                    borderRadius: 'var(--pf-t--global--border--radius--md)',
-                    padding: 'var(--pf-t-global--spacer--sm) var(--pf-t-global--spacer--md)',
+                    backgroundColor: ownedCount === 0 ? '#fafafa' : '#ffffff',
+                    color: ownedCount === 0 ? '#8b8d90' : '#151515',
+                    border: selectedFilter === 'Owned' ? '2px solid #0066CC' : '2px solid transparent',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
                     cursor: ownedCount === 0 ? 'not-allowed' : 'pointer',
                     textAlign: 'left',
                     opacity: ownedCount === 0 ? 0.6 : 1,
@@ -565,7 +565,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                   <span style={{ fontWeight: 'bold' }}>{ownedCount}</span>
                 </div>
               </div>
-              <div style={{ marginBottom: 'var(--pf-t-global--spacer--md)' }}>
+              <div style={{ marginBottom: '16px' }}>
                 <div
                   role="button"
                   onClick={() => handleFilterClick('Starred')}
@@ -575,11 +575,11 @@ const DeveloperPortal: React.FunctionComponent = () => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     gap: '8px',
-                    backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
-                    color: 'var(--pf-t--global--text--color--regular)',
-                    border: selectedFilter === 'Starred' ? `2px solid var(--pf-t--global--interactive--color--active)` : '2px solid transparent',
-                    borderRadius: 'var(--pf-t--global--border--radius--md)',
-                    padding: 'var(--pf-t-global--spacer--sm) var(--pf-t-global--spacer--md)',
+                    backgroundColor: '#ffffff',
+                    color: '#151515',
+                    border: selectedFilter === 'Starred' ? '2px solid #0066CC' : '2px solid transparent',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
                     cursor: 'pointer',
                     textAlign: 'left',
                     boxSizing: 'border-box'
@@ -590,8 +590,8 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 </div>
               </div>
 
-              <Title headingLevel="h3" size="md" style={{ marginBottom: 'var(--pf-t-global--spacer--sm)', marginTop: 'var(--pf-t-global--spacer--md)' }}>Organization</Title>
-              <div style={{ marginBottom: 'var(--pf-t-global--spacer--md)' }}>
+              <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Organization</Title>
+              <div style={{ marginBottom: '16px' }}>
                 <div
                   role="button"
                   onClick={() => handleFilterClick('All')}
@@ -601,11 +601,11 @@ const DeveloperPortal: React.FunctionComponent = () => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     gap: '8px',
-                    backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
-                    color: 'var(--pf-t--global--text--color--regular)',
-                    border: selectedFilter === 'All' ? `2px solid var(--pf-t--global--interactive--color--active)` : '2px solid transparent',
-                    borderRadius: 'var(--pf-t--global--border--radius--md)',
-                    padding: 'var(--pf-t-global--spacer--sm) var(--pf-t-global--spacer--md)',
+                    backgroundColor: '#ffffff',
+                    color: '#151515',
+                    border: selectedFilter === 'All' ? '2px solid #0066CC' : '2px solid transparent',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
                     cursor: 'pointer',
                     textAlign: 'left',
                     boxSizing: 'border-box'
@@ -616,13 +616,13 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 </div>
               </div>
 
-              <Title headingLevel="h3" size="md" style={{ marginBottom: 'var(--pf-t-global--spacer--sm)', marginTop: 'var(--pf-t-global--spacer--md)' }}>Owner</Title>
-              <select style={{ width: '100%', padding: 'var(--pf-t-global--spacer--sm)', border: '1px solid var(--pf-t--global--border--color--default)', borderRadius: 'var(--pf-t--global--border--radius--sm)', marginBottom: 'var(--pf-t-global--spacer--md)' }}>
+              <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Owner</Title>
+              <select style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}>
                 <option value="all">All</option>
               </select>
 
-              <Title headingLevel="h3" size="md" style={{ marginBottom: 'var(--pf-t-global--spacer--sm)', marginTop: 'var(--pf-t-global--spacer--md)' }}>Lifecycle</Title>
-              <select style={{ width: '100%', padding: 'var(--pf-t-global--spacer--sm)', border: '1px solid var(--pf-t--global--border--color--default)', borderRadius: 'var(--pf-t--global--border--radius--sm)' }}>
+              <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Lifecycle</Title>
+              <select style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px' }}>
                 <option value="all">All</option>
               </select>
             </div>
@@ -631,23 +631,23 @@ const DeveloperPortal: React.FunctionComponent = () => {
           <GridItem span={9}>
             <Card>
               <CardBody>
-                <Title headingLevel="h2" size="lg" style={{ marginBottom: 'var(--pf-t-global--spacer--md)' }}>
+                <Title headingLevel="h2" size="lg" style={{ marginBottom: '16px' }}>
                   API products
                 </Title>
                 <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <thead>
-                    <tr style={{ borderBottom: `1px solid var(--pf-t--global--border--color--default)` }}>
-                      <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '30%' }}>Name</th>
-                      <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '15%' }}>API version</th>
-                      <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '25%' }}>Contact</th>
-                      <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '20%' }}>Tags</th>
+                    <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '30%' }}>Name</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>API version</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '25%' }}>Contact</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Tags</th>
                       <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}></th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredApiData.map((api, idx) => (
                       <tr key={idx} style={{ borderBottom: '1px solid #d0d0d0' }}>
-                        <td style={{ padding: 'var(--pf-t-global--spacer--md)' }}>
+                        <td style={{ padding: '12px' }}>
                           <Button 
                             variant="link" 
                             isInline 
@@ -656,14 +656,14 @@ const DeveloperPortal: React.FunctionComponent = () => {
                             {api.name}
                           </Button>
                         </td>
-                        <td style={{ padding: 'var(--pf-t-global--spacer--md)' }}>{api.version}</td>
-                        <td style={{ padding: 'var(--pf-t-global--spacer--md)' }}>{api.contact}</td>
-                        <td style={{ padding: 'var(--pf-t-global--spacer--md)' }}>
+                        <td style={{ padding: '12px' }}>{api.version}</td>
+                        <td style={{ padding: '12px' }}>{api.contact}</td>
+                        <td style={{ padding: '12px' }}>
                           <Badge isRead>{api.tag}</Badge>
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
                           <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(api.name)}>
-                            <StarIcon style={{ fill: api.starred ? 'var(--pf-t--global--interactive--color--active)' : 'inherit' }} />
+                            <StarIcon style={{ fill: api.starred ? '#0066CC' : 'inherit' }} />
                           </Button>
                         </td>
                       </tr>
@@ -680,7 +680,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
         {/* Tab 1: API Keys content */}
         {activeTab === 1 && (
           <>
-            <Grid hasGutter style={{ marginBottom: 'var(--pf-t-global--spacer--xl)' }}>
+            <Grid hasGutter style={{ marginBottom: '24px' }}>
               <GridItem span={3}>
                 <SearchInput
                   placeholder="Search"
@@ -698,16 +698,16 @@ const DeveloperPortal: React.FunctionComponent = () => {
 
             <Grid hasGutter>
               <GridItem span={3}>
-                <div style={{ background: 'var(--pf-t--global--background--color--secondary--default)', padding: 'var(--pf-t-global--spacer--xl)', borderRadius: 'var(--pf-t--global--border--radius--sm)' }}>
+                <div style={{ background: '#f5f5f5', padding: '24px', borderRadius: '4px' }}>
                   <Title headingLevel="h3" size="md" style={{ marginBottom: '8px' }}>Type</Title>
-                  <select style={{ width: '100%', padding: 'var(--pf-t-global--spacer--sm)', border: '1px solid var(--pf-t--global--border--color--default)', borderRadius: 'var(--pf-t--global--border--radius--sm)', marginBottom: 'var(--pf-t-global--spacer--md)' }}>
+                  <select style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}>
                     <option>All</option>
                   </select>
 
                   {currentRole !== 'Platform engineer' && (
                     <>
-                      <Title headingLevel="h3" size="md" style={{ marginBottom: 'var(--pf-t-global--spacer--sm)', marginTop: 'var(--pf-t-global--spacer--md)' }}>API keys</Title>
-                      <div style={{ marginBottom: 'var(--pf-t-global--spacer--md)' }}>
+                      <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>API keys</Title>
+                      <div style={{ marginBottom: '16px' }}>
                         <div
                           role="button"
                           onClick={() => setApiKeysSectionFilter('keys-owned')}
@@ -717,10 +717,10 @@ const DeveloperPortal: React.FunctionComponent = () => {
                             justifyContent: 'space-between',
                             alignItems: 'center',
                             gap: '8px',
-                            backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
-                            border: apiKeysSectionFilter === 'keys-owned' ? `2px solid var(--pf-t--global--interactive--color--active)` : `1px solid var(--pf-t--global--border--color--default)`,
-                            borderRadius: 'var(--pf-t--global--border--radius--md)',
-                            padding: 'var(--pf-t-global--spacer--sm) var(--pf-t-global--spacer--md)',
+                            backgroundColor: '#ffffff',
+                            border: apiKeysSectionFilter === 'keys-owned' ? '2px solid #0066CC' : '1px solid #d0d0d0',
+                            borderRadius: '6px',
+                            padding: '8px 12px',
                             cursor: 'pointer'
                           }}
                         >
@@ -732,8 +732,8 @@ const DeveloperPortal: React.FunctionComponent = () => {
                         </div>
                       </div>
 
-                      <Title headingLevel="h3" size="md" style={{ marginBottom: 'var(--pf-t-global--spacer--sm)', marginTop: 'var(--pf-t-global--spacer--md)' }}>API key requests</Title>
-                      <div style={{ marginBottom: 'var(--pf-t-global--spacer--md)' }}>
+                      <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>API key requests</Title>
+                      <div style={{ marginBottom: '16px' }}>
                         <div
                           role="button"
                           onClick={() => setApiKeysSectionFilter('requests-owned')}
@@ -743,10 +743,10 @@ const DeveloperPortal: React.FunctionComponent = () => {
                             justifyContent: 'space-between',
                             alignItems: 'center',
                             gap: '8px',
-                            backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
-                            border: apiKeysSectionFilter === 'requests-owned' ? `2px solid var(--pf-t--global--interactive--color--active)` : `1px solid var(--pf-t--global--border--color--default)`,
-                            borderRadius: 'var(--pf-t--global--border--radius--md)',
-                            padding: 'var(--pf-t-global--spacer--sm) var(--pf-t-global--spacer--md)',
+                            backgroundColor: '#ffffff',
+                            border: apiKeysSectionFilter === 'requests-owned' ? '2px solid #0066CC' : '1px solid #d0d0d0',
+                            borderRadius: '6px',
+                            padding: '8px 12px',
                             cursor: 'pointer'
                           }}
                         >
@@ -760,12 +760,12 @@ const DeveloperPortal: React.FunctionComponent = () => {
                     </>
                   )}
 
-                  <Title headingLevel="h3" size="md" style={{ marginBottom: 'var(--pf-t-global--spacer--sm)', marginTop: 'var(--pf-t-global--spacer--md)' }}>Tags</Title>
-                  <select style={{ width: '100%', padding: 'var(--pf-t-global--spacer--sm)', border: '1px solid var(--pf-t--global--border--color--default)', borderRadius: 'var(--pf-t--global--border--radius--sm)', marginBottom: 'var(--pf-t-global--spacer--md)' }}>
+                  <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Tags</Title>
+                  <select style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}>
                     <option>All</option>
                   </select>
 
-                  <Title headingLevel="h3" size="md" style={{ marginBottom: 'var(--pf-t-global--spacer--sm)', marginTop: 'var(--pf-t-global--spacer--md)' }}>
+                  <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>
                     {currentRole === 'Platform engineer' ? 'Status' : 'Request state'}
                   </Title>
                   <select 
@@ -796,26 +796,26 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 {currentRole === 'Platform engineer' || apiKeysSectionFilter === 'keys-owned' ? (
                   <Card>
                     <CardBody>
-                      <div style={{ marginBottom: 'var(--pf-t-global--spacer--md)' }}>
+                      <div style={{ marginBottom: '16px' }}>
                         <Title headingLevel="h2" size="lg">
                           API keys
                         </Title>
                       </div>
                       <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                         <thead>
-                          <tr style={{ borderBottom: `1px solid var(--pf-t--global--border--color--default)` }}>
-                            <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: currentRole === 'Platform engineer' ? '20%' : '15%' }}>Name</th>
-                            <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '12%' }}>Status</th>
+                          <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
+                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: currentRole === 'Platform engineer' ? '20%' : '15%' }}>Name</th>
+                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Status</th>
                             {currentRole !== 'Platform engineer' && (
-                              <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '20%' }}>API key</th>
+                              <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>API key</th>
                             )}
-                            <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: currentRole === 'Platform engineer' ? '25%' : '20%' }}>API</th>
+                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: currentRole === 'Platform engineer' ? '25%' : '20%' }}>API</th>
                             {currentRole === 'Platform engineer' ? (
-                              <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '23%' }}>User</th>
+                              <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '23%' }}>User</th>
                             ) : (
-                              <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '18%' }}>Expiration day</th>
+                              <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '18%' }}>Expiration day</th>
                             )}
-                            <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '50px' }}></th>
+                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '50px' }}></th>
                           </tr>
                         </thead>
                         <tbody>
@@ -826,7 +826,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                             return true;
                           }).map((key, index) => (
                             <tr key={index} style={{ borderBottom: '1px solid #d0d0d0' }}>
-                              <td style={{ padding: 'var(--pf-t-global--spacer--md)' }}>
+                              <td style={{ padding: '12px' }}>
                                 <Button 
                                   variant="link" 
                                   isInline
@@ -835,7 +835,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                   {key.name}
                                 </Button>
                               </td>
-                            <td style={{ padding: 'var(--pf-t-global--spacer--md)' }}>
+                            <td style={{ padding: '12px' }}>
                               <Label
                                 variant="outline"
                                 icon={key.status === 'Active' ? <CheckCircleIcon /> : <TimesCircleIcon />}
@@ -845,14 +845,14 @@ const DeveloperPortal: React.FunctionComponent = () => {
                               </Label>
                             </td>
                               {currentRole !== 'Platform engineer' && (
-                                <td style={{ padding: 'var(--pf-t-global--spacer--md)' }}>
+                                <td style={{ padding: '12px' }}>
                                   {key.apiKey ? (
                                     <div style={{ position: 'relative', display: 'inline-block' }}>
                                       <Tooltip content={copiedApiKey === key.apiKey ? "Copied!" : "Copy to clipboard"}>
                                         <Button
                                           variant="link"
                                           isInline
-                                          style={{ fontFamily: 'monospace', fontSize: 'var(--pf-t--global--font--size--sm)', color: 'var(--pf-t--global--text--color--subtle)', padding: 0 }}
+                                          style={{ fontFamily: 'monospace', fontSize: '13px', color: '#6a6e73', padding: 0 }}
                                           onClick={() => {
                                             navigator.clipboard.writeText(key.apiKey);
                                             setCopiedApiKey(key.apiKey);
@@ -864,11 +864,11 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                       </Tooltip>
                                     </div>
                                   ) : (
-                                    <span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>-</span>
+                                    <span style={{ color: '#6a6e73' }}>-</span>
                                   )}
                                 </td>
                               )}
-                              <td style={{ padding: 'var(--pf-t-global--spacer--md)' }}>
+                              <td style={{ padding: '12px' }}>
                                 <Button 
                                   variant="link" 
                                   isInline
@@ -878,15 +878,15 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                 </Button>
                               </td>
                               {currentRole === 'Platform engineer' ? (
-                                <td style={{ padding: 'var(--pf-t-global--spacer--md)', color: 'var(--pf-t--global--text--color--regular)' }}>
+                                <td style={{ padding: '12px', color: '#151515' }}>
                                   {key.user}
                                 </td>
                               ) : (
-                                <td style={{ padding: 'var(--pf-t-global--spacer--md)', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                                <td style={{ padding: '12px', color: '#6a6e73' }}>
                                   {key.expirationDay}
                                 </td>
                               )}
-                              <td style={{ padding: 'var(--pf-t-global--spacer--md)' }}>
+                              <td style={{ padding: '12px' }}>
                                 <Button variant="plain" aria-label="Actions">
                                   <EllipsisVIcon />
                                 </Button>
@@ -900,25 +900,25 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 ) : (
                   <Card>
                     <CardBody>
-                      <div style={{ marginBottom: 'var(--pf-t-global--spacer--md)' }}>
+                      <div style={{ marginBottom: '16px' }}>
                         <Title headingLevel="h2" size="lg">
                           API key request
                         </Title>
                       </div>
                       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
-                          <tr style={{ borderBottom: `1px solid var(--pf-t--global--border--color--default)` }}>
+                          <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
                             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Name</th>
                             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Status</th>
                             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>API</th>
                             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Request time</th>
-                            <th style={{ textAlign: 'left', padding: 'var(--pf-t-global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--sm)', fontWeight: 'bold', width: '50px' }}></th>
+                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '50px' }}></th>
                           </tr>
                         </thead>
                         <tbody>
                           {apiKeyRequests.map((request, index) => (
                             <tr key={index} style={{ borderBottom: '1px solid #d0d0d0' }}>
-                              <td style={{ padding: 'var(--pf-t-global--spacer--md)' }}>
+                              <td style={{ padding: '12px' }}>
                                 <Button 
                                   variant="link" 
                                   isInline
@@ -927,7 +927,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                   {request.name}
                                 </Button>
                               </td>
-                              <td style={{ padding: 'var(--pf-t-global--spacer--md)' }}>
+                              <td style={{ padding: '12px' }}>
                                 <Label
                                   variant="outline"
                                   icon={request.status === 'Pending' ? <ClockIcon /> : <TimesCircleIcon />}
@@ -936,7 +936,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                   {request.status}
                                 </Label>
                               </td>
-                              <td style={{ padding: 'var(--pf-t-global--spacer--md)' }}>
+                              <td style={{ padding: '12px' }}>
                                 <Button 
                                   variant="link" 
                                   isInline
@@ -948,7 +948,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                               <td style={{ padding: '12px', color: '#6a6e73' }}>
                                 {request.requestTime}
                               </td>
-                              <td style={{ padding: 'var(--pf-t-global--spacer--md)' }}>
+                              <td style={{ padding: '12px' }}>
                                 <Button variant="plain" aria-label="Actions">
                                   <EllipsisVIcon />
                                 </Button>

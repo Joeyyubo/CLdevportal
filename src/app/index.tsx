@@ -20,6 +20,7 @@ import { Home } from '@app/Home/Home';
 import { Catalog } from '@app/Catalog/Catalog';
 import { Docs } from '@app/Docs/Docs';
 import { LearningPaths } from '@app/LearningPaths/LearningPaths';
+import { PortalSettings } from '@app/Settings/PortalSettings';
 import { AppRoutes, routes } from '@app/routes';
 import '@app/app.css';
 
@@ -83,6 +84,9 @@ const App: React.FunctionComponent = () => {
         
         {/* API Key Request Details page with dynamic request name */}
         <Route path="/developer-portal/api-key-request-details/:requestName" element={<APIKeyRequestDetails />} />
+        
+        {/* Portal Settings page without AppLayout (has its own layout) */}
+        <Route path="/settings/portal" element={<PortalSettings />} />
         
         {/* All other pages with AppLayout */}
         <Route
