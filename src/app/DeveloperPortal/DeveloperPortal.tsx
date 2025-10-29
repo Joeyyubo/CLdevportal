@@ -494,7 +494,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
           <Title headingLevel="h1" size="2xl" style={{ marginBottom: 'var(--pf-t-global--spacer--md)' }}>
             API Portal
           </Title>
-          <Tabs activeKey={activeTab} onSelect={handleTabClick} aria-label="API portal tabs" style={{ marginBottom: '24px' }}>
+          <Tabs activeKey={activeTab} onSelect={handleTabClick} aria-label="API portal tabs" style={{ marginBottom: 'var(--pf-t-global--spacer--xl)' }}>
             <Tab eventKey={0} title={<TabTitleText>API products</TabTitleText>} />
             <Tab eventKey={1} title={<TabTitleText>API keys</TabTitleText>} />
           </Tabs>
@@ -868,7 +868,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                 </Button>
                               </td>
                               {currentRole === 'Platform engineer' ? (
-                                <td style={{ padding: '12px', color: '#151515' }}>
+                                <td style={{ padding: 'var(--pf-t-global--spacer--md)', color: 'var(--pf-t--global--text--color--regular)' }}>
                                   {key.user}
                                 </td>
                               ) : (
