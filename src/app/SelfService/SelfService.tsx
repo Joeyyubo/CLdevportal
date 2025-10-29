@@ -12,6 +12,7 @@ import {
   Nav,
   NavList,
   NavItem,
+  NavExpandable,
   PageSection,
   Divider,
   Dropdown,
@@ -82,6 +83,7 @@ const SelfService: React.FunctionComponent = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
   const [templateData, setTemplateData] = React.useState(initialTemplateData);
   const [activeFilter, setActiveFilter] = React.useState('organization-all');
+  const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
   
   // Get current role from localStorage or use default
   const getCurrentRole = (): string => {
@@ -112,12 +114,24 @@ const SelfService: React.FunctionComponent = () => {
   };
 
   const handleNavClick = (itemId: string) => {
-    if (itemId === 'dev-portal') {
-      navigate('/developer-portal');
+    if (itemId === 'home') {
+      navigate('/home');
+    } else if (itemId === 'catalog') {
+      navigate('/catalog');
     } else if (itemId === 'apis') {
       navigate('/apis');
-    } else {
+    } else if (itemId === 'docs') {
+      navigate('/docs');
+    } else if (itemId === 'learning') {
+      navigate('/learning');
+    } else if (itemId === 'self-service') {
+      navigate('/self-service');
+    } else if (itemId === 'dev-portal') {
       navigate('/developer-portal');
+    } else if (itemId === 'policies') {
+      navigate('/policies');
+    } else {
+      navigate('/');
     }
   };
 
@@ -248,14 +262,21 @@ const SelfService: React.FunctionComponent = () => {
               Self-service
             </NavItem>
             <Divider />
-            <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-              API portal
-            </NavItem>
-            {currentRole === 'API owner' && (
-              <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
-                Policies
+            <NavExpandable
+              title="Connectivity Link"
+              id="connectivity-link-group"
+              isExpanded={connectivityLinkExpanded}
+              onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
+            >
+              <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                API portal
               </NavItem>
-            )}
+              {currentRole === 'API owner' && (
+                <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
+                  Policies
+                </NavItem>
+              )}
+            </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
               Administration
