@@ -318,10 +318,8 @@ const DeveloperPortal: React.FunctionComponent = () => {
         <MastheadBrand>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <svg width="32" height="32" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-                <g transform="translate(32,32) scale(3)">
-                  <path d="M28.3,0h-22C2.8,0,0,2.8,0,6.3v22c0,3.5,2.8,6.3,6.3,6.3h5.4c1.7,0,3.1,1.4,3.1,3.1s-1.4,3.1-3.1,3.1H6.3C2.8,39.8,0,42.6,0,46.1v17.5c0,3.5,2.8,6.3,6.3,6.3H56c3.5,0,6.3-2.8,6.3-6.3V46.1C62.3,42.6,59.5,39.8,56,39.8h-4.6c-1.7,0-3.1-1.4-3.1-3.1s1.4-3.1,3.1-3.1h4.6c3.5,0,6.3-2.8,6.3-6.3V6.3C62.3,2.8,59.5,0,56,0H28.3z M56,24.5c0,1.7-1.4,3.1-3.1,3.1H28.3c-1.7,0-3.1-1.4-3.1-3.1V6.3c0-1.7,1.4-3.1,3.1-3.1H52.9c1.7,0,3.1,1.4,3.1,3.1V24.5z M28.3,51.1c-1.7,0-3.1-1.4-3.1-3.1s1.4-3.1,3.1-3.1h22c1.7,0,3.1,1.4,3.1,3.1s-1.4,3.1-3.1,3.1H28.3z M56,39.8v17.5H28.3V39.8H56z" fill="#CC0000"/>
-                </g>
+              <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="14" fill="#CC0000"/>
               </svg>
               <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
                 <span style={{ fontSize: '20px', fontWeight: 'bold' }}>RedHat</span>
