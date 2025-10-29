@@ -480,16 +480,6 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
           </div>
         </ModalHeader>
         <ModalBody>
-          <Alert
-            variant="warning"
-            title="API Key upgrade needs approval"
-            className="no-shadow-alert"
-            isLiveRegion
-            style={{ marginBottom: '24px' }}
-          >
-            You will get notification when the API key upgrade is approval by API owner. It will take 10mins to complete.
-          </Alert>
-
           <FormGroup label="API *" isRequired style={{ marginBottom: '24px' }}>
             <TextInput
               id="api-input"
