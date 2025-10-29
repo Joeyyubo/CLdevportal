@@ -391,40 +391,42 @@ const PolicyDetails: React.FunctionComponent = () => {
                       </Button>
                     </ActionGroup>
 
-                    <DescriptionList style={{ marginBottom: '24px' }}>
+                    <DescriptionList columnModifier={{ default: '1Col', md: '2Col' }}>
                       <DescriptionListGroup>
-                        <DescriptionListTerm>DESCRIPTION</DescriptionListTerm>
-                        <DescriptionListDescription style={{ fontSize: '14px', color: '#151515', marginTop: '8px' }}>
-                          {policyDetails.description}
-                        </DescriptionListDescription>
+                        <DescriptionListTerm>Description</DescriptionListTerm>
+                        <DescriptionListDescription>{policyDetails.description}</DescriptionListDescription>
                       </DescriptionListGroup>
                       
                       <DescriptionListGroup>
-                        <DescriptionListTerm>OWNER</DescriptionListTerm>
+                        <DescriptionListTerm>Owner</DescriptionListTerm>
                         <DescriptionListDescription>
-                          <Button variant="link" isInline>{policyDetails.owner}</Button>
+                          <Button variant="link" isInline icon={<UsersIcon />}>
+                            {policyDetails.owner}
+                          </Button>
                         </DescriptionListDescription>
                       </DescriptionListGroup>
 
                       <DescriptionListGroup>
-                        <DescriptionListTerm>TYPE</DescriptionListTerm>
+                        <DescriptionListTerm>Type</DescriptionListTerm>
                         <DescriptionListDescription>{policyDetails.type}</DescriptionListDescription>
                       </DescriptionListGroup>
 
                       <DescriptionListGroup>
-                        <DescriptionListTerm>LIFECYCLE</DescriptionListTerm>
-                        <DescriptionListDescription>{policyDetails.lifecycle}</DescriptionListDescription>
+                        <DescriptionListTerm>Lifecycle</DescriptionListTerm>
+                        <DescriptionListDescription>
+                          <Badge isRead>{policyDetails.lifecycle}</Badge>
+                        </DescriptionListDescription>
                       </DescriptionListGroup>
 
                       <DescriptionListGroup>
-                        <DescriptionListTerm>ASSOCIATION</DescriptionListTerm>
+                        <DescriptionListTerm>Association</DescriptionListTerm>
                         <DescriptionListDescription>
                           <Button variant="link" isInline>{policyDetails.apiProduct}</Button>
                         </DescriptionListDescription>
                       </DescriptionListGroup>
 
                       <DescriptionListGroup>
-                        <DescriptionListTerm>UPDATED</DescriptionListTerm>
+                        <DescriptionListTerm>Updated</DescriptionListTerm>
                         <DescriptionListDescription>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#67b350' }}></div>
