@@ -367,7 +367,7 @@ const PolicyDetails: React.FunctionComponent = () => {
               {/* Left Column */}
               <GridItem span={6}>
                 {/* About Section */}
-                <Card style={{ marginBottom: '24px' }}>
+                <Card style={{ height: '100%' }}>
                   <CardBody>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
                       <Title headingLevel="h3" size="lg">About</Title>
@@ -436,10 +436,12 @@ const PolicyDetails: React.FunctionComponent = () => {
                   </CardBody>
                 </Card>
 
-                {/* Relations Section */}
-                <Card>
+              </GridItem>
+
+              <GridItem span={6}>
+                <Card style={{ height: '100%' }}>
                   <CardBody>
-                    <Title headingLevel="h3" size="lg" style={{ marginBottom: '16px' }}>Relations</Title>
+                    <Title headingLevel="h3" size="lg" style={{ marginBottom: '24px' }}>Relations</Title>
                     <div style={{ 
                       display: 'flex', 
                       alignItems: 'center', 
@@ -504,10 +506,6 @@ const PolicyDetails: React.FunctionComponent = () => {
                     <Button variant="link" isInline>View Graph →</Button>
                   </CardBody>
                 </Card>
-              </GridItem>
-
-              {/* Right Column - Empty for now */}
-              <GridItem span={6}>
               </GridItem>
             </Grid>
 
