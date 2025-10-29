@@ -41,6 +41,7 @@ import {
   ModalBody,
   ModalFooter,
   TextInput,
+  TextArea,
   FormGroup,
   Alert,
 } from '@patternfly/react-core';
@@ -218,6 +219,10 @@ const APIKeyDetails: React.FunctionComponent = () => {
   const [showUpdateSuccess, setShowUpdateSuccess] = React.useState(false);
   const [updatedPlan, setUpdatedPlan] = React.useState<string>('');
   const [lastSelectedPlan, setLastSelectedPlan] = React.useState<string>('');
+  const [isReapplyModalOpen, setIsReapplyModalOpen] = React.useState(false);
+  const [reapplyDescriptionText, setReapplyDescriptionText] = React.useState('');
+  const [selectedReapplyPlan, setSelectedReapplyPlan] = React.useState('Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;');
+  const [isReapplyPlanDropdownOpen, setIsReapplyPlanDropdownOpen] = React.useState(false);
 
   // Decode the key name from URL
   const decodedKeyName = keyName ? decodeURIComponent(keyName) : null;
@@ -375,17 +380,24 @@ const APIKeyDetails: React.FunctionComponent = () => {
             </BreadcrumbItem>
           </Breadcrumb>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-            <Title headingLevel="h1" size="2xl">
-              {keyDetails.name}
-            </Title>
-            <Label
-              variant="outline"
-              icon={keyDetails.status === 'Active' ? <CheckCircleIcon /> : <TimesCircleIcon />}
-              color={keyDetails.status === 'Active' ? 'green' : 'red'}
-            >
-              {keyDetails.status}
-            </Label>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Title headingLevel="h1" size="2xl">
+                {keyDetails.name}
+              </Title>
+              <Label
+                variant="outline"
+                icon={keyDetails.status === 'Active' ? <CheckCircleIcon /> : <TimesCircleIcon />}
+                color={keyDetails.status === 'Active' ? 'green' : 'red'}
+              >
+                {keyDetails.status}
+              </Label>
+            </div>
+            {keyDetails.status === 'Expired' && (
+              <Button variant="primary" onClick={() => setIsReapplyModalOpen(true)}>
+                Reapply
+              </Button>
+            )}
           </div>
 
           <Tabs activeKey={activeTab} onSelect={handleTabClick} style={{ marginBottom: '24px' }}>
@@ -934,6 +946,126 @@ const APIKeyDetails: React.FunctionComponent = () => {
                 isDisabled={deleteConfirmText !== keyDetails.name}
               >
                 Delete
+              </Button>
+            </ModalFooter>
+          </Modal>
+
+          {/* Reapply API key modal */}
+          <Modal
+            isOpen={isReapplyModalOpen}
+            onClose={() => {
+              setIsReapplyModalOpen(false);
+              setReapplyDescriptionText('');
+              setSelectedReapplyPlan('Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;');
+              setIsReapplyPlanDropdownOpen(false);
+            }}
+            variant="small"
+            style={{
+              '--pf-v6-c-backdrop--BackgroundColor': 'rgba(200, 200, 200, 0.8)'
+            } as React.CSSProperties}
+          >
+            <ModalHeader>
+              <Title headingLevel="h2">Reapply for API key</Title>
+              <div style={{ fontSize: '14px', color: '#6a6e73', marginTop: '8px' }}>
+                Reapply for the API credential to use the API.
+              </div>
+            </ModalHeader>
+            <ModalBody>
+              <FormGroup label="API *" isRequired style={{ marginBottom: '24px' }}>
+                <TextInput
+                  id="reapply-api-input"
+                  readOnly
+                  value={keyDetails.apiName}
+                  style={{
+                    backgroundColor: '#f5f5f5',
+                    userSelect: 'none',
+                    outline: 'none',
+                    cursor: 'default'
+                  }}
+                />
+              </FormGroup>
+
+              <FormGroup label="API plan *" isRequired style={{ marginBottom: '24px' }}>
+                <Dropdown
+                  isOpen={isReapplyPlanDropdownOpen}
+                  onOpenChange={(isOpen) => setIsReapplyPlanDropdownOpen(isOpen)}
+                  toggle={(toggleRef) => (
+                    <MenuToggle ref={toggleRef} onClick={() => setIsReapplyPlanDropdownOpen(!isReapplyPlanDropdownOpen)} isExpanded={isReapplyPlanDropdownOpen}>
+                      {selectedReapplyPlan}
+                    </MenuToggle>
+                  )}
+                >
+                  <DropdownList>
+                    <DropdownItem
+                      key="silver"
+                      onClick={() => {
+                        setSelectedReapplyPlan('Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;');
+                        setIsReapplyPlanDropdownOpen(false);
+                      }}
+                    >
+                      Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;
+                    </DropdownItem>
+                    <DropdownItem
+                      key="gold"
+                      onClick={() => {
+                        setSelectedReapplyPlan('Gold plan: 200 reqs/day; 1k reqs/week; 5k reqs/month;');
+                        setIsReapplyPlanDropdownOpen(false);
+                      }}
+                    >
+                      Gold plan: 200 reqs/day; 1k reqs/week; 5k reqs/month;
+                    </DropdownItem>
+                    <DropdownItem
+                      key="platinum"
+                      onClick={() => {
+                        setSelectedReapplyPlan('Platinum plan: 500 reqs/day; 2.5k reqs/week; 15k reqs/month;');
+                        setIsReapplyPlanDropdownOpen(false);
+                      }}
+                    >
+                      Platinum plan: 500 reqs/day; 2.5k reqs/week; 15k reqs/month;
+                    </DropdownItem>
+                  </DropdownList>
+                </Dropdown>
+              </FormGroup>
+
+              <FormGroup label="Use case & description">
+                <p style={{ fontSize: '12px', color: '#6a6e73', marginBottom: '8px' }}>
+                  Share your use case with API owner to get quick approval.
+                </p>
+                <TextArea
+                  id="reapply-description-input"
+                  value={reapplyDescriptionText}
+                  onChange={(_, value) => setReapplyDescriptionText(value)}
+                  aria-label="Description input"
+                  rows={6}
+                />
+              </FormGroup>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                key="reapply"
+                variant="primary"
+                onClick={() => {
+                  setIsReapplyModalOpen(false);
+                  setReapplyDescriptionText('');
+                  setSelectedReapplyPlan('Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;');
+                  setIsReapplyPlanDropdownOpen(false);
+                  // Navigate back to API keys page or show success message
+                  navigate('/developer-portal#api-keys');
+                }}
+              >
+                Reapply
+              </Button>
+              <Button
+                key="cancel"
+                variant="secondary"
+                onClick={() => {
+                  setIsReapplyModalOpen(false);
+                  setReapplyDescriptionText('');
+                  setSelectedReapplyPlan('Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;');
+                  setIsReapplyPlanDropdownOpen(false);
+                }}
+              >
+                Cancel
               </Button>
             </ModalFooter>
           </Modal>
