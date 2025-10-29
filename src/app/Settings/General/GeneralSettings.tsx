@@ -12,8 +12,6 @@ import {
   Form,
   FormGroup,
   TextArea,
-  Select,
-  SelectOption,
   ActionGroup,
   Page,
   Masthead,
@@ -236,18 +234,41 @@ const GeneralSettings: React.FunctionComponent = () => {
             </FormGroup>
 
             <FormGroup label="Portal visibility">
-              <Select
+              <Dropdown
                 isOpen={isVisibilityOpen}
-                onToggle={() => setIsVisibilityOpen(!isVisibilityOpen)}
-                selections={portalVisibility}
-                onSelect={(_, selection) => {
-                  setPortalVisibility(String(selection));
-                  setIsVisibilityOpen(false);
-                }}
+                onOpenChange={(isOpen) => setIsVisibilityOpen(isOpen)}
+                toggle={(toggleRef) => (
+                  <MenuToggle
+                    ref={toggleRef}
+                    onClick={() => setIsVisibilityOpen(!isVisibilityOpen)}
+                    isExpanded={isVisibilityOpen}
+                    style={{ width: '100%' }}
+                  >
+                    {portalVisibility === 'private' 
+                      ? 'Private (Only authenticated users can view pages and APIs)'
+                      : 'Public (Anyone can view pages and APIs)'}
+                  </MenuToggle>
+                )}
               >
-                <SelectOption value="private">Private (Only authenticated users can view pages and APIs)</SelectOption>
-                <SelectOption value="public">Public (Anyone can view pages and APIs)</SelectOption>
-              </Select>
+                <DropdownList>
+                  <DropdownItem
+                    onClick={() => {
+                      setPortalVisibility('private');
+                      setIsVisibilityOpen(false);
+                    }}
+                  >
+                    Private (Only authenticated users can view pages and APIs)
+                  </DropdownItem>
+                  <DropdownItem
+                    onClick={() => {
+                      setPortalVisibility('public');
+                      setIsVisibilityOpen(false);
+                    }}
+                  >
+                    Public (Anyone can view pages and APIs)
+                  </DropdownItem>
+                </DropdownList>
+              </Dropdown>
             </FormGroup>
 
             <ActionGroup>
