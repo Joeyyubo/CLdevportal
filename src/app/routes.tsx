@@ -5,6 +5,10 @@ import { Support } from '@app/Support/Support';
 import { GeneralSettings } from '@app/Settings/General/GeneralSettings';
 import { ProfileSettings } from '@app/Settings/Profile/ProfileSettings';
 import { NotFound } from '@app/NotFound/NotFound';
+import { Home } from '@app/Home/Home';
+import { Catalog } from '@app/Catalog/Catalog';
+import { Docs } from '@app/Docs/Docs';
+import { LearningPaths } from '@app/LearningPaths/LearningPaths';
 
 export interface IAppRoute {
   label?: string; // Excluding the label will exclude the route from the nav sidebar in AppLayout
@@ -29,6 +33,34 @@ const routes: AppRouteConfig[] = [
     label: 'Dashboard',
     path: '/',
     title: 'PatternFly Seed | Main Dashboard',
+  },
+  {
+    element: <Home />,
+    exact: true,
+    label: 'Home',
+    path: '/home',
+    title: 'PatternFly Seed | Home',
+  },
+  {
+    element: <Catalog />,
+    exact: true,
+    label: 'Catalog',
+    path: '/catalog',
+    title: 'PatternFly Seed | Catalog',
+  },
+  {
+    element: <Docs />,
+    exact: true,
+    label: 'Docs',
+    path: '/docs',
+    title: 'PatternFly Seed | Docs',
+  },
+  {
+    element: <LearningPaths />,
+    exact: true,
+    label: 'Learning Paths',
+    path: '/learning',
+    title: 'PatternFly Seed | Learning Paths',
   },
   {
     element: <Support />,
