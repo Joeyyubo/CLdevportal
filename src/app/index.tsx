@@ -16,6 +16,10 @@ import RegisterComponent from '@app/RegisterComponent/RegisterComponent';
 import Policies from '@app/Policies/Policies';
 import PolicyDetails from '@app/Policies/PolicyDetails';
 import RequestPolicy from '@app/Policies/RequestPolicy';
+import { Home } from '@app/Home/Home';
+import { Catalog } from '@app/Catalog/Catalog';
+import { Docs } from '@app/Docs/Docs';
+import { LearningPaths } from '@app/LearningPaths/LearningPaths';
 import { AppRoutes, routes } from '@app/routes';
 import '@app/app.css';
 
@@ -46,6 +50,18 @@ const App: React.FunctionComponent = () => {
         
         {/* Policy Details page */}
         <Route path="/policies/policy-details/:policyName" element={<PolicyDetails />} />
+        
+        {/* Home page without AppLayout (has its own layout) */}
+        <Route path="/home" element={<Home />} />
+        
+        {/* Catalog page without AppLayout (has its own layout) */}
+        <Route path="/catalog" element={<Catalog />} />
+        
+        {/* Docs page without AppLayout (has its own layout) */}
+        <Route path="/docs" element={<Docs />} />
+        
+        {/* Learning Paths page without AppLayout (has its own layout) */}
+        <Route path="/learning" element={<LearningPaths />} />
         
         {/* API Portal page without AppLayout (has its own layout) */}
         <Route path="/developer-portal" element={<DeveloperPortal />} />
