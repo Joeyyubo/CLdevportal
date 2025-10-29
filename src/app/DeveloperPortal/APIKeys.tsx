@@ -52,6 +52,8 @@ interface APIKey {
   apiKey: string;
   api: string;
   expirationDay: string;
+  requester?: string;
+  requestTime?: string;
 }
 
 const APIKeys: React.FunctionComponent = () => {
@@ -62,16 +64,16 @@ const APIKeys: React.FunctionComponent = () => {
   const [requestStateFilter, setRequestStateFilter] = React.useState('All');
 
   const apiKeys: APIKey[] = [
-    { name: 'personal keys', status: 'Active', apiKey: 'cbjNd-nvMqT', api: 'Get Flights tickets', expirationDay: 'Jan 20,2026' },
-    { name: 'development keys', status: 'Active', apiKey: 'rGeZL-RKIT5', api: 'List My Bookings', expirationDay: 'Oct 25,2025' },
-    { name: 'Production keys', status: 'Expired', apiKey: '', api: 'Create Booking', expirationDay: 'Sep 05,2025' },
-    { name: 'Dev test keys', status: 'Active', apiKey: 'vt9Dz-taKWW', api: 'Get Refund Status', expirationDay: 'Nov 01,2025' },
-    { name: 'Research key', status: 'Active', apiKey: 'UfTQm-2eeLx', api: 'Get Payment Status', expirationDay: 'Dec 25,2026' },
-    { name: 'Integration keys', status: 'Active', apiKey: 'KwJzA-9mNpR', api: 'Get Flights tickets', expirationDay: 'May 10,2027' },
-    { name: 'test-Key_1', status: 'Expired', apiKey: '', api: 'Get Booking Details', expirationDay: 'May 11,2028' },
-    { name: 'learn-Key_2', status: 'Active', apiKey: 'XyVwB-8qLsT', api: 'Create Booking', expirationDay: 'April 20,2029' },
-    { name: 'try-Key_3', status: 'Active', apiKey: 'MnKpO-7fGhJ', api: 'List My Bookings', expirationDay: 'Mar 06,2026' },
-    { name: 'Trial-Key_4', status: 'Active', apiKey: 'DeFsC-5hIjK', api: 'Get Flights tickets', expirationDay: 'May 20,2025' },
+    { name: 'personal keys', status: 'Active', apiKey: 'cbjNd-nvMqT', api: 'Get Flights tickets', expirationDay: 'Jan 20,2026', requester: 'John Doe', requestTime: 'Jan 15,2026' },
+    { name: 'development keys', status: 'Active', apiKey: 'rGeZL-RKIT5', api: 'List My Bookings', expirationDay: 'Oct 25,2025', requester: 'Jane Smith', requestTime: 'Oct 20,2025' },
+    { name: 'Production keys', status: 'Expired', apiKey: '', api: 'Create Booking', expirationDay: 'Sep 05,2025', requester: 'Bob Johnson', requestTime: 'Sep 01,2025' },
+    { name: 'Dev test keys', status: 'Active', apiKey: 'vt9Dz-taKWW', api: 'Get Refund Status', expirationDay: 'Nov 01,2025', requester: 'Alice Williams', requestTime: 'Oct 28,2025' },
+    { name: 'Research key', status: 'Active', apiKey: 'UfTQm-2eeLx', api: 'Get Payment Status', expirationDay: 'Dec 25,2026', requester: 'Charlie Brown', requestTime: 'Dec 20,2026' },
+    { name: 'Integration keys', status: 'Active', apiKey: 'KwJzA-9mNpR', api: 'Get Flights tickets', expirationDay: 'May 10,2027', requester: 'David Miller', requestTime: 'May 05,2027' },
+    { name: 'test-Key_1', status: 'Expired', apiKey: '', api: 'Get Booking Details', expirationDay: 'May 11,2028', requester: 'Emma Davis', requestTime: 'May 06,2028' },
+    { name: 'learn-Key_2', status: 'Active', apiKey: 'XyVwB-8qLsT', api: 'Create Booking', expirationDay: 'April 20,2029', requester: 'Frank Wilson', requestTime: 'April 15,2029' },
+    { name: 'try-Key_3', status: 'Active', apiKey: 'MnKpO-7fGhJ', api: 'List My Bookings', expirationDay: 'Mar 06,2026', requester: 'Grace Lee', requestTime: 'Mar 01,2026' },
+    { name: 'Trial-Key_4', status: 'Active', apiKey: 'DeFsC-5hIjK', api: 'Get Flights tickets', expirationDay: 'May 20,2025', requester: 'Henry Taylor', requestTime: 'May 15,2025' },
   ];
 
   const handleNavClick = (itemId: string) => {
@@ -325,9 +327,9 @@ const APIKeys: React.FunctionComponent = () => {
                       <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Name</th>
                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Status</th>
-                        <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>API key</th>
                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>API</th>
-                        <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Expiration day</th>
+                        <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Requester</th>
+                        <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Request time</th>
                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '50px' }}></th>
                       </tr>
                     </thead>
@@ -344,16 +346,16 @@ const APIKeys: React.FunctionComponent = () => {
                               {key.status}
                             </Badge>
                           </td>
-                          <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '13px', color: '#6a6e73' }}>
-                            {key.apiKey || '-'}
-                          </td>
                           <td style={{ padding: '12px' }}>
                             <Button variant="link" isInline>
                               {key.api}
                             </Button>
                           </td>
                           <td style={{ padding: '12px', color: '#6a6e73' }}>
-                            {key.expirationDay}
+                            {key.requester || '-'}
+                          </td>
+                          <td style={{ padding: '12px', color: '#6a6e73' }}>
+                            {key.requestTime || '-'}
                           </td>
                           <td style={{ padding: '12px' }}>
                             <Button variant="plain" aria-label="Actions">
