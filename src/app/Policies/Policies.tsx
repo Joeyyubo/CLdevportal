@@ -462,7 +462,7 @@ const Policies: React.FunctionComponent = () => {
             />
           </GridItem>
           <GridItem span={9} style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
-            <Button variant="primary" onClick={() => navigate('/self-service')}>{currentRole === 'Platform engineer' ? 'Register policy' : 'Request policy'}</Button>
+            <Button variant="primary" onClick={() => navigate(currentRole === 'Platform engineer' ? '/register-component?source=policies' : '/policies/request')}>{currentRole === 'Platform engineer' ? 'Register policy' : 'Request policy'}</Button>
           </GridItem>
         </Grid>
 
