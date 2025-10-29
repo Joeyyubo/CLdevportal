@@ -531,21 +531,21 @@ const DeveloperPortal: React.FunctionComponent = () => {
               <div style={{ marginBottom: '8px' }}>
                 <div
                   role="button"
-                  onClick={() => (ownedCount > 0 && currentRole !== 'Platform engineer') && handleFilterClick('Owned')}
+                  onClick={() => ownedCount > 0 && handleFilterClick('Owned')}
                   style={{ 
                     width: '100%', 
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     gap: '8px',
-                    backgroundColor: (ownedCount === 0 || currentRole === 'Platform engineer') ? '#fafafa' : '#ffffff',
-                    color: (ownedCount === 0 || currentRole === 'Platform engineer') ? '#8b8d90' : '#151515',
+                    backgroundColor: ownedCount === 0 ? '#fafafa' : '#ffffff',
+                    color: ownedCount === 0 ? '#8b8d90' : '#151515',
                     border: selectedFilter === 'Owned' ? '2px solid #0066CC' : '2px solid transparent',
                     borderRadius: '6px',
                     padding: '8px 12px',
-                    cursor: (ownedCount === 0 || currentRole === 'Platform engineer') ? 'not-allowed' : 'pointer',
+                    cursor: ownedCount === 0 ? 'not-allowed' : 'pointer',
                     textAlign: 'left',
-                    opacity: (ownedCount === 0 || currentRole === 'Platform engineer') ? 0.6 : 1,
+                    opacity: ownedCount === 0 ? 0.6 : 1,
                     boxSizing: 'border-box'
                   }}
                 >
