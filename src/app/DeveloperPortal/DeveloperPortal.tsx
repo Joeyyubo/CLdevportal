@@ -110,6 +110,8 @@ const DeveloperPortal: React.FunctionComponent = () => {
   
   const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
   const [apiKeysSectionFilter, setApiKeysSectionFilter] = React.useState('keys-owned'); // 'keys-owned', 'requests-owned'
+  const [apiKeysStatusFilter, setApiKeysStatusFilter] = React.useState('All'); // 'All', 'Active', 'Expired'
+  const [requestStateFilter, setRequestStateFilter] = React.useState('All'); // For non-Platform engineer role
   const [copiedApiKey, setCopiedApiKey] = React.useState<string | null>(null);
   const [showRevokeSuccess, setShowRevokeSuccess] = React.useState(false);
   const [revokedRequestName, setRevokedRequestName] = React.useState('');
@@ -753,9 +755,29 @@ const DeveloperPortal: React.FunctionComponent = () => {
                     <option>All</option>
                   </select>
 
-                  <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Request state</Title>
-                  <select style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px' }}>
-                    <option>All</option>
+                  <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>
+                    {currentRole === 'Platform engineer' ? 'Status' : 'Request state'}
+                  </Title>
+                  <select 
+                    style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px' }}
+                    value={currentRole === 'Platform engineer' ? (apiKeysStatusFilter || 'All') : (requestStateFilter || 'All')}
+                    onChange={(e) => {
+                      if (currentRole === 'Platform engineer') {
+                        setApiKeysStatusFilter(e.target.value);
+                      } else {
+                        setRequestStateFilter(e.target.value);
+                      }
+                    }}
+                  >
+                    {currentRole === 'Platform engineer' ? (
+                      <>
+                        <option value="All">All</option>
+                        <option value="Active">Active</option>
+                        <option value="Expired">Expired</option>
+                      </>
+                    ) : (
+                      <option>All</option>
+                    )}
                   </select>
                 </div>
               </GridItem>
@@ -787,7 +809,12 @@ const DeveloperPortal: React.FunctionComponent = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {apiKeys.map((key, index) => (
+                          {apiKeys.filter((key) => {
+                            if (currentRole === 'Platform engineer' && apiKeysStatusFilter !== 'All') {
+                              return key.status === apiKeysStatusFilter;
+                            }
+                            return true;
+                          }).map((key, index) => (
                             <tr key={index} style={{ borderBottom: '1px solid #d0d0d0' }}>
                               <td style={{ padding: '12px' }}>
                                 <Button 
