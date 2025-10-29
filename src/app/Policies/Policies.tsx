@@ -307,7 +307,7 @@ const Policies: React.FunctionComponent = () => {
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
                 API portal
               </NavItem>
-              {currentRole === 'API owner' && (
+              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" isActive icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies
                 </NavItem>

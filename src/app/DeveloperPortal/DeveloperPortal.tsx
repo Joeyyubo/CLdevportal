@@ -462,7 +462,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
                 API portal
               </NavItem>
-              {currentRole === 'API owner' && (
+              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies
                 </NavItem>
