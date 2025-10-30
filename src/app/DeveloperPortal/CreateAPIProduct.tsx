@@ -190,7 +190,7 @@ const CreateAPIProduct: React.FunctionComponent = () => {
   const sidebar = (
     <PageSidebar>
       <PageSidebarBody>
-        <Nav aria-label="API portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
+        <Nav aria-label="Developer portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
             <NavItem itemId="home" icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
               Home
@@ -212,7 +212,7 @@ const CreateAPIProduct: React.FunctionComponent = () => {
             </NavItem>
             <Divider />
             <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-              API portal
+              Developer portal
             </NavItem>
             {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
               <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
@@ -239,7 +239,7 @@ const CreateAPIProduct: React.FunctionComponent = () => {
         <Breadcrumb style={{ marginBottom: '16px' }}>
           <BreadcrumbItem>
             <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-              API portal
+              Developer portal
             </Button>
           </BreadcrumbItem>
           <BreadcrumbItem>APIs</BreadcrumbItem>
@@ -345,10 +345,10 @@ const CreateAPIProduct: React.FunctionComponent = () => {
         {/* Warning Message */}
         <Alert
           variant="warning"
-          title="API Product creation in the API portal needs approval"
+          title="API Product creation in the Developer portal needs approval"
           style={{ marginBottom: '24px' }}
         >
-          You will get notification when the API product creation in the API portal is needed to be approval by API owner. It will take several time to complete.
+          You will get notification when the API product creation in the Developer portal is needed to be approval by API owner. It will take several time to complete.
         </Alert>
 
         {/* Action Buttons */}

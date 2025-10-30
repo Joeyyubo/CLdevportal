@@ -202,7 +202,7 @@ const LearningPaths: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                API portal
+                Developer portal
               </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>

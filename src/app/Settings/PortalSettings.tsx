@@ -208,7 +208,7 @@ const PortalSettings: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                API portal
+                Developer portal
               </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
@@ -238,7 +238,7 @@ const PortalSettings: React.FunctionComponent = () => {
         <Breadcrumb style={{ marginBottom: '16px' }}>
           <BreadcrumbItem>
             <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-              API portal
+              Developer portal
             </Button>
           </BreadcrumbItem>
           <BreadcrumbItem>Settings</BreadcrumbItem>

@@ -224,7 +224,7 @@ const RequestPolicy: React.FunctionComponent = () => {
   const sidebar = (
     <PageSidebar>
       <PageSidebarBody>
-        <Nav aria-label="API portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
+        <Nav aria-label="Developer portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
             <NavItem itemId="home" icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
               Home
@@ -261,7 +261,7 @@ const RequestPolicy: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                API portal
+                Developer portal
               </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
@@ -395,7 +395,7 @@ const RequestPolicy: React.FunctionComponent = () => {
               title="Request policy needs approval"
               style={{ marginBottom: '24px' }}
             >
-              You will get notification when the policy in the API portal is needed to be approval by API owner. It will take several time to complete.
+              You will get notification when the policy in the Developer portal is needed to be approval by API owner. It will take several time to complete.
             </Alert>
 
             {/* Action Buttons */}

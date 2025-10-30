@@ -67,7 +67,7 @@ const App: React.FunctionComponent = () => {
         {/* Observability page without AppLayout (has its own layout) */}
         <Route path="/observability" element={<Observability />} />
         
-        {/* API Portal page without AppLayout (has its own layout) */}
+        {/* Developer portal page without AppLayout (has its own layout) */}
         <Route path="/developer-portal" element={<DeveloperPortal />} />
         
         {/* Create API Product page */}

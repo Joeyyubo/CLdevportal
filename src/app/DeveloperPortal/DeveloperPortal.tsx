@@ -425,7 +425,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const sidebar = (
     <PageSidebar>
       <PageSidebarBody>
-        <Nav aria-label="API portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
+        <Nav aria-label="Developer portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
             <NavItem itemId="home" icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
               Home
@@ -462,7 +462,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                API portal
+                Developer portal
               </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
@@ -493,7 +493,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
         <div style={{ marginBottom: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <Title headingLevel="h1" size="2xl">
-              API Portal
+              Developer portal
             </Title>
             {currentRole === 'Platform engineer' && (
               <Button
@@ -504,7 +504,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
               />
             )}
           </div>
-          <Tabs activeKey={activeTab} onSelect={handleTabClick} aria-label="API portal tabs" style={{ marginBottom: '24px' }}>
+          <Tabs activeKey={activeTab} onSelect={handleTabClick} aria-label="Developer portal tabs" style={{ marginBottom: '24px' }}>
             <Tab eventKey={0} title={<TabTitleText>API products</TabTitleText>} />
             <Tab eventKey={1} title={<TabTitleText>API keys</TabTitleText>} />
           </Tabs>

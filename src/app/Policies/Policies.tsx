@@ -413,7 +413,7 @@ const Policies: React.FunctionComponent = () => {
   const sidebar = (
     <PageSidebar>
       <PageSidebarBody>
-        <Nav aria-label="API portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
+        <Nav aria-label="Developer portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
             <NavItem itemId="home" icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
               Home
@@ -450,7 +450,7 @@ const Policies: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                API portal
+                Developer portal
               </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" isActive icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
@@ -485,7 +485,7 @@ const Policies: React.FunctionComponent = () => {
             Available policies in organization for developers to browse discover, register and test
           </p>
           
-          {/* Divider line to match API Portal tabs styling */}
+          {/* Divider line to match Developer portal tabs styling */}
           <div style={{ 
             borderBottom: '1px solid #d0d0d0', 
             marginBottom: '24px',
