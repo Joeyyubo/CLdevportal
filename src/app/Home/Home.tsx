@@ -209,9 +209,9 @@ const Home: React.FunctionComponent = () => {
                   Policies
                 </NavItem>
               )}
-              <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
+              {/* <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
-              </NavItem>
+              </NavItem> */}
             </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
