@@ -12,6 +12,7 @@ import {
   Nav,
   NavList,
   NavItem,
+  NavExpandable,
   PageSection,
   Divider,
   Dropdown,
@@ -56,6 +57,7 @@ const CreateAPIProduct: React.FunctionComponent = () => {
   const [isKeyRequestEnabled, setIsKeyRequestEnabled] = React.useState(true);
   const [isApiDropdownOpen, setIsApiDropdownOpen] = React.useState(false);
   const [isPolicyDropdownOpen, setIsPolicyDropdownOpen] = React.useState(false);
+  const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
   
   const getCurrentRole = (): string => {
     try {
@@ -211,14 +213,30 @@ const CreateAPIProduct: React.FunctionComponent = () => {
               Self-service
             </NavItem>
             <Divider />
-            <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-              Developer portal
-            </NavItem>
-            {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
-              <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
-                Policies
+            <NavExpandable
+              title={
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                    <rect width="16" height="16" rx="3" fill="black"/>
+                    <path d="M 5 6 L 8 4 L 11 6 L 11 10 L 8 12 L 5 10 Z" stroke="white" strokeWidth="1" fill="none" strokeLinejoin="round"/>
+                    <path d="M 6 7 L 9 5 L 12 7 L 12 11 L 9 13 L 6 11 Z" stroke="#CC0000" strokeWidth="1.5" fill="none" strokeLinejoin="round" opacity="0.8"/>
+                  </svg>
+                  Connectivity Link
+                </span>
+              }
+              id="connectivity-link-group"
+              isExpanded={connectivityLinkExpanded}
+              onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
+            >
+              <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                Developer portal
               </NavItem>
-            )}
+              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
+                <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
+                  Policies
+                </NavItem>
+              )}
+            </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
               Administration
@@ -242,85 +260,84 @@ const CreateAPIProduct: React.FunctionComponent = () => {
               Developer portal
             </Button>
           </BreadcrumbItem>
-          <BreadcrumbItem>APIs</BreadcrumbItem>
-          <BreadcrumbItem isActive>Create API products</BreadcrumbItem>
+          <BreadcrumbItem isActive>
+            <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
+              APIs
+            </Button>
+          </BreadcrumbItem>
         </Breadcrumb>
 
         <Title headingLevel="h1" size="2xl" style={{ marginBottom: '32px' }}>
           Create API products
         </Title>
 
-        <Card style={{ marginBottom: '24px' }}>
-          <CardBody>
-            <FormGroup label="API product name" fieldId="product-name" isRequired>
-              <TextInput
-                id="product-name"
-                value={productName}
-                onChange={(_, value) => setProductName(value)}
-              />
-            </FormGroup>
+        <FormGroup label="API product name" fieldId="product-name" isRequired style={{ marginBottom: '24px' }}>
+          <TextInput
+            id="product-name"
+            value={productName}
+            onChange={(_, value) => setProductName(value)}
+          />
+        </FormGroup>
 
-            <FormGroup label="Description" fieldId="description">
-              <TextArea
-                id="description"
-                value={description}
-                onChange={(_, value) => setDescription(value)}
-                rows={4}
-              />
-            </FormGroup>
+        <FormGroup label="Description" fieldId="description" style={{ marginBottom: '24px' }}>
+          <TextArea
+            id="description"
+            value={description}
+            onChange={(_, value) => setDescription(value)}
+            rows={4}
+          />
+        </FormGroup>
 
-            <FormGroup label="Contact" fieldId="contact" isRequired>
-              <TextInput
-                id="contact"
-                type="email"
-                value={contact}
-                onChange={(_, value) => setContact(value)}
-              />
-            </FormGroup>
+        <FormGroup label="Contact" fieldId="contact" isRequired style={{ marginBottom: '24px' }}>
+          <TextInput
+            id="contact"
+            type="email"
+            value={contact}
+            onChange={(_, value) => setContact(value)}
+          />
+        </FormGroup>
 
-            <FormGroup label="APIs" fieldId="apis" isRequired>
-              <select 
-                id="apis"
-                value={selectedApi}
-                onChange={(e) => setSelectedApi(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  fontSize: '14px',
-                  lineHeight: '1.5',
-                  border: '1px solid #8b8d90',
-                  borderRadius: '4px',
-                  minHeight: '36px'
-                }}
-              >
-                <option>Get Flight tickets</option>
-                <option>Get Booking Details</option>
-                <option>Create Booking</option>
-              </select>
-            </FormGroup>
+        <FormGroup label="APIs" fieldId="apis" isRequired style={{ marginBottom: '24px' }}>
+          <select 
+            id="apis"
+            value={selectedApi}
+            onChange={(e) => setSelectedApi(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              fontSize: '14px',
+              lineHeight: '1.5',
+              border: '1px solid #8b8d90',
+              borderRadius: '4px',
+              minHeight: '36px'
+            }}
+          >
+            <option>Get Flight tickets</option>
+            <option>Get Booking Details</option>
+            <option>Create Booking</option>
+          </select>
+        </FormGroup>
 
-            <FormGroup label="Policy reference" fieldId="policy-reference" isRequired>
-              <select 
-                id="policy-reference"
-                value={selectedPolicy}
-                onChange={(e) => setSelectedPolicy(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  fontSize: '14px',
-                  lineHeight: '1.5',
-                  border: '1px solid #8b8d90',
-                  borderRadius: '4px',
-                  minHeight: '36px'
-                }}
-              >
-                <option>Standard plan policy</option>
-                <option>Advanced plan</option>
-                <option>Free plan</option>
-              </select>
-            </FormGroup>
-          </CardBody>
-        </Card>
+        <FormGroup label="Policy reference" fieldId="policy-reference" isRequired style={{ marginBottom: '24px' }}>
+          <select 
+            id="policy-reference"
+            value={selectedPolicy}
+            onChange={(e) => setSelectedPolicy(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              fontSize: '14px',
+              lineHeight: '1.5',
+              border: '1px solid #8b8d90',
+              borderRadius: '4px',
+              minHeight: '36px'
+            }}
+          >
+            <option>Standard plan policy</option>
+            <option>Advanced plan</option>
+            <option>Free plan</option>
+          </select>
+        </FormGroup>
 
         {/* API Key Request Section */}
         <Card style={{ marginBottom: '24px' }}>
