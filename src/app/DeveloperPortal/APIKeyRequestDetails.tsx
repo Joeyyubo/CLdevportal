@@ -12,6 +12,7 @@ import {
   Nav,
   NavList,
   NavItem,
+  NavExpandable,
   PageSection,
   Divider,
   Breadcrumb,
@@ -64,6 +65,7 @@ import {
   TimesCircleIcon,
   StarIcon,
   ArrowUpIcon,
+  CheckCircleIcon,
 } from '@patternfly/react-icons';
 import './DeveloperPortal.css';
 
@@ -147,6 +149,7 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
   const [activeTab, setActiveTab] = React.useState(0);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const [isRevokeModalOpen, setIsRevokeModalOpen] = React.useState(false);
+  const [isApproveModalOpen, setIsApproveModalOpen] = React.useState(false);
   const [isReapplyModalOpen, setIsReapplyModalOpen] = React.useState(false);
   const [revokeConfirmText, setRevokeConfirmText] = React.useState('');
   const [descriptionText, setDescriptionText] = React.useState('');
@@ -156,6 +159,21 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
   const [selectedReapplyPlan, setSelectedReapplyPlan] = React.useState('Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;');
   const [isPlanDropdownOpen, setIsPlanDropdownOpen] = React.useState(false);
   const [isReapplyPlanDropdownOpen, setIsReapplyPlanDropdownOpen] = React.useState(false);
+  const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
+  const userToggleRef = React.useRef<HTMLButtonElement>(null);
+
+  // Get current role from localStorage or use default
+  const getCurrentRole = (): string => {
+    try {
+      const role = localStorage.getItem('currentRole');
+      return role || 'API consumer';
+    } catch {
+      return 'API consumer';
+    }
+  };
+  
+  const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
 
   // Decode the request name from URL
   const decodedRequestName = requestName ? decodeURIComponent(requestName) : null;
@@ -171,14 +189,69 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
   };
 
   const handleNavClick = (itemId: string) => {
-    if (itemId === 'dev-portal') {
-      navigate('/developer-portal');
+    if (itemId === 'home') {
+      navigate('/home');
+    } else if (itemId === 'catalog') {
+      navigate('/catalog');
     } else if (itemId === 'apis') {
       navigate('/apis');
+    } else if (itemId === 'docs') {
+      navigate('/docs');
+    } else if (itemId === 'learning') {
+      navigate('/learning');
+    } else if (itemId === 'self-service') {
+      navigate('/self-service');
+    } else if (itemId === 'dev-portal') {
+      navigate('/developer-portal');
+    } else if (itemId === 'policies') {
+      navigate('/policies');
+    } else if (itemId === 'observability') {
+      navigate('/observability');
+    } else if (itemId === 'administration') {
+      navigate('/administration');
+    } else if (itemId === 'settings') {
+      navigate('/settings');
     } else {
       navigate('/developer-portal');
     }
   };
+
+  const handleUserDropdownToggle = () => {
+    setIsUserDropdownOpen(!isUserDropdownOpen);
+  };
+
+  const handleUserDropdownSelect = (_event?: React.MouseEvent | undefined, role?: string | number | undefined) => {
+    const newRole = String(role);
+    setCurrentRole(newRole);
+    // Save to localStorage
+    try {
+      localStorage.setItem('currentRole', newRole);
+      // Trigger storage event
+      window.dispatchEvent(new Event('storage'));
+    } catch (e) {
+      console.error('Failed to save role to localStorage:', e);
+    }
+    setIsUserDropdownOpen(false);
+    // Focus will be returned to the toggle button
+    userToggleRef.current?.focus();
+  };
+
+  // Listen to storage changes for role updates
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const role = localStorage.getItem('currentRole');
+        if (role) {
+          setCurrentRole(role);
+        }
+      } catch (e) {
+        console.error('Failed to read role from localStorage:', e);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const masthead = (
     <Masthead>
@@ -217,15 +290,32 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
       </MastheadMain>
       <MastheadContent>
         <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'flex-end' }}>
-          <Button variant="plain" aria-label="Help" style={{ color: '#151515' }}>
-            <HelpIcon />
-          </Button>
-          <Button variant="plain" aria-label="Notifications" style={{ color: '#151515' }}>
-            <BellIcon />
-          </Button>
-          <Button variant="plain" aria-label="User" style={{ color: '#151515' }}>
-            <UserIcon />
-          </Button>
+            <Dropdown
+              isOpen={isUserDropdownOpen}
+              onSelect={handleUserDropdownSelect}
+              onOpenChange={(isOpen) => setIsUserDropdownOpen(isOpen)}
+              toggle={(toggleRef) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  onClick={handleUserDropdownToggle}
+                  aria-expanded={isUserDropdownOpen}
+                  aria-label="User account menu"
+                  variant="plainText"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <UserIcon />
+                    <span>{currentRole}</span>
+                  </div>
+                </MenuToggle>
+              )}
+              popperProps={{ appendTo: () => document.body }}
+            >
+              <DropdownList>
+                <DropdownItem value="API consumer">API consumer</DropdownItem>
+                <DropdownItem value="API owner">API owner</DropdownItem>
+                <DropdownItem value="Platform engineer">Platform engineer</DropdownItem>
+              </DropdownList>
+            </Dropdown>
         </div>
       </MastheadContent>
     </Masthead>
@@ -236,33 +326,54 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
       <PageSidebarBody>
         <Nav aria-label="Developer portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
-            <NavItem itemId="home" icon={<HomeIcon />}>
+            <NavItem itemId="home" icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
               Home
             </NavItem>
-            <NavItem itemId="catalog" icon={<ArchiveIcon />}>
+            <NavItem itemId="catalog" icon={<ArchiveIcon />} onClick={() => handleNavClick('catalog')}>
               Catalog
             </NavItem>
-            <NavItem itemId="apis" icon={<CogIcon />}>
+            <NavItem itemId="apis" icon={<CogIcon />} onClick={() => handleNavClick('apis')}>
               APIs
             </NavItem>
-            <NavItem itemId="docs" icon={<FileAltIcon />}>
+            <NavItem itemId="docs" icon={<FileAltIcon />} onClick={() => handleNavClick('docs')}>
               Docs
             </NavItem>
-            <NavItem itemId="learning" icon={<GraduationCapIcon />}>
+            <NavItem itemId="learning" icon={<GraduationCapIcon />} onClick={() => handleNavClick('learning')}>
               Learning Paths
             </NavItem>
-            <NavItem itemId="self-service" icon={<PlusCircleIcon />}>
+            <NavItem itemId="self-service" icon={<PlusCircleIcon />} onClick={() => handleNavClick('self-service')}>
               Self-service
             </NavItem>
             <Divider />
-            <NavItem itemId="dev-portal" isActive icon={<CodeIcon />}>
-              Developer portal
-            </NavItem>
+            <NavExpandable
+              title={
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                    <rect width="16" height="16" rx="3" fill="black"/>
+                    <path d="M 5 6 L 8 4 L 11 6 L 11 10 L 8 12 L 5 10 Z" stroke="white" strokeWidth="1" fill="none" strokeLinejoin="round"/>
+                    <path d="M 6 7 L 9 5 L 12 7 L 12 11 L 9 13 L 6 11 Z" stroke="#CC0000" strokeWidth="1.5" fill="none" strokeLinejoin="round" opacity="0.8"/>
+                  </svg>
+                  Connectivity Link
+                </span>
+              }
+              id="connectivity-link-group"
+              isExpanded={connectivityLinkExpanded}
+              onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
+            >
+              <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                Developer portal
+              </NavItem>
+              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
+                <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
+                  Policies
+                </NavItem>
+              )}
+            </NavExpandable>
             <Divider />
-            <NavItem itemId="administration" icon={<ExclamationCircleIcon />}>
+            <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
               Administration
             </NavItem>
-            <NavItem itemId="settings" icon={<CogIcon />}>
+            <NavItem itemId="settings" icon={<CogIcon />} onClick={() => handleNavClick('settings')}>
               Settings
             </NavItem>
           </NavList>
@@ -304,6 +415,12 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
                 {requestDetails.status}
               </Label>
             </div>
+            {requestDetails.status === 'Pending' && currentRole === 'API owner' && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Button variant="primary" onClick={() => setIsApproveModalOpen(true)}>Approve</Button>
+                <Button variant="secondary" onClick={() => setIsRevokeModalOpen(true)}>Revoke</Button>
+              </div>
+            )}
             {requestDetails.status === 'Rejected' && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Button variant="primary" onClick={() => setIsReapplyModalOpen(true)}>Reapply</Button>
@@ -567,6 +684,52 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
               setDescriptionText('');
               setSelectedPlan('Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;');
               setIsPlanDropdownOpen(false);
+            }}
+          >
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+
+      {/* Approve API key request modal */}
+      <Modal
+        isOpen={isApproveModalOpen}
+        onClose={() => {
+          setIsApproveModalOpen(false);
+        }}
+        variant="small"
+        style={{
+          '--pf-v6-c-backdrop--BackgroundColor': 'rgba(200, 200, 200, 0.8)'
+        } as React.CSSProperties}
+      >
+        <ModalHeader>
+          <Title headingLevel="h2">Approve this API key request?</Title>
+        </ModalHeader>
+        <ModalBody>
+          <p style={{ marginBottom: '24px' }}>
+            Approving this API key request will grant access to <strong>{requestDetails.name}</strong> for the API <strong>{requestDetails.apiName}</strong>.
+          </p>
+          <p style={{ color: '#6a6e73', fontSize: '14px' }}>
+            The requester will be notified and can start using the API key immediately.
+          </p>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            key="approve"
+            variant="primary"
+            onClick={() => {
+              setIsApproveModalOpen(false);
+              // Navigate back to API keys page with success notification
+              navigate(`/developer-portal#api-keys`);
+            }}
+          >
+            Approve
+          </Button>
+          <Button
+            key="cancel"
+            variant="secondary"
+            onClick={() => {
+              setIsApproveModalOpen(false);
             }}
           >
             Cancel
