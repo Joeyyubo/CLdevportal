@@ -413,16 +413,16 @@ const APIDetails: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                Developer portal
-              </NavItem>
+              Developer portal
+            </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
-                  Policies
-                </NavItem>
-              )}
-              {/* <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
+                Policies
+              </NavItem>
+            )}
+              <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
-              </NavItem> */}
+              </NavItem>
             </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>

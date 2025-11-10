@@ -243,7 +243,7 @@ const SelfService: React.FunctionComponent = () => {
   const sidebar = (
     <PageSidebar>
       <PageSidebarBody>
-        <Nav aria-label="Developer portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
+        <Nav aria-label="API portal navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
             <NavItem itemId="home" icon={<HomeIcon />} onClick={() => handleNavClick('home')}>
               Home
@@ -265,31 +265,22 @@ const SelfService: React.FunctionComponent = () => {
             </NavItem>
             <Divider />
             <NavExpandable
-              title={
-                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                    <rect width="16" height="16" rx="3" fill="black"/>
-                    <path d="M 5 6 L 8 4 L 11 6 L 11 10 L 8 12 L 5 10 Z" stroke="white" strokeWidth="1" fill="none" strokeLinejoin="round"/>
-                    <path d="M 6 7 L 9 5 L 12 7 L 12 11 L 9 13 L 6 11 Z" stroke="#CC0000" strokeWidth="1.5" fill="none" strokeLinejoin="round" opacity="0.8"/>
-                  </svg>
-                  Connectivity Link
-                </span>
-              }
+              title="Connectivity Link"
               id="connectivity-link-group"
               isExpanded={connectivityLinkExpanded}
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                Developer portal
+                API portal
               </NavItem>
-              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
+              {currentRole === 'API owner' && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies
                 </NavItem>
               )}
-              {/* <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
+              <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
-              </NavItem> */}
+              </NavItem>
             </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
@@ -315,7 +306,7 @@ const SelfService: React.FunctionComponent = () => {
             Create new software components using standard templates
           </p>
           
-          {/* Divider line to match Developer portal tabs styling */}
+          {/* Divider line to match API Portal tabs styling */}
           <div style={{ 
             borderBottom: '1px solid #d0d0d0', 
             marginBottom: '24px',
@@ -338,7 +329,7 @@ const SelfService: React.FunctionComponent = () => {
             <Button variant="link" isInline style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <QuestionCircleIcon /> <span>Support</span>
             </Button>
-            <Button variant="primary" onClick={() => navigate('/register-component?source=self-service')}>Register existing component</Button>
+            <Button variant="primary" onClick={() => navigate('/register-component')}>Register existing component</Button>
           </GridItem>
         </Grid>
 

@@ -303,7 +303,7 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
                   variant="plainText"
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <UserIcon />
+            <UserIcon />
                     <span>{currentRole}</span>
                   </div>
                 </MenuToggle>
@@ -361,13 +361,16 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                Developer portal
-              </NavItem>
+              Developer portal
+            </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies
                 </NavItem>
               )}
+              <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
+                Observability
+              </NavItem>
             </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
@@ -401,19 +404,19 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <Title headingLevel="h1" size="2xl">
-                {requestDetails.name}
-              </Title>
-              <Button variant="plain" aria-label="Star">
-                <StarIcon style={{ fill: '#0066CC' }} />
-              </Button>
-              <Label
-                variant="outline"
-                icon={requestDetails.status === 'Pending' ? <ClockIcon /> : <TimesCircleIcon />}
-                color={requestDetails.status === 'Pending' ? 'blue' : 'red'}
-              >
-                {requestDetails.status}
-              </Label>
+            <Title headingLevel="h1" size="2xl">
+              {requestDetails.name}
+            </Title>
+            <Button variant="plain" aria-label="Star">
+              <StarIcon style={{ fill: '#0066CC' }} />
+            </Button>
+            <Label
+              variant="outline"
+              icon={requestDetails.status === 'Pending' ? <ClockIcon /> : <TimesCircleIcon />}
+              color={requestDetails.status === 'Pending' ? 'blue' : 'red'}
+            >
+              {requestDetails.status}
+            </Label>
             </div>
             {requestDetails.status === 'Pending' && currentRole === 'API owner' && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -527,28 +530,28 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
 
               {/* API key request update section - only show if not rejected */}
               {requestDetails.status !== 'Rejected' && (
-                <Card style={{ border: '1px solid #67b350', marginBottom: '24px' }}>
-                  <CardBody>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                      <div style={{ 
-                        width: '24px', 
-                        height: '24px', 
-                        borderRadius: '50%', 
-                        backgroundColor: '#67b350',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        <ArrowUpIcon style={{ color: 'white', fontSize: '16px' }} />
-                      </div>
-                      <Title headingLevel="h3" size="lg">API key request update</Title>
+              <Card style={{ border: '1px solid #67b350', marginBottom: '24px' }}>
+                <CardBody>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{ 
+                      width: '24px', 
+                      height: '24px', 
+                      borderRadius: '50%', 
+                      backgroundColor: '#67b350',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <ArrowUpIcon style={{ color: 'white', fontSize: '16px' }} />
                     </div>
-                    <p style={{ marginBottom: '16px', color: '#151515' }}>
-                      Edit this API key request.
-                    </p>
-                    <Button variant="primary" onClick={() => setIsEditModalOpen(true)}>Edit API key request</Button>
-                  </CardBody>
-                </Card>
+                    <Title headingLevel="h3" size="lg">API key request update</Title>
+                  </div>
+                  <p style={{ marginBottom: '16px', color: '#151515' }}>
+                    Edit this API key request.
+                  </p>
+                  <Button variant="primary" onClick={() => setIsEditModalOpen(true)}>Edit API key request</Button>
+                </CardBody>
+              </Card>
               )}
 
               {/* Danger zone section */}

@@ -48,7 +48,7 @@ import './DeveloperPortal.css';
 
 interface APIKey {
   name: string;
-  status: 'Active' | 'Expired';
+  status: 'Active' | 'Disabled';
   api: string;
   user: string;
 }
@@ -63,11 +63,11 @@ const APIKeys: React.FunctionComponent = () => {
   const apiKeys: APIKey[] = [
     { name: 'personal keys', status: 'Active', api: 'Get Flights tickets', user: 'John Doe' },
     { name: 'development keys', status: 'Active', api: 'List My Bookings', user: 'Jane Smith' },
-    { name: 'Production keys', status: 'Expired', api: 'Create Booking', user: 'Bob Johnson' },
+    { name: 'Production keys', status: 'Disabled', api: 'Create Booking', user: 'Bob Johnson' },
     { name: 'Dev test keys', status: 'Active', api: 'Get Refund Status', user: 'Alice Williams' },
     { name: 'Research key', status: 'Active', api: 'Get Payment Status', user: 'Charlie Brown' },
     { name: 'Integration keys', status: 'Active', api: 'Get Flights tickets', user: 'David Lee' },
-    { name: 'test-Key_1', status: 'Expired', api: 'Get Booking Details', user: 'Emma Davis' },
+    { name: 'test-Key_1', status: 'Disabled', api: 'Get Booking Details', user: 'Emma Davis' },
     { name: 'learn-Key_2', status: 'Active', api: 'Create Booking', user: 'Frank Miller' },
     { name: 'try-Key_3', status: 'Active', api: 'List My Bookings', user: 'Grace Wilson' },
     { name: 'Trial-Key_4', status: 'Active', api: 'Get Flights tickets', user: 'Henry Moore' },
@@ -279,7 +279,7 @@ const APIKeys: React.FunctionComponent = () => {
                     <thead>
                       <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Name</th>
-                        <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Status</th>
+                        <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Status</th>
                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>API</th>
                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>User</th>
                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '50px' }}></th>
@@ -293,8 +293,8 @@ const APIKeys: React.FunctionComponent = () => {
                               {key.name}
                             </Button>
                           </td>
-                          <td style={{ padding: '12px' }}>
-                            <Badge style={{ backgroundColor: key.status === 'Active' ? '#67b350' : '#c9190b', color: 'white' }}>
+                          <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
+                            <Badge style={{ backgroundColor: key.status === 'Active' ? '#67b350' : '#c9190b', color: 'white', display: 'inline-block' }}>
                               {key.status}
                             </Badge>
                           </td>

@@ -403,16 +403,16 @@ const APIs: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                Developer portal
-              </NavItem>
+              Developer portal
+            </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
-                  Policies
-                </NavItem>
-              )}
-              {/* <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
+                Policies
+              </NavItem>
+            )}
+              <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
-              </NavItem> */}
+              </NavItem>
             </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
@@ -432,11 +432,11 @@ const APIs: React.FunctionComponent = () => {
       <PageSection>
         <div style={{ marginBottom: '24px' }}>
           <Title headingLevel="h1" size="2xl" style={{ marginBottom: '16px' }}>
-            APIs
-          </Title>
+              APIs
+            </Title>
           <p style={{ fontSize: '14px', color: '#6a6e73', marginBottom: 0 }}>
-            Available APIs in organization for developers to browse discover, register and test
-          </p>
+              Available APIs in organization for developers to browse discover, register and test
+            </p>
           
           {/* Divider line to match Developer portal tabs styling */}
           <div style={{ 
@@ -479,7 +479,7 @@ const APIs: React.FunctionComponent = () => {
                 <div
                   role="button"
                   onClick={() => ownedCount > 0 && setActiveFilter(activeFilter === 'owned' ? 'organization-all' : 'owned')}
-                  style={{ 
+                  style={{
                     width: '100%', 
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -506,7 +506,7 @@ const APIs: React.FunctionComponent = () => {
                 <div
                   role="button"
                   onClick={() => setActiveFilter(activeFilter === 'starred' ? 'organization-all' : 'starred')}
-                  style={{ 
+                  style={{
                     width: '100%', 
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -589,8 +589,8 @@ const APIs: React.FunctionComponent = () => {
             <Card>
               <CardBody>
                 <Title headingLevel="h2" size="lg" style={{ marginBottom: '16px' }}>
-                  APIs
-                </Title>
+                    APIs
+                  </Title>
 
                 <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <thead>
@@ -630,9 +630,9 @@ const APIs: React.FunctionComponent = () => {
                           ))}
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
-                          <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(api.name)}>
-                            <StarIcon style={{ fontSize: '16px', fill: api.starred ? '#0066CC' : 'inherit' }} />
-                          </Button>
+                            <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(api.name)}>
+                              <StarIcon style={{ fontSize: '16px', fill: api.starred ? '#0066CC' : 'inherit' }} />
+                            </Button>
                         </td>
                       </tr>
                     ))}

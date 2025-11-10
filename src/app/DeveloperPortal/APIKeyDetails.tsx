@@ -136,7 +136,7 @@ const apiKeyDetailsData: Record<string, any> = {
   },
   'Production keys': {
     name: 'Production keys',
-    status: 'Expired',
+    status: 'Disabled',
     description: 'Production environment API key.',
     apiKey: '',
     apiName: 'Create Booking',
@@ -391,16 +391,16 @@ const APIKeyDetails: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                Developer portal
-              </NavItem>
+              Developer portal
+            </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies
                 </NavItem>
               )}
-              {/* <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
+              <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
-              </NavItem> */}
+              </NavItem>
             </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
@@ -434,18 +434,19 @@ const APIKeyDetails: React.FunctionComponent = () => {
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <Title headingLevel="h1" size="2xl">
-                {keyDetails.name}
-              </Title>
-              <Label
-                variant="outline"
-                icon={keyDetails.status === 'Active' ? <CheckCircleIcon /> : <TimesCircleIcon />}
-                color={keyDetails.status === 'Active' ? 'green' : 'red'}
-              >
-                {keyDetails.status}
-              </Label>
+            <Title headingLevel="h1" size="2xl">
+              {keyDetails.name}
+            </Title>
+            <Label
+              variant="outline"
+              icon={keyDetails.status === 'Active' ? <CheckCircleIcon /> : <TimesCircleIcon />}
+              color={keyDetails.status === 'Active' ? 'green' : 'red'}
+                style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}
+            >
+              {keyDetails.status}
+            </Label>
             </div>
-            {keyDetails.status === 'Expired' && (
+            {keyDetails.status === 'Disabled' && (
               <Button variant="primary" onClick={() => setIsReapplyModalOpen(true)}>
                 Reapply
               </Button>
@@ -800,9 +801,9 @@ const APIKeyDetails: React.FunctionComponent = () => {
                     variant="primary" 
                     onClick={() => {
                       if (keyDetails.status === 'Active') {
-                        setIsUpdateModalOpen(true);
-                        setSelectedPlan('Gold plan (1000 reqs/day, 5000 reqs/week; 30000 reqs/month)');
-                        setIsPlanDropdownOpen(false);
+                      setIsUpdateModalOpen(true);
+                      setSelectedPlan('Gold plan (1000 reqs/day, 5000 reqs/week; 30000 reqs/month)');
+                      setIsPlanDropdownOpen(false);
                       } else {
                         setIsReapplyModalOpen(true);
                       }

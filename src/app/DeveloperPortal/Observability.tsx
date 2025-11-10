@@ -183,7 +183,7 @@ const Observability: React.FunctionComponent = () => {
   );
 
   const sidebar = (
-      <PageSidebar>
+    <PageSidebar>
       <PageSidebarBody>
         <Nav aria-label="Navigation" onSelect={(_, selectedItemId) => handleNavClick(selectedItemId ? String(selectedItemId) : '')}>
           <NavList>
@@ -222,16 +222,16 @@ const Observability: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                Developer portal
-              </NavItem>
+              Developer portal
+            </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies
                 </NavItem>
               )}
-              {/* <NavItem itemId="observability" isActive icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
+              <NavItem itemId="observability" isActive icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
-              </NavItem> */}
+              </NavItem>
             </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
@@ -253,8 +253,8 @@ const Observability: React.FunctionComponent = () => {
   ];
 
   return (
-    <Page masthead={masthead} sidebar={sidebar}>
-      <PageSection>
+      <Page masthead={masthead} sidebar={sidebar}>
+        <PageSection>
         <div style={{ marginBottom: '24px' }}>
           <Title headingLevel="h1" size="2xl" style={{ marginBottom: '16px' }}>
             Observability
@@ -271,7 +271,7 @@ const Observability: React.FunctionComponent = () => {
           }} />
         </div>
 
-        {/* KPI Cards */}
+          {/* KPI Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
             {kpiData.map((kpi, index) => (
               <Card key={index}>

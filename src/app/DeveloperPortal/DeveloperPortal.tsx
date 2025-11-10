@@ -110,7 +110,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
   
   const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
   const [apiKeysSectionFilter, setApiKeysSectionFilter] = React.useState('keys-owned'); // 'keys-owned', 'requests-owned'
-  const [apiKeysStatusFilter, setApiKeysStatusFilter] = React.useState('All'); // 'All', 'Active', 'Expired'
+  const [apiKeysStatusFilter, setApiKeysStatusFilter] = React.useState('All'); // 'All', 'Active', 'Disabled'
   const [requestStateFilter, setRequestStateFilter] = React.useState('All'); // For non-Platform engineer role
   const [copiedApiKey, setCopiedApiKey] = React.useState<string | null>(null);
   const [showRevokeSuccess, setShowRevokeSuccess] = React.useState(false);
@@ -132,27 +132,27 @@ const DeveloperPortal: React.FunctionComponent = () => {
   
   // API Key Requests data
   const apiKeyRequests = [
-    { name: 'A new keys', status: 'Pending', api: 'Get Flights tickets', requestTime: 'Jan 20,2026' },
-    { name: 'development keys', status: 'Pending', api: 'Get Flights tickets', requestTime: 'Oct 25,2025' },
-    { name: 'Production keys', status: 'Pending', api: 'Get Flights tickets', requestTime: 'Sep 05,2025' },
-    { name: 'Dev test keys', status: 'Pending', api: 'List My Bookings', requestTime: 'Nov 01,2025' },
-    { name: 'Research key', status: 'Pending', api: 'List My Bookings', requestTime: 'Dec 25,2026' },
-    { name: 'Integration keys', status: 'Rejected', api: 'Create Booking', requestTime: 'May 10,2027' },
-    { name: 'test-Key_1', status: 'Rejected', api: 'Create Booking', requestTime: 'May 11,2028' },
-    { name: 'learn-Key_2', status: 'Rejected', api: 'List My Bookings', requestTime: 'April 20,2029' },
-    { name: 'try-Key_3', status: 'Rejected', api: 'Create Booking', requestTime: 'Mar 06,2026' },
-    { name: 'Trial-Key_4', status: 'Rejected', api: 'Get Booking Details', requestTime: 'May 20,2025' },
+    { name: 'A new keys', status: 'Pending', api: 'Get Flights tickets', requestTime: 'Jan 20,2026', user: 'John Doe' },
+    { name: 'development keys', status: 'Pending', api: 'Get Flights tickets', requestTime: 'Oct 25,2025', user: 'Jane Smith' },
+    { name: 'Production keys', status: 'Pending', api: 'Get Flights tickets', requestTime: 'Sep 05,2025', user: 'Bob Johnson' },
+    { name: 'Dev test keys', status: 'Pending', api: 'List My Bookings', requestTime: 'Nov 01,2025', user: 'Alice Williams' },
+    { name: 'Research key', status: 'Pending', api: 'List My Bookings', requestTime: 'Dec 25,2026', user: 'Charlie Brown' },
+    { name: 'Integration keys', status: 'Rejected', api: 'Create Booking', requestTime: 'May 10,2027', user: 'David Lee' },
+    { name: 'test-Key_1', status: 'Rejected', api: 'Create Booking', requestTime: 'May 11,2028', user: 'Emma Davis' },
+    { name: 'learn-Key_2', status: 'Rejected', api: 'List My Bookings', requestTime: 'April 20,2029', user: 'Frank Miller' },
+    { name: 'try-Key_3', status: 'Rejected', api: 'Create Booking', requestTime: 'Mar 06,2026', user: 'Grace Wilson' },
+    { name: 'Trial-Key_4', status: 'Rejected', api: 'Get Booking Details', requestTime: 'May 20,2025', user: 'Henry Moore' },
   ];
 
   // API Keys data
   const apiKeys = [
     { name: 'personal keys', status: 'Active', apiKey: 'cbjNd-nvMqT', api: 'Get Flights tickets', expirationDay: 'Jan 20,2026', user: 'John Doe' },
     { name: 'development keys', status: 'Active', apiKey: 'rGeZL-RKIT5', api: 'List My Bookings', expirationDay: 'Oct 25,2025', user: 'Jane Smith' },
-    { name: 'Production keys', status: 'Expired', apiKey: '', api: 'Create Booking', expirationDay: 'Sep 05,2025', user: 'Bob Johnson' },
+    { name: 'Production keys', status: 'Disabled', apiKey: '', api: 'Create Booking', expirationDay: 'Sep 05,2025', user: 'Bob Johnson' },
     { name: 'Dev test keys', status: 'Active', apiKey: 'vt9Dz-taKWW', api: 'Get Booking Details', expirationDay: 'Nov 01,2025', user: 'Alice Williams' },
     { name: 'Research key', status: 'Active', apiKey: 'UfTQm-2eeLx', api: 'Get Payment Status', expirationDay: 'Dec 25,2026', user: 'Charlie Brown' },
     { name: 'Integration keys', status: 'Active', apiKey: 'KwJzA-9mNpR', api: 'Get Flights tickets', expirationDay: 'May 10,2027', user: 'David Lee' },
-    { name: 'test-Key_1', status: 'Expired', apiKey: '', api: 'Get Booking Details', expirationDay: 'May 11,2028', user: 'Emma Davis' },
+    { name: 'test-Key_1', status: 'Disabled', apiKey: '', api: 'Get Booking Details', expirationDay: 'May 11,2028', user: 'Emma Davis' },
     { name: 'learn-Key_2', status: 'Active', apiKey: 'XyVwB-8qLsT', api: 'Create Booking', expirationDay: 'April 20,2029', user: 'Frank Miller' },
     { name: 'try-Key_3', status: 'Active', apiKey: 'MnKpO-7fGhJ', api: 'List My Bookings', expirationDay: 'Mar 06,2026', user: 'Grace Wilson' },
     { name: 'Trial-Key_4', status: 'Active', apiKey: 'DeFsC-5hIjK', api: 'Get Flights tickets', expirationDay: 'May 20,2025', user: 'Henry Moore' },
@@ -462,16 +462,16 @@ const DeveloperPortal: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                Developer portal
-              </NavItem>
+              Developer portal
+            </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
-                  Policies
-                </NavItem>
-              )}
-              {/* <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
+                Policies
+              </NavItem>
+            )}
+              <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
-              </NavItem> */}
+              </NavItem>
             </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
@@ -494,7 +494,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <Title headingLevel="h1" size="2xl">
               Developer portal
-            </Title>
+          </Title>
             {currentRole === 'Platform engineer' && (
               <Button
                 variant="plain"
@@ -691,9 +691,9 @@ const DeveloperPortal: React.FunctionComponent = () => {
               </GridItem>
               <GridItem span={9}>
                 {currentRole !== 'API owner' && currentRole !== 'Platform engineer' && (
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button variant="primary" onClick={() => setIsGenerateModalOpen(true)}>Generate API key</Button>
-                  </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button variant="primary" onClick={() => setIsGenerateModalOpen(true)}>Generate API key</Button>
+                </div>
                 )}
               </GridItem>
             </Grid>
@@ -708,57 +708,57 @@ const DeveloperPortal: React.FunctionComponent = () => {
 
                   {currentRole !== 'Platform engineer' && (
                     <>
-                      <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>API keys</Title>
-                      <div style={{ marginBottom: '16px' }}>
-                        <div
-                          role="button"
-                          onClick={() => setApiKeysSectionFilter('keys-owned')}
-                          style={{ 
-                            width: '100%', 
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            gap: '8px',
-                            backgroundColor: '#ffffff',
-                            border: apiKeysSectionFilter === 'keys-owned' ? '2px solid #0066CC' : '1px solid #d0d0d0',
-                            borderRadius: '6px',
-                            padding: '8px 12px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <CogIcon />
-                            <span>Owned</span>
-                          </div>
-                          <span style={{ fontWeight: 'bold' }}>20</span>
-                        </div>
+                  <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>API keys</Title>
+                  <div style={{ marginBottom: '16px' }}>
+                    <div
+                      role="button"
+                      onClick={() => setApiKeysSectionFilter('keys-owned')}
+                      style={{ 
+                        width: '100%', 
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '8px',
+                        backgroundColor: '#ffffff',
+                        border: apiKeysSectionFilter === 'keys-owned' ? '2px solid #0066CC' : '1px solid #d0d0d0',
+                        borderRadius: '6px',
+                        padding: '8px 12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <CogIcon />
+                        <span>Owned</span>
                       </div>
+                      <span style={{ fontWeight: 'bold' }}>20</span>
+                    </div>
+                  </div>
 
-                      <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>API key requests</Title>
-                      <div style={{ marginBottom: '16px' }}>
-                        <div
-                          role="button"
-                          onClick={() => setApiKeysSectionFilter('requests-owned')}
-                          style={{ 
-                            width: '100%', 
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            gap: '8px',
-                            backgroundColor: '#ffffff',
-                            border: apiKeysSectionFilter === 'requests-owned' ? '2px solid #0066CC' : '1px solid #d0d0d0',
-                            borderRadius: '6px',
-                            padding: '8px 12px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <CogIcon />
-                            <span>Owned</span>
-                          </div>
-                          <span style={{ fontWeight: 'bold' }}>20</span>
-                        </div>
+                  <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>API key requests</Title>
+                  <div style={{ marginBottom: '16px' }}>
+                    <div
+                      role="button"
+                      onClick={() => setApiKeysSectionFilter('requests-owned')}
+                      style={{ 
+                        width: '100%', 
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '8px',
+                        backgroundColor: '#ffffff',
+                        border: apiKeysSectionFilter === 'requests-owned' ? '2px solid #0066CC' : '1px solid #d0d0d0',
+                        borderRadius: '6px',
+                        padding: '8px 12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <CogIcon />
+                        <span>Owned</span>
                       </div>
+                      <span style={{ fontWeight: 'bold' }}>20</span>
+                    </div>
+                  </div>
                     </>
                   )}
 
@@ -785,10 +785,10 @@ const DeveloperPortal: React.FunctionComponent = () => {
                       <>
                         <option value="All">All</option>
                         <option value="Active">Active</option>
-                        <option value="Expired">Expired</option>
+                        <option value="Disabled">Disabled</option>
                       </>
                     ) : (
-                      <option>All</option>
+                    <option>All</option>
                     )}
                   </select>
                 </div>
@@ -806,13 +806,13 @@ const DeveloperPortal: React.FunctionComponent = () => {
                       <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                         <thead>
                           <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: currentRole === 'Platform engineer' ? '20%' : '15%' }}>Name</th>
-                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Status</th>
-                            {currentRole !== 'Platform engineer' && (
+                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: (currentRole === 'Platform engineer' || currentRole === 'API owner') ? '20%' : '15%' }}>Name</th>
+                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Status</th>
+                            {currentRole === 'API consumer' && (
                               <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>API key</th>
                             )}
-                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: currentRole === 'Platform engineer' ? '25%' : '20%' }}>API</th>
-                            {currentRole === 'Platform engineer' ? (
+                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: (currentRole === 'Platform engineer' || currentRole === 'API owner') ? '25%' : '20%' }}>API</th>
+                            {(currentRole === 'Platform engineer' || currentRole === 'API owner') ? (
                               <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '23%' }}>User</th>
                             ) : (
                               <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '18%' }}>Expiration day</th>
@@ -837,38 +837,39 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                   {key.name}
                                 </Button>
                               </td>
-                            <td style={{ padding: '12px' }}>
+                            <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
                               <Label
                                 variant="outline"
                                 icon={key.status === 'Active' ? <CheckCircleIcon /> : <TimesCircleIcon />}
                                 color={key.status === 'Active' ? 'green' : 'red'}
+                                style={{ display: 'inline-flex', alignItems: 'center' }}
                               >
                                 {key.status}
                               </Label>
                             </td>
-                              {currentRole !== 'Platform engineer' && (
-                                <td style={{ padding: '12px' }}>
-                                  {key.apiKey ? (
-                                    <div style={{ position: 'relative', display: 'inline-block' }}>
-                                      <Tooltip content={copiedApiKey === key.apiKey ? "Copied!" : "Copy to clipboard"}>
-                                        <Button
-                                          variant="link"
-                                          isInline
-                                          style={{ fontFamily: 'monospace', fontSize: '13px', color: '#6a6e73', padding: 0 }}
-                                          onClick={() => {
-                                            navigator.clipboard.writeText(key.apiKey);
-                                            setCopiedApiKey(key.apiKey);
-                                            setTimeout(() => setCopiedApiKey(null), 2000);
-                                          }}
-                                        >
-                                          {key.apiKey}
-                                        </Button>
-                                      </Tooltip>
-                                    </div>
-                                  ) : (
-                                    <span style={{ color: '#6a6e73' }}>-</span>
-                                  )}
-                                </td>
+                              {currentRole === 'API consumer' && (
+                              <td style={{ padding: '12px' }}>
+                                {key.apiKey ? (
+                                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                                    <Tooltip content={copiedApiKey === key.apiKey ? "Copied!" : "Copy to clipboard"}>
+                                      <Button
+                                        variant="link"
+                                        isInline
+                                        style={{ fontFamily: 'monospace', fontSize: '13px', color: '#6a6e73', padding: 0 }}
+                                        onClick={() => {
+                                          navigator.clipboard.writeText(key.apiKey);
+                                          setCopiedApiKey(key.apiKey);
+                                          setTimeout(() => setCopiedApiKey(null), 2000);
+                                        }}
+                                      >
+                                        {key.apiKey}
+                                      </Button>
+                                    </Tooltip>
+                                  </div>
+                                ) : (
+                                  <span style={{ color: '#6a6e73' }}>-</span>
+                                )}
+                              </td>
                               )}
                               <td style={{ padding: '12px' }}>
                                 <Button 
@@ -879,14 +880,14 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                   {key.api}
                                 </Button>
                               </td>
-                              {currentRole === 'Platform engineer' ? (
+                              {(currentRole === 'Platform engineer' || currentRole === 'API owner') ? (
                                 <td style={{ padding: '12px', color: '#151515' }}>
                                   {key.user}
                                 </td>
                               ) : (
-                                <td style={{ padding: '12px', color: '#6a6e73' }}>
-                                  {key.expirationDay}
-                                </td>
+                              <td style={{ padding: '12px', color: '#6a6e73' }}>
+                                {key.expirationDay}
+                              </td>
                               )}
                               <td style={{ padding: '12px' }}>
                                 <Button variant="plain" aria-label="Actions">
@@ -907,13 +908,16 @@ const DeveloperPortal: React.FunctionComponent = () => {
                           API key request
                         </Title>
                       </div>
-                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                         <thead>
                           <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Name</th>
-                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Status</th>
-                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>API</th>
-                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Request time</th>
+                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: currentRole === 'API owner' ? '20%' : '25%' }}>Name</th>
+                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Status</th>
+                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: currentRole === 'API owner' ? '20%' : '25%' }}>API</th>
+                            {currentRole === 'API owner' && (
+                              <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>User</th>
+                            )}
+                            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: currentRole === 'API owner' ? '18%' : '20%' }}>Request time</th>
                             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '50px' }}></th>
                           </tr>
                         </thead>
@@ -947,6 +951,11 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                   {request.api}
                                 </Button>
                               </td>
+                              {currentRole === 'API owner' && (
+                                <td style={{ padding: '12px', color: '#151515' }}>
+                                  {request.user}
+                                </td>
+                              )}
                               <td style={{ padding: '12px', color: '#6a6e73' }}>
                                 {request.requestTime}
                               </td>
