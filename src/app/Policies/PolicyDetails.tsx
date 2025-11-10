@@ -310,7 +310,7 @@ const PolicyDetails: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                Developer portal
+                My APIs
               </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" isActive icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>

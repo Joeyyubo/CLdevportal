@@ -222,8 +222,8 @@ const Observability: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-              Developer portal
-            </NavItem>
+                My APIs
+              </NavItem>
               {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies

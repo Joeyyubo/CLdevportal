@@ -152,7 +152,7 @@ const APIKeys: React.FunctionComponent = () => {
             </NavItem>
             <Divider />
             <NavItem itemId="dev-portal" isActive icon={<CodeIcon />}>
-              Developer portal
+              My APIs
             </NavItem>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />}>

@@ -326,7 +326,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
             </NavItem>
             <Divider />
             <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-              API portal
+              My APIs
             </NavItem>
             {currentRole === 'API owner' && (
               <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
