@@ -239,7 +239,6 @@ const APIs: React.FunctionComponent = () => {
             <DropdownList>
               <DropdownItem value="API consumer">API consumer</DropdownItem>
               <DropdownItem value="API owner">API owner</DropdownItem>
-              <DropdownItem value="Platform engineer">Platform engineer</DropdownItem>
             </DropdownList>
           </Dropdown>
         </div>

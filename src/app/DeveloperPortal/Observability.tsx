@@ -177,7 +177,6 @@ const Observability: React.FunctionComponent = () => {
             <DropdownList>
               <DropdownItem value="API consumer">API consumer</DropdownItem>
               <DropdownItem value="API owner">API owner</DropdownItem>
-              <DropdownItem value="Platform engineer">Platform engineer</DropdownItem>
             </DropdownList>
           </Dropdown>
         </div>
@@ -232,11 +231,6 @@ const Observability: React.FunctionComponent = () => {
               <NavItem itemId="api-keys" isActive={location.pathname.includes('/api-keys')} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
                 API Access
               </NavItem>
-              {currentRole === 'Platform engineer' && (
-                <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
-                  Policies
-                </NavItem>
-              )}
               <NavItem itemId="observability" isActive={location.pathname === '/observability'} icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
               </NavItem>

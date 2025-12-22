@@ -85,7 +85,7 @@ const initialPolicyData = [
     type: 'Plan policy', 
     apiProduct: 'Flights API',
     starred: false,
-    owned: true, // For Platform engineer, show in Owned
+    owned: true,
     requester: undefined,
     requestStatus: undefined
   },
@@ -95,7 +95,7 @@ const initialPolicyData = [
     type: 'Plan policy', 
     apiProduct: 'Create Booking API',
     starred: false,
-    owned: true, // For Platform engineer, show in Owned
+    owned: true,
     requester: undefined,
     requestStatus: undefined
   },
@@ -105,7 +105,7 @@ const initialPolicyData = [
     type: 'Rate limit policy', 
     apiProduct: 'Flights API',
     starred: false,
-    owned: true, // For Platform engineer, show in Owned
+    owned: true,
     requester: undefined,
     requestStatus: undefined
   },
@@ -115,7 +115,7 @@ const initialPolicyData = [
     type: 'Rate limit policy', 
     apiProduct: 'List My Bookings',
     starred: false,
-    owned: true, // For Platform engineer, show in Owned
+    owned: true,
     requester: undefined,
     requestStatus: undefined
   },
@@ -125,7 +125,7 @@ const initialPolicyData = [
     type: 'Quota policy', 
     apiProduct: 'Booking API',
     starred: false,
-    owned: true, // For Platform engineer, show in Owned
+    owned: true,
     requester: undefined,
     requestStatus: undefined
   },
@@ -135,7 +135,7 @@ const initialPolicyData = [
     type: 'Security policy', 
     apiProduct: 'Create Booking API',
     starred: false,
-    owned: true, // For Platform engineer, show in Owned
+    owned: true,
     requester: undefined,
     requestStatus: undefined
   },
@@ -169,7 +169,7 @@ const initialPolicyData = [
     requester: undefined,
     requestStatus: undefined
   },
-  // Request data for Platform engineer
+  // Request data
   { 
     name: 'Premium plan request', 
     state: 'Pending', 
@@ -404,10 +404,6 @@ const Policies: React.FunctionComponent = () => {
 
   const ownedCount = policyData.filter(policy => policy.owned).length;
   const starredCount = policyData.filter(policy => policy.starred).length;
-  // For Platform engineer, count policies with requestStatus
-  const requestsCount = currentRole === 'Platform engineer' 
-    ? policyData.filter(policy => policy.requestStatus !== undefined).length 
-    : starredCount;
 
   // Calculate unread notification count
   const unreadCount = notificationGroups.reduce((count, group) => {
@@ -438,15 +434,9 @@ const Policies: React.FunctionComponent = () => {
     
     // Apply filter based on activeFilter
     if (activeFilter === 'owned') {
-      // For Platform engineer, show policies that are owned (which are also in Organization all)
       filtered = filtered.filter(policy => policy.owned);
     } else if (activeFilter === 'starred') {
-      // For Platform engineer, show requests (policies with requestStatus), otherwise show starred
-      if (currentRole === 'Platform engineer') {
-        filtered = filtered.filter(policy => policy.requestStatus !== undefined);
-      } else {
-        filtered = filtered.filter(policy => policy.starred);
-      }
+      filtered = filtered.filter(policy => policy.starred);
     }
     
     // Apply search filter
@@ -548,7 +538,6 @@ const Policies: React.FunctionComponent = () => {
             <DropdownList>
               <DropdownItem value="API consumer">API consumer</DropdownItem>
               <DropdownItem value="API owner">API owner</DropdownItem>
-              <DropdownItem value="Platform engineer">Platform engineer</DropdownItem>
             </DropdownList>
           </Dropdown>
         </div>
@@ -603,7 +592,7 @@ const Policies: React.FunctionComponent = () => {
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
                 My APIs
               </NavItem>
-              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
+              {currentRole === 'API owner' && (
                 <NavItem itemId="policies" isActive icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies
                 </NavItem>
@@ -757,7 +746,7 @@ const Policies: React.FunctionComponent = () => {
             />
           </GridItem>
           <GridItem span={9} style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
-            <Button variant="primary" onClick={() => navigate(currentRole === 'Platform engineer' ? '/register-component?source=policies' : '/policies/request')}>{currentRole === 'Platform engineer' ? 'Register policy' : 'Request policy'}</Button>
+            <Button variant="primary" onClick={() => navigate('/policies/request')}>Request policy</Button>
           </GridItem>
         </Grid>
 
@@ -776,22 +765,22 @@ const Policies: React.FunctionComponent = () => {
               <div style={{ marginBottom: '16px' }}>
                 <div
                   role="button"
-                  onClick={() => (ownedCount > 0 || currentRole === 'Platform engineer') && setActiveFilter(activeFilter === 'owned' ? 'organization-all' : 'owned')}
+                  onClick={() => ownedCount > 0 && setActiveFilter(activeFilter === 'owned' ? 'organization-all' : 'owned')}
                   style={{ 
                     width: '100%', 
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     gap: '8px',
-                    backgroundColor: (ownedCount === 0 && currentRole !== 'Platform engineer') ? '#fafafa' : '#ffffff',
-                    color: (ownedCount === 0 && currentRole !== 'Platform engineer') ? '#8b8d90' : '#151515',
+                    backgroundColor: ownedCount === 0 ? '#fafafa' : '#ffffff',
+                    color: ownedCount === 0 ? '#8b8d90' : '#151515',
                     border: activeFilter === 'owned' ? '2px solid #0066CC' : '2px solid transparent',
                     borderRadius: '6px',
                     padding: '8px 12px',
-                    cursor: (ownedCount === 0 && currentRole !== 'Platform engineer') ? 'not-allowed' : 'pointer',
+                    cursor: ownedCount === 0 ? 'not-allowed' : 'pointer',
                     textAlign: 'left',
                     marginBottom: '8px',
-                    opacity: (ownedCount === 0 && currentRole !== 'Platform engineer') ? 0.6 : 1,
+                    opacity: ownedCount === 0 ? 0.6 : 1,
                     boxSizing: 'border-box'
                   }}
                 >
@@ -821,10 +810,10 @@ const Policies: React.FunctionComponent = () => {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {currentRole === 'Platform engineer' ? <FileAltIcon style={{ fontSize: '16px' }} /> : <StarIcon style={{ fontSize: '16px' }} />}
-                    <span>{currentRole === 'Platform engineer' ? 'Requests' : 'Starred'}</span>
+                    <StarIcon style={{ fontSize: '16px' }} />
+                    <span>Starred</span>
                   </div>
-                  <span style={{ fontWeight: 'bold' }}>{currentRole === 'Platform engineer' ? requestsCount : starredCount}</span>
+                  <span style={{ fontWeight: 'bold' }}>{starredCount}</span>
                 </div>
               </div>
 
@@ -881,24 +870,11 @@ const Policies: React.FunctionComponent = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                      {currentRole === 'Platform engineer' && activeFilter === 'starred' ? (
-                        <>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Name</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Status</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Type</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '25%' }}>API product</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '18%' }}>Requester</th>
-                          <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}>Actions</th>
-                        </>
-                      ) : (
-                        <>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '25%' }}>Name</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>State</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '18%' }}>Type</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '35%' }}>API product</th>
-                          <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}>Actions</th>
-                        </>
-                      )}
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '25%' }}>Name</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>State</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '18%' }}>Type</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '35%' }}>API product</th>
+                      <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -913,117 +889,29 @@ const Policies: React.FunctionComponent = () => {
                             {policy.name}
                           </Button>
                         </td>
-                        {currentRole === 'Platform engineer' && activeFilter === 'starred' ? (
-                          <>
-                            <td style={{ padding: '12px' }}>
-                              <Label
-                                variant="outline"
-                                icon={
-                                  policy.requestStatus === 'Approved' ? <CheckCircleIcon /> :
-                                  policy.requestStatus === 'Rejected' ? <TimesCircleIcon /> :
-                                  <ClockIcon />
-                                }
-                                color={
-                                  policy.requestStatus === 'Approved' ? 'green' : 
-                                  policy.requestStatus === 'Rejected' ? 'red' : 
-                                  'blue'
-                                }
-                              >
-                                {policy.requestStatus || policy.state}
-                              </Label>
-                            </td>
-                            <td style={{ padding: '12px' }}>{policy.type}</td>
-                            <td style={{ padding: '12px' }}>
-                              <Button 
-                                variant="link" 
-                                isInline 
-                                onClick={() => navigate(`/developer-portal/api-details/${encodeURIComponent(policy.apiProduct)}`)}
-                              >
-                                {policy.apiProduct}
-                              </Button>
-                            </td>
-                            <td style={{ padding: '12px' }}>{policy.requester || '-'}</td>
-                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                              <Dropdown
-                                isOpen={kebabDropdownOpen[idx] || false}
-                                onSelect={(_, action) => handleKebabSelect(idx, String(action))}
-                                onOpenChange={(isOpen) => setKebabDropdownOpen(prev => ({ ...prev, [idx]: isOpen }))}
-                                popperProps={{ appendTo: () => document.body }}
-                                toggle={(toggleRef) => (
-                                  <MenuToggle
-                                    ref={toggleRef}
-                                    variant="plain"
-                                    aria-label={`Actions for ${policy.name}`}
-                                    isExpanded={kebabDropdownOpen[idx] || false}
-                                  >
-                                    <EllipsisVIcon />
-                                  </MenuToggle>
-                                )}
-                              >
-                                <DropdownList>
-                                  <DropdownItem value="edit">Edit</DropdownItem>
-                                  <Divider />
-                                  <DropdownItem value="star">
-                                    {policy.starred ? 'Unstar' : 'Star'}
-                                  </DropdownItem>
-                                </DropdownList>
-                              </Dropdown>
-                            </td>
-                          </>
-                        ) : (
-                          <>
-                            <td style={{ padding: '12px' }}>
-                              <Label color="green">{policy.state}</Label>
-                            </td>
-                            <td style={{ padding: '12px' }}>{policy.type}</td>
-                            <td style={{ padding: '12px' }}>
-                              <Button 
-                                variant="link" 
-                                isInline 
-                                onClick={() => navigate(`/developer-portal/api-details/${encodeURIComponent(policy.apiProduct)}`)}
-                              >
-                                {policy.apiProduct}
-                              </Button>
-                            </td>
-                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                              {currentRole === 'Platform engineer' ? (
-                                <Dropdown
-                                  isOpen={kebabDropdownOpen[idx] || false}
-                                  onSelect={(_, action) => handleKebabSelect(idx, String(action))}
-                                  onOpenChange={(isOpen) => setKebabDropdownOpen(prev => ({ ...prev, [idx]: isOpen }))}
-                                  popperProps={{ appendTo: () => document.body }}
-                                  toggle={(toggleRef) => (
-                                    <MenuToggle
-                                      ref={toggleRef}
-                                      variant="plain"
-                                      aria-label={`Actions for ${policy.name}`}
-                                      isExpanded={kebabDropdownOpen[idx] || false}
-                                    >
-                                      <EllipsisVIcon />
-                                    </MenuToggle>
-                                  )}
-                                >
-                                  <DropdownList>
-                                    <DropdownItem value="edit">Edit</DropdownItem>
-                                    <Divider />
-                                    <DropdownItem value="star">
-                                      {policy.starred ? 'Unstar' : 'Star'}
-                                    </DropdownItem>
-                                  </DropdownList>
-                                </Dropdown>
-                              ) : (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                                  <Button variant="plain" aria-label="Edit">
-                                    <PencilAltIcon style={{ fontSize: '16px' }} />
-                                  </Button>
-                                  <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(policy.name)}>
-                                    <StarIcon style={{ fontSize: '16px', fill: policy.starred ? '#0066CC' : 'inherit' }} />
-                                  </Button>
-                                </div>
-                              )}
-                            </td>
-                          </>
-                        )}
+                        <td style={{ padding: '12px' }}>
+                          <Label color="green">{policy.state}</Label>
+                        </td>
+                        <td style={{ padding: '12px' }}>{policy.type}</td>
+                        <td style={{ padding: '12px' }}>
+                          <Button 
+                            variant="link" 
+                            isInline 
+                            onClick={() => navigate(`/developer-portal/api-details/${encodeURIComponent(policy.apiProduct)}`)}
+                          >
+                            {policy.apiProduct}
+                          </Button>
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                            <Button variant="plain" aria-label="Edit">
+                              <PencilAltIcon style={{ fontSize: '16px' }} />
+                            </Button>
+                            <Button variant="plain" aria-label="Star" onClick={() => handleStarClick(policy.name)}>
+                              <StarIcon style={{ fontSize: '16px', fill: policy.starred ? '#0066CC' : 'inherit' }} />
+                            </Button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

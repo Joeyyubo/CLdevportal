@@ -160,7 +160,6 @@ const PortalSettings: React.FunctionComponent = () => {
             <DropdownList>
               <DropdownItem onClick={() => { localStorage.setItem('currentRole', 'API consumer'); setCurrentRole('API consumer'); window.dispatchEvent(new Event('storage')); }}>API consumer</DropdownItem>
               <DropdownItem onClick={() => { localStorage.setItem('currentRole', 'API owner'); setCurrentRole('API owner'); window.dispatchEvent(new Event('storage')); }}>API owner</DropdownItem>
-              <DropdownItem onClick={() => { localStorage.setItem('currentRole', 'Platform engineer'); setCurrentRole('Platform engineer'); window.dispatchEvent(new Event('storage')); }}>Platform engineer</DropdownItem>
             </DropdownList>
           </Dropdown>
         </div>
@@ -210,7 +209,7 @@ const PortalSettings: React.FunctionComponent = () => {
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
                 My APIs
               </NavItem>
-              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
+              {currentRole === 'API owner' && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies
                 </NavItem>

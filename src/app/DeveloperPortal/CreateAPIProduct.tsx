@@ -182,7 +182,6 @@ const CreateAPIProduct: React.FunctionComponent = () => {
             <DropdownList>
               <DropdownItem value="API consumer">API consumer</DropdownItem>
               <DropdownItem value="API owner">API owner</DropdownItem>
-              <DropdownItem value="Platform engineer">Platform engineer</DropdownItem>
             </DropdownList>
           </Dropdown>
         </div>
@@ -232,11 +231,6 @@ const CreateAPIProduct: React.FunctionComponent = () => {
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
                 API products
               </NavItem>
-              {currentRole === 'Platform engineer' && (
-                <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
-                  Policies
-                </NavItem>
-              )}
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
               </NavItem>

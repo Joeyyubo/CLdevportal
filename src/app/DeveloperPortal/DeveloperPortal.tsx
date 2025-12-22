@@ -270,7 +270,6 @@ const DeveloperPortal: React.FunctionComponent = () => {
               <DropdownList>
                 <DropdownItem value="API consumer">API consumer</DropdownItem>
                 <DropdownItem value="API owner">API owner</DropdownItem>
-                <DropdownItem value="Platform engineer">Platform engineer</DropdownItem>
               </DropdownList>
             </Dropdown>
         </div>
@@ -325,11 +324,6 @@ const DeveloperPortal: React.FunctionComponent = () => {
               <NavItem itemId="api-keys" isActive={location.pathname.includes('/api-keys')} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
                 API Access
               </NavItem>
-              {currentRole === 'Platform engineer' && (
-                <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
-                Policies
-              </NavItem>
-            )}
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
               </NavItem>
@@ -366,12 +360,6 @@ const DeveloperPortal: React.FunctionComponent = () => {
               marginBottom: '24px',
               marginTop: '8px'
             }} />
-            {currentRole === 'Platform engineer' && (
-              <Button
-                variant="plain"
-                aria-label="Portal configuration"
-                onClick={() => navigate('/settings/portal')}
-                icon={<CogIcon />}
               />
             )}
           </div>

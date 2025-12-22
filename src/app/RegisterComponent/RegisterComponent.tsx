@@ -156,7 +156,6 @@ const RegisterComponent: React.FunctionComponent = () => {
             <DropdownList>
               <DropdownItem value="API consumer">API consumer</DropdownItem>
               <DropdownItem value="API owner">API owner</DropdownItem>
-              <DropdownItem value="Platform engineer">Platform engineer</DropdownItem>
             </DropdownList>
           </Dropdown>
         </div>
@@ -230,7 +229,7 @@ const RegisterComponent: React.FunctionComponent = () => {
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
                 My APIs
               </NavItem>
-              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
+              {currentRole === 'API owner' && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies
                 </NavItem>
