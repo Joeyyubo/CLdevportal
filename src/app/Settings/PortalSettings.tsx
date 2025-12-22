@@ -238,7 +238,7 @@ const PortalSettings: React.FunctionComponent = () => {
         <Breadcrumb style={{ marginBottom: '16px' }}>
           <BreadcrumbItem>
             <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-              Developer portal
+              My APIs
             </Button>
           </BreadcrumbItem>
           <BreadcrumbItem>Settings</BreadcrumbItem>

@@ -74,21 +74,21 @@ const apiKeyRequestDetailsData: Record<string, any> = {
   'A new keys': {
     name: 'A new keys',
     status: 'Pending',
-    apiName: 'Get Flights tickets',
+    apiName: 'Flights API',
     plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
     requestTime: 'Jan 20,2026 at 16:15PM',
   },
   'development keys': {
     name: 'development keys',
     status: 'Pending',
-    apiName: 'Get Flights tickets',
+    apiName: 'Flights API',
     plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
     requestTime: 'Oct 25,2025 at 16:15PM',
   },
   'Production keys': {
     name: 'Production keys',
     status: 'Pending',
-    apiName: 'Get Flights tickets',
+    apiName: 'Flights API',
     plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
     requestTime: 'Sep 05,2025 at 16:15PM',
   },
@@ -109,14 +109,14 @@ const apiKeyRequestDetailsData: Record<string, any> = {
   'Integration keys': {
     name: 'Integration keys',
     status: 'Rejected',
-    apiName: 'Create Booking',
+    apiName: 'Create Booking API',
     plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
     requestTime: 'May 10,2027 at 16:15PM',
   },
   'test-Key_1': {
     name: 'test-Key_1',
     status: 'Rejected',
-    apiName: 'Create Booking',
+    apiName: 'Create Booking API',
     plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
     requestTime: 'May 11,2028 at 16:15PM',
   },
@@ -130,7 +130,7 @@ const apiKeyRequestDetailsData: Record<string, any> = {
   'try-Key_3': {
     name: 'try-Key_3',
     status: 'Rejected',
-    apiName: 'Create Booking',
+    apiName: 'Create Booking API',
     plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
     requestTime: 'Mar 06,2026 at 16:15PM',
   },
@@ -361,9 +361,9 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                My APIs
+                API products
               </NavItem>
-              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
+              {currentRole === 'Platform engineer' && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies
                 </NavItem>
@@ -392,7 +392,7 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
           <Breadcrumb style={{ marginBottom: '16px' }}>
             <BreadcrumbItem>
               <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-                Developer portal
+                API products
               </Button>
             </BreadcrumbItem>
             <BreadcrumbItem>

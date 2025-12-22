@@ -79,7 +79,7 @@ const apiKeyDetailsData: Record<string, any> = {
     status: 'Active',
     description: 'It work for my personal flight application test.',
     apiKey: 'cbjNd-nvMqT',
-    apiName: 'Get Flights tickets',
+    apiName: 'Flights API',
     plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
     lastUsed: 'OCT 22,2025 AT 04:00PM',
     apiUrl: 'https://api.example.com/v1/get flight tickets/post',
@@ -99,7 +99,7 @@ const apiKeyDetailsData: Record<string, any> = {
     status: 'Active',
     description: 'Production environment API key.',
     apiKey: 'vt9Dz-taKWW',
-    apiName: 'Create Booking',
+    apiName: 'Create Booking API',
     plan: 'Platinum plan: 1000 reqs/day; 5000 reqs/week; 30000 reqs/month;',
     lastUsed: 'OCT 30,2025 AT 10:15AM',
     apiUrl: 'https://api.example.com/v1/create booking',
@@ -109,7 +109,7 @@ const apiKeyDetailsData: Record<string, any> = {
     status: 'Active',
     description: 'Testing key for development team.',
     apiKey: 'vt9Dz-taKWW',
-    apiName: 'Get Booking Details',
+    apiName: 'Booking API',
     plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
     lastUsed: 'NOV 01,2025 AT 08:45AM',
     apiUrl: 'https://api.example.com/v1/get booking details',
@@ -119,7 +119,7 @@ const apiKeyDetailsData: Record<string, any> = {
     status: 'Active',
     description: 'Testing key for development team.',
     apiKey: 'vt9Dz-taKWW',
-    apiName: 'Get Booking Details',
+    apiName: 'Booking API',
     plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
     lastUsed: 'NOV 01,2025 AT 08:45AM',
     apiUrl: 'https://api.example.com/v1/get booking details',
@@ -139,7 +139,7 @@ const apiKeyDetailsData: Record<string, any> = {
     status: 'Disabled',
     description: 'Production environment API key.',
     apiKey: '',
-    apiName: 'Create Booking',
+    apiName: 'Create Booking API',
     plan: 'Platinum plan: 1000 reqs/day; 5000 reqs/week; 30000 reqs/month;',
     lastUsed: 'SEP 05,2025 AT 10:15AM',
     apiUrl: 'https://api.example.com/v1/create booking',
@@ -159,7 +159,7 @@ const apiKeyDetailsData: Record<string, any> = {
     status: 'Active',
     description: 'For integration purposes.',
     apiKey: 'KwJzA-9mNpR',
-    apiName: 'Get Flights tickets',
+    apiName: 'Flights API',
     plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
     lastUsed: 'MAY 10,2027 AT 09:30AM',
     apiUrl: 'https://api.example.com/v1/get flight tickets/post',
@@ -169,7 +169,7 @@ const apiKeyDetailsData: Record<string, any> = {
     status: 'Active',
     description: 'Testing key.',
     apiKey: '',
-    apiName: 'Get Booking Details',
+    apiName: 'Booking API',
     plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
     lastUsed: 'MAY 11,2028 AT 11:45AM',
     apiUrl: 'https://api.example.com/v1/get booking details',
@@ -179,7 +179,7 @@ const apiKeyDetailsData: Record<string, any> = {
     status: 'Active',
     description: 'Learning key.',
     apiKey: 'XyVwB-8qLsT',
-    apiName: 'Create Booking',
+    apiName: 'Create Booking API',
     plan: 'Gold plan: 500 reqs/day; 2500 reqs/week; 15000 reqs/month;',
     lastUsed: 'APRIL 20,2029 AT 02:15PM',
     apiUrl: 'https://api.example.com/v1/create booking',
@@ -199,7 +199,7 @@ const apiKeyDetailsData: Record<string, any> = {
     status: 'Active',
     description: 'Trial key for testing.',
     apiKey: 'DeFsC-5hIjK',
-    apiName: 'Get Flights tickets',
+    apiName: 'Flights API',
     plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
     lastUsed: 'MAY 20,2025 AT 10:30AM',
     apiUrl: 'https://api.example.com/v1/get flight tickets/post',
@@ -391,9 +391,9 @@ const APIKeyDetails: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                My APIs
+                API products
               </NavItem>
-              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
+              {currentRole === 'Platform engineer' && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies
                 </NavItem>
@@ -422,7 +422,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
           <Breadcrumb style={{ marginBottom: '16px' }}>
             <BreadcrumbItem>
               <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-                Developer portal
+                API products
               </Button>
             </BreadcrumbItem>
             <BreadcrumbItem>

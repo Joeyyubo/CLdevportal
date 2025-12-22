@@ -44,141 +44,8 @@ import {
   ExternalLinkAltIcon,
   PencilAltIcon,
 } from '@patternfly/react-icons';
+import { initialApiData } from '../shared/apiData';
 import './APIs.css';
-
-// Sample standalone APIs data (These are different from API products in Developer Portal)
-const initialApiData = [
-  { 
-    name: 'Get Flights tickets', 
-    type: 'openapi', 
-    owner: 'Ticket Team', 
-    lifecycle: 'production', 
-    description: 'Flight ticket information API for users to get flight details', 
-    tags: ['Ticket'], 
-    starred: false,
-    owned: true 
-  },
-  { 
-    name: 'Get Booking Details', 
-    type: 'openapi', 
-    owner: 'Payment Team', 
-    lifecycle: 'production', 
-    description: 'API for flight payment processing and transactions', 
-    tags: ['Payment'], 
-    starred: false,
-    owned: true 
-  },
-  { 
-    name: 'Create Booking', 
-    type: 'openapi', 
-    owner: 'Ticket Team', 
-    lifecycle: 'production', 
-    description: 'Aircraft application data and maintenance information', 
-    tags: ['Aircraft'], 
-    starred: false,
-    owned: true 
-  },
-  { 
-    name: 'Airport information', 
-    type: 'openapi', 
-    owner: 'Ticket Team', 
-    lifecycle: 'production', 
-    description: 'Flight ticket information API for users to get flight details', 
-    tags: ['Ticket'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Flight-payment-api', 
-    type: 'openapi', 
-    owner: 'Payment Team', 
-    lifecycle: 'production', 
-    description: 'API for flight payment processing and transactions', 
-    tags: ['Payment'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Aircraft-app-api', 
-    type: 'openapi', 
-    owner: 'Aircraft Team', 
-    lifecycle: 'production', 
-    description: 'Aircraft application data and maintenance information', 
-    tags: ['Aircraft'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Client-api', 
-    type: 'openapi', 
-    owner: 'Client Team', 
-    lifecycle: 'production', 
-    description: 'API of client data management and customer information', 
-    tags: ['Client'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Aircraft-region-api', 
-    type: 'openapi', 
-    owner: 'Aircraft Team', 
-    lifecycle: 'production', 
-    description: 'Aircraft type in different regions with location data', 
-    tags: ['Aircraft'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Booking-management-api', 
-    type: 'openapi', 
-    owner: 'Ticket Team', 
-    lifecycle: 'production', 
-    description: 'Comprehensive booking management and reservation system', 
-    tags: ['Ticket'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Loyalty-program-api', 
-    type: 'openapi', 
-    owner: 'Client Team', 
-    lifecycle: 'production', 
-    description: 'Customer loyalty points and rewards program management', 
-    tags: ['Client'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Payment-processing-api', 
-    type: 'openapi', 
-    owner: 'Payment Team', 
-    lifecycle: 'production', 
-    description: 'Secure payment processing and transaction handling', 
-    tags: ['Payment'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Flight-status-api', 
-    type: 'openapi', 
-    owner: 'Ticket Team', 
-    lifecycle: 'production', 
-    description: 'Real-time flight status updates and schedule information', 
-    tags: ['Ticket'], 
-    starred: false,
-    owned: false 
-  },
-  { 
-    name: 'Client-registration-api', 
-    type: 'openapi', 
-    owner: 'Client Team', 
-    lifecycle: 'production', 
-    description: 'Client account registration and profile management', 
-    tags: ['Client'], 
-    starred: false,
-    owned: false 
-  },
-];
 
 const APIs: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -233,7 +100,13 @@ const APIs: React.FunctionComponent = () => {
     } else if (itemId === 'self-service') {
       navigate('/self-service');
     } else if (itemId === 'dev-portal') {
+      if (currentRole === 'API consumer') {
+        navigate('/developer-portal/api-keys');
+      } else {
       navigate('/developer-portal');
+      }
+    } else if (itemId === 'api-keys') {
+      navigate('/developer-portal/api-keys');
     } else if (itemId === 'policies') {
       navigate('/policies');
     } else if (itemId === 'observability') {
@@ -276,24 +149,35 @@ const APIs: React.FunctionComponent = () => {
   };
 
   // For API consumer, ownedCount is always 0 as they don't own any APIs
-  // For API owner, count the actual owned APIs
-  const ownedCount = currentRole === 'API consumer' ? 0 : apiData.filter(api => api.owned).length;
+  // For API owner, all APIs in the table are owned by them
+  const ownedCount = currentRole === 'API consumer' ? 0 : apiData.length;
   const starredCount = apiData.filter(api => api.starred).length;
+  const totalApiCount = apiData.length;
 
   // Filter APIs based on activeFilter
   const filteredApiData = React.useMemo(() => {
+    let filtered = apiData;
+    
+    // Apply search filter
+    if (searchValue) {
+      filtered = filtered.filter(api => 
+        api.name.toLowerCase().includes(searchValue.toLowerCase())
+      );
+    }
+    
     if (activeFilter === 'owned') {
       // Only allow 'owned' filter for API owner role
+      // In API owner perspective, all APIs are owned
       if (currentRole === 'API owner') {
-        return apiData.filter(api => api.owned);
+        return filtered; // Return all APIs for API owner
       }
-      return apiData; // Return all for API consumer
+      return filtered; // Return all for API consumer
     } else if (activeFilter === 'starred') {
-      return apiData.filter(api => api.starred);
+      return filtered.filter(api => api.starred);
     }
     // 'organization-all' or default - show all
-    return apiData;
-  }, [apiData, activeFilter, currentRole]);
+    return filtered;
+  }, [apiData, activeFilter, currentRole, searchValue]);
 
   const masthead = (
     <Masthead>
@@ -402,14 +286,14 @@ const APIs: React.FunctionComponent = () => {
               isExpanded={connectivityLinkExpanded}
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
-              <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                My APIs
+              {currentRole !== 'API consumer' && (
+                <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                  API products
+                </NavItem>
+              )}
+              <NavItem itemId="api-keys" icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
+                API Access
               </NavItem>
-              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
-                <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
-                Policies
-              </NavItem>
-            )}
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
               </NavItem>
@@ -450,7 +334,7 @@ const APIs: React.FunctionComponent = () => {
         <Grid hasGutter style={{ marginBottom: '24px' }}>
           <GridItem span={3} style={{ display: 'flex', alignItems: 'flex-end' }}>
             <SearchInput
-              placeholder="Search APIs..."
+              placeholder="Search"
               value={searchValue}
               onChange={(_, value) => setSearchValue(value)}
               onClear={() => setSearchValue('')}
@@ -552,7 +436,7 @@ const APIs: React.FunctionComponent = () => {
                   }}
                 >
                   <span>All</span>
-                  <span style={{ fontWeight: 'bold' }}>600</span>
+                  <span style={{ fontWeight: 'bold' }}>{totalApiCount}</span>
                 </div>
               </div>
 
@@ -617,7 +501,7 @@ const APIs: React.FunctionComponent = () => {
                           </Button>
                         </td>
                         <td style={{ padding: '12px' }}>{api.type}</td>
-                        <td style={{ padding: '12px' }}>{api.owner}</td>
+                        <td style={{ padding: '12px' }}>{currentRole === 'API owner' ? 'API owner' : api.owner}</td>
                         <td style={{ padding: '12px' }}>{api.lifecycle}</td>
                         <td style={{ padding: '12px', fontSize: '14px', color: '#6a6e73', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {api.description}

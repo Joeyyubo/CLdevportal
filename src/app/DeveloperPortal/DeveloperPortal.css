@@ -40,3 +40,117 @@ input[readonly]:active {
   filter: none !important;
   text-shadow: none !important;
 }
+
+/* Hide default MenuToggle icon for custom tier toggle */
+.custom-tier-toggle button > svg:first-of-type:not([data-custom-icon]),
+.custom-tier-toggle [class*="menu-toggle__toggle-icon"],
+.custom-tier-toggle [class*="pf-v6-c-menu-toggle__toggle-icon"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Custom styles for info tooltip */
+.info-tooltip .pf-v5-c-tooltip__content,
+.info-tooltip [class*="pf-v5-c-tooltip__content"],
+.info-tooltip [class*="pf-c-tooltip__content"],
+.info-tooltip [class*="pf-v6-c-tooltip__content"] {
+  background-color: #4d4d4d !important;
+  color: white !important;
+  border-radius: 4px !important;
+  padding: 0 !important;
+}
+
+.info-tooltip .pf-v5-c-tooltip__arrow,
+.info-tooltip [class*="pf-v5-c-tooltip__arrow"],
+.info-tooltip [class*="pf-c-tooltip__arrow"],
+.info-tooltip [class*="pf-v6-c-tooltip__arrow"] {
+  color: #4d4d4d !important;
+}
+
+.info-tooltip [class*="tooltip"] {
+  background-color: #4d4d4d !important;
+}
+
+/* Info tooltip content */
+.info-tooltip-content {
+  position: relative;
+  padding: 12px 28px 12px 16px;
+  min-width: 200px;
+}
+
+.info-tooltip-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px;
+  min-width: auto;
+  z-index: 10;
+  color: white !important;
+}
+
+.info-tooltip-close svg {
+  font-size: 14px;
+  color: white;
+}
+
+.info-tooltip-text {
+  color: white;
+  line-height: 1.5;
+  font-size: 14px;
+  padding-right: 20px;
+}
+
+/* Info icon button */
+.info-icon-button {
+  padding: 0;
+  width: auto;
+  height: auto;
+  min-width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-icon {
+  color: #6a6e73;
+  font-size: 16px;
+}
+
+/* Action button outlined style */
+.action-button-outlined {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #6a6e73 !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: auto !important;
+  padding: 4px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
+}
+
+.action-button-outlined:hover,
+.action-button-outlined:focus,
+.action-button-outlined:active {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #6a6e73 !important;
+  background-color: rgba(106, 110, 115, 0.1) !important;
+}
+
+.action-button-outlined svg {
+  width: 16px;
+  height: 16px;
+}
+
+.action-icon-outlined {
+  color: #6a6e73 !important;
+  width: 16px !important;
+  height: 16px !important;
+}

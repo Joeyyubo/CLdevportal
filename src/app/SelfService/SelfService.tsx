@@ -127,7 +127,13 @@ const SelfService: React.FunctionComponent = () => {
     } else if (itemId === 'self-service') {
       navigate('/self-service');
     } else if (itemId === 'dev-portal') {
+      if (currentRole === 'API consumer') {
+        navigate('/developer-portal/api-keys');
+      } else {
       navigate('/developer-portal');
+      }
+    } else if (itemId === 'api-keys') {
+      navigate('/developer-portal/api-keys');
     } else if (itemId === 'policies') {
       navigate('/policies');
     } else if (itemId === 'observability') {
@@ -265,19 +271,28 @@ const SelfService: React.FunctionComponent = () => {
             </NavItem>
             <Divider />
             <NavExpandable
-              title="Connectivity Link"
+              title={
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                    <rect width="16" height="16" rx="3" fill="black"/>
+                    <path d="M 5 6 L 8 4 L 11 6 L 11 10 L 8 12 L 5 10 Z" stroke="white" strokeWidth="1" fill="none" strokeLinejoin="round"/>
+                    <path d="M 6 7 L 9 5 L 12 7 L 12 11 L 9 13 L 6 11 Z" stroke="#CC0000" strokeWidth="1.5" fill="none" strokeLinejoin="round" opacity="0.8"/>
+                  </svg>
+                  Connectivity Link
+                </span>
+              }
               id="connectivity-link-group"
               isExpanded={connectivityLinkExpanded}
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
-              <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                My APIs
-              </NavItem>
-              {currentRole === 'API owner' && (
-                <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
-                  Policies
+              {currentRole !== 'API consumer' && (
+                <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                  API products
                 </NavItem>
               )}
+              <NavItem itemId="api-keys" icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
+                API Access
+              </NavItem>
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
               </NavItem>

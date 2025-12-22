@@ -84,7 +84,13 @@ const Docs: React.FunctionComponent = () => {
     } else if (itemId === 'self-service') {
       navigate('/self-service');
     } else if (itemId === 'dev-portal') {
+      if (currentRole === 'API consumer') {
+        navigate('/developer-portal/api-keys');
+      } else {
       navigate('/developer-portal');
+      }
+    } else if (itemId === 'api-keys') {
+      navigate('/developer-portal/api-keys');
     } else if (itemId === 'policies') {
       navigate('/policies');
     } else if (itemId === 'observability') {
@@ -201,14 +207,14 @@ const Docs: React.FunctionComponent = () => {
               isExpanded={connectivityLinkExpanded}
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
-              <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                My APIs
-              </NavItem>
-              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
-                <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
-                  Policies
+              {currentRole !== 'API consumer' && (
+                <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                  API products
                 </NavItem>
               )}
+              <NavItem itemId="api-keys" icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
+                API Access
+              </NavItem>
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
               </NavItem>

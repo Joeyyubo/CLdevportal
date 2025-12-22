@@ -77,8 +77,8 @@ import './DeveloperPortal.css';
 
 // API details data
 const apiDetailsData: Record<string, any> = {
-  'Get Flights tickets': {
-    name: 'Get Flights tickets',
+  'Flights API': {
+    name: 'Flights API',
     tag: 'Ticket',
     contact: 'Jane doe',
     owner: 'Ticket team',
@@ -87,8 +87,8 @@ const apiDetailsData: Record<string, any> = {
     updated: '2 MIN AGO',
     apiKeyRequest: 'No approval needed',
   },
-  'Get Booking Details': {
-    name: 'Get Booking Details',
+  'Booking API': {
+    name: 'Booking API',
     tag: 'Payment',
     contact: 'Ticket Team',
     owner: 'Ticket team',
@@ -97,8 +97,8 @@ const apiDetailsData: Record<string, any> = {
     updated: '15 MIN AGO',
     apiKeyRequest: 'Need approval',
   },
-  'Create Booking': {
-    name: 'Create Booking',
+  'Create Booking API': {
+    name: 'Create Booking API',
     tag: 'Ticket',
     contact: 'Ticket Team',
     owner: 'Ticket team',
@@ -215,7 +215,7 @@ const APIDetails: React.FunctionComponent = () => {
   const decodedApiName = apiName ? decodeURIComponent(apiName) : '';
   const apiDetails = decodedApiName && apiDetailsData[decodedApiName] 
     ? apiDetailsData[decodedApiName] 
-    : apiDetailsData['Get Flights tickets'];
+    : apiDetailsData['Flights API'];
 
   // Load starred status from localStorage
   const getStarredAPIs = (): string[] => {
@@ -413,9 +413,9 @@ const APIDetails: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                My APIs
+                API products
               </NavItem>
-              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
+              {currentRole === 'Platform engineer' && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                 Policies
               </NavItem>
@@ -444,7 +444,7 @@ const APIDetails: React.FunctionComponent = () => {
           <Breadcrumb style={{ marginBottom: '16px' }}>
             <BreadcrumbItem>
               <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-                Developer portal
+                API products
               </Button>
             </BreadcrumbItem>
             <BreadcrumbItem>

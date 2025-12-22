@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Button,
   Masthead,
@@ -48,6 +48,7 @@ import './DeveloperPortal.css';
 
 const Observability: React.FunctionComponent = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchValue, setSearchValue] = React.useState('');
   const [timeFilter, setTimeFilter] = React.useState('Last 7 days');
   const [isTimeDropdownOpen, setIsTimeDropdownOpen] = React.useState(false);
@@ -105,6 +106,8 @@ const Observability: React.FunctionComponent = () => {
       navigate('/self-service');
     } else if (itemId === 'dev-portal') {
       navigate('/developer-portal');
+    } else if (itemId === 'api-keys') {
+      navigate('/developer-portal/api-keys');
     } else if (itemId === 'policies') {
       navigate('/policies');
     } else if (itemId === 'observability') {
@@ -221,15 +224,20 @@ const Observability: React.FunctionComponent = () => {
               isExpanded={connectivityLinkExpanded}
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
-              <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                My APIs
+              {currentRole !== 'API consumer' && (
+                <NavItem itemId="dev-portal" isActive={location.pathname === '/developer-portal' && !location.pathname.includes('/api-keys')} icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                  API products
+                </NavItem>
+              )}
+              <NavItem itemId="api-keys" isActive={location.pathname.includes('/api-keys')} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
+                API Access
               </NavItem>
-              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
+              {currentRole === 'Platform engineer' && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies
                 </NavItem>
               )}
-              <NavItem itemId="observability" isActive icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
+              <NavItem itemId="observability" isActive={location.pathname === '/observability'} icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
               </NavItem>
             </NavExpandable>
@@ -290,7 +298,7 @@ const Observability: React.FunctionComponent = () => {
                 value={searchValue}
                 onChange={(_, value) => setSearchValue(value)}
                 onClear={() => setSearchValue('')}
-                placeholder="Search by API name, keywords, capability"
+                placeholder="Search"
               />
             </div>
             <Dropdown

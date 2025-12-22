@@ -28,6 +28,18 @@ import {
   Badge,
   Tooltip,
   Label,
+  NotificationDrawer,
+  NotificationDrawerHeader,
+  NotificationDrawerBody,
+  NotificationDrawerList,
+  NotificationDrawerListItem,
+  NotificationDrawerGroup,
+  NotificationDrawerGroupList,
+  Drawer,
+  DrawerContent,
+  DrawerContentBody,
+  DrawerPanelContent,
+  DrawerPanelBody,
 } from '@patternfly/react-core';
 import {
   HomeIcon,
@@ -48,6 +60,10 @@ import {
   ClockIcon,
   CheckCircleIcon,
   TimesCircleIcon,
+  BellIcon,
+  InfoCircleIcon,
+  AngleRightIcon,
+  AngleDownIcon,
 } from '@patternfly/react-icons';
 import './Policies.css';
 
@@ -57,7 +73,7 @@ const initialPolicyData = [
     name: 'Standard plan', 
     state: 'Active', 
     type: 'Plan policy', 
-    apiProduct: 'Get Flights tickets',
+    apiProduct: 'Flights API',
     starred: true,
     owned: false,
     requester: undefined,
@@ -67,7 +83,7 @@ const initialPolicyData = [
     name: 'Advanced plan', 
     state: 'Active', 
     type: 'Plan policy', 
-    apiProduct: 'Get Flights tickets',
+    apiProduct: 'Flights API',
     starred: false,
     owned: true, // For Platform engineer, show in Owned
     requester: undefined,
@@ -77,7 +93,7 @@ const initialPolicyData = [
     name: 'Free plan', 
     state: 'Active', 
     type: 'Plan policy', 
-    apiProduct: 'Create Booking',
+    apiProduct: 'Create Booking API',
     starred: false,
     owned: true, // For Platform engineer, show in Owned
     requester: undefined,
@@ -87,7 +103,7 @@ const initialPolicyData = [
     name: 'Rate limit policy - Basic', 
     state: 'Active', 
     type: 'Rate limit policy', 
-    apiProduct: 'Get Flights tickets',
+    apiProduct: 'Flights API',
     starred: false,
     owned: true, // For Platform engineer, show in Owned
     requester: undefined,
@@ -107,7 +123,7 @@ const initialPolicyData = [
     name: 'Quota policy - Standard', 
     state: 'Active', 
     type: 'Quota policy', 
-    apiProduct: 'Get Booking Details',
+    apiProduct: 'Booking API',
     starred: false,
     owned: true, // For Platform engineer, show in Owned
     requester: undefined,
@@ -117,7 +133,7 @@ const initialPolicyData = [
     name: 'Security policy - OAuth', 
     state: 'Active', 
     type: 'Security policy', 
-    apiProduct: 'Create Booking',
+    apiProduct: 'Create Booking API',
     starred: false,
     owned: true, // For Platform engineer, show in Owned
     requester: undefined,
@@ -127,7 +143,7 @@ const initialPolicyData = [
     name: 'A plan-policy', 
     state: 'Active', 
     type: 'Plan policy', 
-    apiProduct: 'Get Booking Details',
+    apiProduct: 'Booking API',
     starred: false,
     owned: false,
     requester: undefined,
@@ -158,7 +174,7 @@ const initialPolicyData = [
     name: 'Premium plan request', 
     state: 'Pending', 
     type: 'Plan policy', 
-    apiProduct: 'Get Flights tickets',
+    apiProduct: 'Flights API',
     starred: true,
     owned: false,
     requester: 'John Doe',
@@ -168,7 +184,7 @@ const initialPolicyData = [
     name: 'Enterprise plan request', 
     state: 'Approved', 
     type: 'Plan policy', 
-    apiProduct: 'Create Booking',
+    apiProduct: 'Create Booking API',
     starred: true,
     owned: false,
     requester: 'Jane Smith',
@@ -178,7 +194,7 @@ const initialPolicyData = [
     name: 'Basic plan request', 
     state: 'Rejected', 
     type: 'Plan policy', 
-    apiProduct: 'Get Booking Details',
+    apiProduct: 'Booking API',
     starred: true,
     owned: false,
     requester: 'Bob Johnson',
@@ -196,6 +212,64 @@ const initialPolicyData = [
   },
 ];
 
+// Sample notification data
+const notificationGroups = [
+  {
+    id: 'first-group',
+    title: 'First notification group',
+    isExpanded: false,
+    notifications: [
+      {
+        id: 'notification-1',
+        title: 'Unread info notification title',
+        description: 'This is an info notification description.',
+        timestamp: '5 minutes ago',
+        variant: 'info',
+        isRead: false
+      },
+      {
+        id: 'notification-2',
+        title: 'Unread success notification title',
+        description: 'This is a success notification description.',
+        timestamp: '10 minutes ago',
+        variant: 'success',
+        isRead: false
+      }
+    ]
+  },
+  {
+    id: 'second-group',
+    title: 'Second notification group',
+    isExpanded: true,
+    notifications: [
+      {
+        id: 'notification-3',
+        title: 'Unread info notification title',
+        description: 'This is an info notification description.',
+        timestamp: '5 minutes ago',
+        variant: 'info',
+        isRead: false
+      },
+      {
+        id: 'notification-4',
+        title: 'Unread recommendation notification title. This is a long title to show how the title will wrap if it is long and wraps to multiple lines.',
+        description: 'This is a recommendation notification description. This is a long description to show how the title will wrap if it is long and wraps to multiple lines.',
+        timestamp: '10 minutes ago',
+        variant: 'warning',
+        isRead: false
+      },
+      {
+        id: 'notification-5',
+        title: 'Unread recommendation notification title. This is a long title to show how the title will wrap if it is long and wraps to multiple lines.',
+        description: 'This is a recommendation notification description. This is a long description to show how the title will wrap if it is long and wraps to multiple lines.',
+        timestamp: '15 minutes ago',
+        variant: 'warning',
+        isRead: false
+      }
+    ]
+  }
+];
+
 const Policies: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -207,6 +281,11 @@ const Policies: React.FunctionComponent = () => {
   const [activeFilter, setActiveFilter] = React.useState(initialFilter);
   const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
   const [kebabDropdownOpen, setKebabDropdownOpen] = React.useState<Record<number, boolean>>({});
+  const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = React.useState(false);
+  const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({
+    'second-group': true
+  });
+  const [expandedNotifications, setExpandedNotifications] = React.useState<Record<string, boolean>>({});
   
   // Get current role from localStorage or use default
   const getCurrentRole = (): string => {
@@ -219,6 +298,20 @@ const Policies: React.FunctionComponent = () => {
   };
   
   const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
+
+  // Keep Connectivity Link expanded for API owner
+  React.useEffect(() => {
+    if (currentRole === 'API owner') {
+      setConnectivityLinkExpanded(true);
+    }
+  }, [currentRole]);
+
+  // Ensure Connectivity Link stays expanded for API owner even if state changes
+  React.useEffect(() => {
+    if (currentRole === 'API owner' && !connectivityLinkExpanded) {
+      setConnectivityLinkExpanded(true);
+    }
+  }, [connectivityLinkExpanded, currentRole]);
 
   const handleUserDropdownToggle = () => {
     setIsUserDropdownOpen(!isUserDropdownOpen);
@@ -257,6 +350,10 @@ const Policies: React.FunctionComponent = () => {
       navigate('/observability');
     } else {
       navigate('/developer-portal');
+    }
+    // Ensure Connectivity Link stays expanded for API owner after navigation
+    if (currentRole === 'API owner') {
+      setConnectivityLinkExpanded(true);
     }
   };
 
@@ -311,6 +408,29 @@ const Policies: React.FunctionComponent = () => {
   const requestsCount = currentRole === 'Platform engineer' 
     ? policyData.filter(policy => policy.requestStatus !== undefined).length 
     : starredCount;
+
+  // Calculate unread notification count
+  const unreadCount = notificationGroups.reduce((count, group) => {
+    return count + group.notifications.filter(n => !n.isRead).length;
+  }, 0);
+
+  const handleNotificationDrawerToggle = () => {
+    setIsNotificationDrawerOpen(!isNotificationDrawerOpen);
+  };
+
+  const handleGroupToggle = (groupId: string) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [groupId]: !prev[groupId]
+    }));
+  };
+
+  const handleNotificationToggle = (notificationId: string) => {
+    setExpandedNotifications(prev => ({
+      ...prev,
+      [notificationId]: !prev[notificationId]
+    }));
+  };
 
   // Filter policies based on activeFilter and searchValue
   const filteredPolicyData = React.useMemo(() => {
@@ -378,7 +498,33 @@ const Policies: React.FunctionComponent = () => {
         </MastheadBrand>
       </MastheadMain>
       <MastheadContent>
-        <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'flex-end', gap: '16px' }}>
+          <div style={{ position: 'relative' }}>
+            <Button
+              variant="plain"
+              aria-label="Notifications"
+              onClick={handleNotificationDrawerToggle}
+              style={{ color: '#151515' }}
+            >
+              <BellIcon />
+            </Button>
+            {unreadCount > 0 && (
+              <Badge
+                isRead={false}
+                style={{
+                  position: 'absolute',
+                  top: '-4px',
+                  right: '-4px',
+                  minWidth: '18px',
+                  height: '18px',
+                  fontSize: '11px',
+                  padding: '0 4px'
+                }}
+              >
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </Badge>
+            )}
+          </div>
           <Dropdown
             isOpen={isUserDropdownOpen}
             onSelect={handleUserDropdownSelect}
@@ -446,8 +592,13 @@ const Policies: React.FunctionComponent = () => {
                 </span>
               }
               id="connectivity-link-group"
-              isExpanded={connectivityLinkExpanded}
-              onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
+              isExpanded={currentRole === 'API owner' ? true : connectivityLinkExpanded}
+              onToggle={() => {
+                // Prevent toggling for API owner - always keep expanded
+                if (currentRole !== 'API owner') {
+                  setConnectivityLinkExpanded(!connectivityLinkExpanded);
+                }
+              }}
             >
               <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
                 My APIs
@@ -474,8 +625,109 @@ const Policies: React.FunctionComponent = () => {
     </PageSidebar>
   );
 
+  const getNotificationIcon = (variant: string) => {
+    switch (variant) {
+      case 'info':
+        return <InfoCircleIcon />;
+      case 'success':
+        return <CheckCircleIcon />;
+      case 'warning':
+        return <ExclamationTriangleIcon />;
+      default:
+        return <InfoCircleIcon />;
+    }
+  };
+
+  const getNotificationVariant = (variant: string): 'info' | 'success' | 'danger' | 'warning' | undefined => {
+    switch (variant) {
+      case 'info':
+        return 'info';
+      case 'success':
+        return 'success';
+      case 'warning':
+        return 'warning';
+      default:
+        return undefined;
+    }
+  };
+
   return (
     <Page masthead={masthead} sidebar={sidebar}>
+      <Drawer isExpanded={isNotificationDrawerOpen} position="right">
+        <DrawerContent
+          panelContent={
+            <DrawerPanelContent>
+              <DrawerPanelBody>
+                <NotificationDrawer>
+                  <NotificationDrawerHeader
+                    count={unreadCount}
+                    onClose={handleNotificationDrawerToggle}
+                    title="Notifications"
+                  />
+                  <NotificationDrawerBody>
+                    <NotificationDrawerList>
+                      {notificationGroups.map((group) => (
+                        <NotificationDrawerGroup
+                          key={group.id}
+                          title={group.title}
+                          isExpanded={expandedGroups[group.id] || false}
+                          count={group.notifications.filter(n => !n.isRead).length}
+                          onExpand={() => handleGroupToggle(group.id)}
+                        >
+                          <NotificationDrawerGroupList>
+                            {group.notifications.map((notification) => {
+                              const isExpanded = expandedNotifications[notification.id] || false;
+                              return (
+                                <div key={notification.id} style={{ borderBottom: '1px solid #d0d0d0' }}>
+                                  <NotificationDrawerListItem
+                                    variant={getNotificationVariant(notification.variant)}
+                                    isRead={notification.isRead}
+                                    title={notification.title}
+                                    onClick={() => handleNotificationToggle(notification.id)}
+                                    style={{ cursor: 'pointer' }}
+                                  >
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', flex: 1 }}>
+                                        <div style={{ marginTop: '4px' }}>
+                                          {getNotificationIcon(notification.variant)}
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                          {!isExpanded && (
+                                            <>
+                                              <div style={{ fontSize: '14px', color: '#6a6e73', marginTop: '4px' }}>{notification.timestamp}</div>
+                                            </>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <div style={{ marginLeft: '8px' }}>
+                                        {isExpanded ? (
+                                          <AngleDownIcon style={{ color: '#151515', fontSize: '16px' }} />
+                                        ) : (
+                                          <AngleRightIcon style={{ color: '#151515', fontSize: '16px' }} />
+                                        )}
+                                      </div>
+                                    </div>
+                                  </NotificationDrawerListItem>
+                                  {isExpanded && (
+                                    <div style={{ padding: '12px 16px 16px 48px', backgroundColor: '#fafafa' }}>
+                                      <div style={{ marginBottom: '8px' }}>{notification.description}</div>
+                                      <div style={{ fontSize: '12px', color: '#6a6e73' }}>{notification.timestamp}</div>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </NotificationDrawerGroupList>
+                        </NotificationDrawerGroup>
+                      ))}
+                    </NotificationDrawerList>
+                  </NotificationDrawerBody>
+                </NotificationDrawer>
+              </DrawerPanelBody>
+            </DrawerPanelContent>
+          }
+        >
+          <DrawerContentBody>
       <PageSection>
         <div style={{ marginBottom: '24px' }}>
           <Title headingLevel="h1" size="2xl" style={{ marginBottom: '16px' }}>
@@ -781,6 +1033,9 @@ const Policies: React.FunctionComponent = () => {
           </GridItem>
         </Grid>
       </PageSection>
+          </DrawerContentBody>
+        </DrawerContent>
+      </Drawer>
     </Page>
   );
 };

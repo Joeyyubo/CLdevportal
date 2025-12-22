@@ -1,2 +1,58 @@
 /* APIs page styles */
 
+/* Info icon button styles */
+.info-icon-button {
+  padding: 4px;
+  color: #6a6e73;
+}
+
+.info-icon-button:hover {
+  color: #151515;
+}
+
+.info-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Action button outlined styles */
+.action-button-outlined {
+  border: 1px solid #d0d0d0;
+  background-color: transparent;
+}
+
+.action-button-outlined:hover,
+.action-button-outlined:focus,
+.action-button-outlined:active {
+  border-color: #0066CC;
+  background-color: transparent;
+}
+
+.action-button-outlined svg {
+  color: #151515;
+}
+
+.action-icon-outlined {
+  width: 16px;
+  height: 16px;
+}
+
+/* Info tooltip styles */
+.info-tooltip-content {
+  padding: 16px;
+  max-width: 300px;
+}
+
+.info-tooltip-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px;
+}
+
+.info-tooltip-text {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #151515;
+}
+

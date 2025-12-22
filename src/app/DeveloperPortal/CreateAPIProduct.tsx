@@ -230,9 +230,9 @@ const CreateAPIProduct: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                My APIs
+                API products
               </NavItem>
-              {(currentRole === 'API owner' || currentRole === 'Platform engineer') && (
+              {currentRole === 'Platform engineer' && (
                 <NavItem itemId="policies" icon={<ShieldAltIcon />} onClick={() => handleNavClick('policies')}>
                   Policies
                 </NavItem>
@@ -261,7 +261,7 @@ const CreateAPIProduct: React.FunctionComponent = () => {
         <Breadcrumb style={{ marginBottom: '16px' }}>
           <BreadcrumbItem>
             <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-              Developer portal
+              My APIs
             </Button>
           </BreadcrumbItem>
           <BreadcrumbItem isActive>
@@ -317,8 +317,8 @@ const CreateAPIProduct: React.FunctionComponent = () => {
             }}
           >
             <option>Get Flight tickets</option>
-            <option>Get Booking Details</option>
-            <option>Create Booking</option>
+            <option>Booking API</option>
+            <option>Create Booking API</option>
           </select>
         </FormGroup>
 
