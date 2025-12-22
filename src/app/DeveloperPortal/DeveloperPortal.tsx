@@ -360,8 +360,6 @@ const DeveloperPortal: React.FunctionComponent = () => {
               marginBottom: '24px',
               marginTop: '8px'
             }} />
-              />
-            )}
           </div>
         </div>
 
