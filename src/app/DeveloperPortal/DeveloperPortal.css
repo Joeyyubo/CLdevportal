@@ -166,3 +166,26 @@ input[readonly]:active {
   width: 16px !important;
   height: 16px !important;
 }
+
+/* Remove underline from API access page Name and API column links */
+table td .pf-v5-c-button.pf-m-link,
+table td .pf-v6-c-button.pf-m-link,
+table td [class*="pf-v5-c-button"].pf-m-link,
+table td [class*="pf-v6-c-button"].pf-m-link {
+  text-decoration: none !important;
+}
+
+table td .pf-v5-c-button.pf-m-link:hover,
+table td .pf-v6-c-button.pf-m-link:hover,
+table td [class*="pf-v5-c-button"].pf-m-link:hover,
+table td [class*="pf-v6-c-button"].pf-m-link:hover,
+table td .pf-v5-c-button.pf-m-link:focus,
+table td .pf-v6-c-button.pf-m-link:focus,
+table td [class*="pf-v5-c-button"].pf-m-link:focus,
+table td [class*="pf-v6-c-button"].pf-m-link:focus,
+table td .pf-v5-c-button.pf-m-link:active,
+table td .pf-v6-c-button.pf-m-link:active,
+table td [class*="pf-v5-c-button"].pf-m-link:active,
+table td [class*="pf-v6-c-button"].pf-m-link:active {
+  text-decoration: none !important;
+}

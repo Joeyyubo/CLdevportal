@@ -172,3 +172,67 @@ export const apisRequiringApproval = [
   'Client API',
 ];
 
+// Shared API Key interface
+export interface SharedAPIKey {
+  name: string;
+  status: 'Active' | 'Pending' | 'Rejected';
+  tiers: string;
+  api: string;
+  activeTime: string;
+  useCase?: string;
+  rejectionReason?: string;
+}
+
+// Shared initial API keys data (from API Access page)
+export const initialSharedApiKeys: SharedAPIKey[] = [
+  { 
+    name: 'MyAPIkey_1', 
+    status: 'Active', 
+    tiers: 'Gold', 
+    api: 'Flights API', 
+    activeTime: 'Jan 20, 2026',
+    useCase: 'Work for my personal flight application production. This API key is used for accessing flight booking services.'
+  },
+  { 
+    name: 'MyAPIkey_2', 
+    status: 'Active', 
+    tiers: 'Gold', 
+    api: 'Booking API', 
+    activeTime: 'Jan 20, 2026',
+    useCase: 'Integration with booking management system for inventory tracking.'
+  },
+  { 
+    name: 'MyAPIkey_3', 
+    status: 'Active', 
+    tiers: 'Gold', 
+    api: 'Create Booking API', 
+    activeTime: 'Sep 05, 2025',
+    useCase: 'Booking service integration for booking and management.'
+  },
+  { 
+    name: 'MyAPIkey_4', 
+    status: 'Pending', 
+    tiers: 'Silver', 
+    api: 'Airport API', 
+    activeTime: 'Sep 05, 2025',
+    useCase: 'Pending approval for airport information management system.'
+  },
+  { 
+    name: 'MyAPIkey_5', 
+    status: 'Pending', 
+    tiers: 'Bronze', 
+    api: 'Payment API', 
+    activeTime: 'Sep 05, 2025',
+    useCase: 'Payment processing service integration for file management.'
+  },
+  { 
+    name: 'MyAPIkey_6', 
+    status: 'Rejected', 
+    tiers: 'Bronze', 
+    api: 'Aircraft API', 
+    activeTime: 'Sep 05, 2025',
+    useCase: 'Work for my personal flight application test. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium est a porttitor vehicula. Quisque vel commodo urna. Morbi mattis rutrum ante, ipsum dolor sit amet,',
+    rejectionReason: 'Rejection reason: ion test. Lorem ipsum dolor sit amururururtur at.'
+  },
+];
+

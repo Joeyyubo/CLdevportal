@@ -81,7 +81,7 @@ import {
   AngleDownIcon,
   CheckIcon,
 } from '@patternfly/react-icons';
-import { apisRequiringApproval } from '../shared/apiData';
+import { apisRequiringApproval, initialSharedApiKeys, SharedAPIKey } from '../shared/apiData';
 import './APIs.css';
 
 // API details data for APIs module
@@ -196,8 +196,6 @@ const apiDetailsData: Record<string, any> = {
   },
 };
 
-import { apisRequiringApproval } from '../shared/apiData';
-
 interface APIKey {
   name: string;
   status: 'Active' | 'Pending' | 'Rejected';
@@ -258,6 +256,12 @@ const APIDetailsPage: React.FunctionComponent = () => {
   const [isTierDropdownOpen, setIsTierDropdownOpen] = React.useState(false);
   const [useCase, setUseCase] = React.useState('');
   const [hasAttemptedTierSelection, setHasAttemptedTierSelection] = React.useState(false);
+  
+  // Check if API key name already exists
+  const isApiKeyNameDuplicate = React.useMemo(() => {
+    if (!apiKeyName.trim()) return false;
+    return apiKeys.some(key => key.name.toLowerCase() === apiKeyName.trim().toLowerCase());
+  }, [apiKeyName, apiKeys]);
 
   // API keys approval tab states
   interface ApprovalAPIKey {
@@ -395,58 +399,78 @@ const APIDetailsPage: React.FunctionComponent = () => {
   // In API details page, API is always selected, so this will always be false
   const isTierFieldError = hasAttemptedTierSelection && !apiDetails.name;
 
-  // Sample API keys data for this API - all keys are associated with the current API
-  const apiKeys: APIKey[] = [
-    { 
-      name: 'MyAPIkey_1', 
-      status: 'Active', 
-      tiers: 'Gold', 
-      api: apiDetails.name,
-      activeTime: 'Jan 20, 2026',
-      useCase: 'Work for my personal flight application production. This API key is used for accessing flight booking services.'
-    },
-    { 
-      name: 'MyAPIkey_2', 
-      status: 'Active', 
-      tiers: 'Gold', 
-      api: apiDetails.name,
-      activeTime: 'Jan 20, 2026',
-      useCase: 'Integration with flight management system for inventory tracking.'
-    },
-    { 
-      name: 'MyAPIkey_3', 
-      status: 'Active', 
-      tiers: 'Gold', 
-      api: apiDetails.name,
-      activeTime: 'Sep 05, 2025',
-      useCase: 'Flight service integration for booking and management.'
-    },
-    { 
-      name: 'MyAPIkey_4', 
-      status: 'Pending', 
-      tiers: 'Silver', 
-      api: apiDetails.name,
-      activeTime: 'Sep 05, 2025',
-      useCase: 'Pending approval for flight inventory management system.'
-    },
-    { 
-      name: 'MyAPIkey_5', 
-      status: 'Pending', 
-      tiers: 'Bronze', 
-      api: apiDetails.name,
-      activeTime: 'Sep 05, 2025',
-      useCase: 'Flight storage service integration for file management.'
-    },
-    { 
-      name: 'MyAPIkey_6', 
-      status: 'Rejected', 
-      tiers: 'Bronze', 
-      api: apiDetails.name,
-      activeTime: 'Sep 05, 2025',
-      useCase: 'Work for my personal flight application test. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium est a porttitor vehicula. Quisque vel commodo urna. Morbi mattis rutrum ante, ipsum dolor sit amet,',
-      rejectionReason: 'Rejection reason: ion test. Lorem ipsum dolor sit amururururtur at.'
-    },
-  ];
+  // Get API keys based on role
+  // For API consumer: filter from shared API keys data to show only keys associated with current API
+  // For other roles: use sample data (all keys associated with current API)
+  const apiKeys: APIKey[] = React.useMemo(() => {
+    if (currentRole === 'API consumer') {
+      // Filter shared API keys to show only those associated with the current API
+      return initialSharedApiKeys
+        .filter(key => key.api === apiDetails.name)
+        .map(key => ({
+          name: key.name,
+          status: key.status,
+          tiers: key.tiers,
+          api: key.api,
+          activeTime: key.activeTime,
+          useCase: key.useCase,
+          rejectionReason: key.rejectionReason,
+        }));
+    } else {
+      // For other roles, use sample data (all keys associated with current API)
+      return [
+        { 
+          name: 'MyAPIkey_1', 
+          status: 'Active' as const, 
+          tiers: 'Gold', 
+          api: apiDetails.name,
+          activeTime: 'Jan 20, 2026',
+          useCase: 'Work for my personal flight application production. This API key is used for accessing flight booking services.'
+        },
+        { 
+          name: 'MyAPIkey_2', 
+          status: 'Active' as const, 
+          tiers: 'Gold', 
+          api: apiDetails.name,
+          activeTime: 'Jan 20, 2026',
+          useCase: 'Integration with flight management system for inventory tracking.'
+        },
+        { 
+          name: 'MyAPIkey_3', 
+          status: 'Active' as const, 
+          tiers: 'Gold', 
+          api: apiDetails.name,
+          activeTime: 'Sep 05, 2025',
+          useCase: 'Flight service integration for booking and management.'
+        },
+        { 
+          name: 'MyAPIkey_4', 
+          status: 'Pending' as const, 
+          tiers: 'Silver', 
+          api: apiDetails.name,
+          activeTime: 'Sep 05, 2025',
+          useCase: 'Pending approval for flight inventory management system.'
+        },
+        { 
+          name: 'MyAPIkey_5', 
+          status: 'Pending' as const, 
+          tiers: 'Bronze', 
+          api: apiDetails.name,
+          activeTime: 'Sep 05, 2025',
+          useCase: 'Flight storage service integration for file management.'
+        },
+        { 
+          name: 'MyAPIkey_6', 
+          status: 'Rejected' as const, 
+          tiers: 'Bronze', 
+          api: apiDetails.name,
+          activeTime: 'Sep 05, 2025',
+          useCase: 'Work for my personal flight application test. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium est a porttitor vehicula. Quisque vel commodo urna. Morbi mattis rutrum ante, ipsum dolor sit amet,',
+          rejectionReason: 'Rejection reason: ion test. Lorem ipsum dolor sit amururururtur at.'
+        },
+      ];
+    }
+  }, [currentRole, apiDetails.name]);
 
   // Filter API keys based on search and filters
   const filteredApiKeys = React.useMemo(() => {
@@ -469,7 +493,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
     }
     
     return filtered;
-  }, [apiKeysSearchValue, statusFilter, tiersFilter]);
+  }, [apiKeys, apiKeysSearchValue, statusFilter, tiersFilter]);
 
   // Calculate status counts
   const statusCounts = React.useMemo(() => {
@@ -479,9 +503,11 @@ const APIDetailsPage: React.FunctionComponent = () => {
       Pending: apiKeys.filter(k => k.status === 'Pending').length,
       Rejected: apiKeys.filter(k => k.status === 'Rejected').length,
     };
-  }, []);
+  }, [apiKeys]);
 
-  const uniqueTiers = Array.from(new Set(apiKeys.map(k => k.tiers)));
+  const uniqueTiers = React.useMemo(() => {
+    return Array.from(new Set(apiKeys.map(k => k.tiers)));
+  }, [apiKeys]);
 
   const toggleApiKeyRowExpanded = (index: number) => {
     setExpandedApiKeyRows(prev => {
@@ -699,19 +725,28 @@ const APIDetailsPage: React.FunctionComponent = () => {
           <BreadcrumbItem>{apiDetails.name}</BreadcrumbItem>
         </Breadcrumb>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-          <Title headingLevel="h1" size="2xl">
-            {apiDetails.name}
-          </Title>
-          <Button variant="plain" aria-label="Star" onClick={handleStarClick}>
-            <StarIcon style={{ fill: isStarred ? '#0066CC' : 'inherit' }} />
-          </Button>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px', fontSize: '14px', color: '#6a6e73' }}>
-          <span>Owner: {apiDetails.owner}</span>
-          <span>•</span>
-          <span>Lifecycle: {apiDetails.lifecycle}</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <Title headingLevel="h1" size="2xl">
+              {apiDetails.name}
+            </Title>
+            <Button variant="plain" aria-label="Star" onClick={handleStarClick}>
+              <StarIcon style={{ fill: isStarred ? '#0066CC' : 'inherit' }} />
+            </Button>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', fontSize: '14px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ fontWeight: 'bold', color: '#151515' }}>Owner</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#151515' }}>
+                <UsersIcon style={{ fontSize: '16px' }} />
+                <span>{apiDetails.owner}</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ fontWeight: 'bold', color: '#151515' }}>Lifecycle</div>
+              <div style={{ color: '#151515' }}>{apiDetails.lifecycle}</div>
+            </div>
+          </div>
         </div>
 
         <Tabs activeKey={activeTab} onSelect={handleTabClick} style={{ marginBottom: '24px' }}>
@@ -1693,7 +1728,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
 
           <FormGroup 
             label={
-              <span>
+              <span style={{ color: isApiKeyNameDuplicate ? '#C9190B' : 'inherit' }}>
                 API key name <span style={{ color: '#C9190B' }}>*</span>
               </span>
             }
@@ -1703,8 +1738,14 @@ const APIDetailsPage: React.FunctionComponent = () => {
             <TextInput
               value={apiKeyName}
               onChange={(_, value) => setApiKeyName(value)}
+              validated={isApiKeyNameDuplicate ? 'error' : 'default'}
             />
-            {!apiKeyName && (
+            {isApiKeyNameDuplicate && (
+              <p style={{ fontSize: '12px', color: '#C9190B', marginTop: '8px', marginBottom: 0 }}>
+                This API key name is already in use. Enter a unique name.
+              </p>
+            )}
+            {!apiKeyName && !isApiKeyNameDuplicate && (
               <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
                 Set an easy-to-recognize name for this key
               </p>
@@ -1730,39 +1771,13 @@ const APIDetailsPage: React.FunctionComponent = () => {
                   isExpanded={isTierDropdownOpen}
                   style={{ 
                     width: '100%',
+                    textAlign: 'left',
                     borderColor: isTierFieldError ? '#C9190B' : undefined,
                     borderWidth: isTierFieldError ? '1px' : undefined,
                     borderStyle: isTierFieldError ? 'solid' : undefined
                   }}
-                  icon={null}
-                  className="custom-tier-toggle"
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                    <span style={{ flex: 1 }}>
-                      {selectedTier || ''}
-                    </span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto', paddingRight: '8px' }}>
-                      <CaretDownIcon style={{ 
-                        color: isTierFieldError ? '#C7C7C7' : '#151515',
-                        fontSize: '14px',
-                        flexShrink: 0
-                      }} />
-                      {isTierFieldError && (
-                        <div style={{ 
-                          width: '16px', 
-                          height: '16px', 
-                          borderRadius: '50%', 
-                          backgroundColor: '#C9190B',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0
-                        }}>
-                          <ExclamationCircleIcon style={{ color: 'white', fontSize: '10px' }} />
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  {selectedTier || ''}
                 </MenuToggle>
               )}
             >
@@ -1791,7 +1806,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
             <TextArea
               value={useCase}
               onChange={(_, value) => setUseCase(value)}
-              rows={4}
+              rows={1}
             />
             {!useCase && (
               <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
@@ -1821,7 +1836,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
               setSelectedTier('');
               setUseCase('');
             }}
-            isDisabled={!apiKeyName || !selectedTier}
+            isDisabled={!apiKeyName || !selectedTier || isApiKeyNameDuplicate}
           >
             Request
           </Button>
