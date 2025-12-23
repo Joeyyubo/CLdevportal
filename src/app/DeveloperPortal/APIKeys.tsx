@@ -42,6 +42,7 @@ import {
   TextArea,
   Badge,
   ClipboardCopy,
+  Checkbox,
   NotificationDrawer,
   NotificationDrawerHeader,
   NotificationDrawerBody,
@@ -249,15 +250,17 @@ const APIKeys: React.FunctionComponent = () => {
   const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
   const [activeTab, setActiveTab] = React.useState(0);
   const [statusFilter, setStatusFilter] = React.useState('All');
-  const [tiersFilter, setTiersFilter] = React.useState('All');
-  const [apiFilter, setApiFilter] = React.useState('All');
+  const [tiersFilter, setTiersFilter] = React.useState<string[]>([]);
+  const [isTiersDropdownOpen, setIsTiersDropdownOpen] = React.useState(false);
+  const [apiFilter, setApiFilter] = React.useState<string[]>([]);
+  const [isApiDropdownOpen, setIsApiDropdownOpen] = React.useState(false);
   const [expandedRows, setExpandedRows] = React.useState<Set<number>>(new Set());
 
   // Request API key modal states
   const [isRequestModalOpen, setIsRequestModalOpen] = React.useState(false);
   const [modalStep, setModalStep] = React.useState<'form' | 'success'>('form');
   const [selectedApi, setSelectedApi] = React.useState('');
-  const [isApiDropdownOpen, setIsApiDropdownOpen] = React.useState(false);
+  const [isModalApiDropdownOpen, setIsModalApiDropdownOpen] = React.useState(false);
   const [apiKeyName, setApiKeyName] = React.useState('');
   const [selectedTier, setSelectedTier] = React.useState('');
   const [isTierDropdownOpen, setIsTierDropdownOpen] = React.useState(false);
@@ -282,6 +285,19 @@ const APIKeys: React.FunctionComponent = () => {
   
   // Available tiers
   const availableTiers = ['Gold', 'Silver', 'Bronze'];
+  
+  // Get tier background color
+  const getTierBackgroundColor = (tier: string): string => {
+    const tierLower = tier.toLowerCase();
+    if (tierLower === 'gold') {
+      return '#FDF7E7';
+    } else if (tierLower === 'silver') {
+      return '#F5F5F5';
+    } else if (tierLower === 'bronze') {
+      return '#F2F9F9';
+    }
+    return '#F2F9F9'; // default to bronze color
+  };
   
   // Check if Tiers field should show error (when user tried to select tier but API is not selected)
   const isTierFieldError = hasAttemptedTierSelection && !selectedApi;
@@ -412,9 +428,12 @@ const APIKeys: React.FunctionComponent = () => {
   ];
   const [approvalApiKeys, setApprovalApiKeys] = React.useState<APIKey[]>(initialApprovalApiKeys);
   const [approvalStatusFilter, setApprovalStatusFilter] = React.useState('All');
-  const [approvalTiersFilter, setApprovalTiersFilter] = React.useState('All');
-  const [approvalApiFilter, setApprovalApiFilter] = React.useState('All');
-  const [approvalClientFilter, setApprovalClientFilter] = React.useState('All');
+  const [approvalTiersFilter, setApprovalTiersFilter] = React.useState<string[]>([]);
+  const [isApprovalTiersDropdownOpen, setIsApprovalTiersDropdownOpen] = React.useState(false);
+  const [approvalApiFilter, setApprovalApiFilter] = React.useState<string[]>([]);
+  const [isApprovalApiDropdownOpen, setIsApprovalApiDropdownOpen] = React.useState(false);
+  const [approvalClientFilter, setApprovalClientFilter] = React.useState<string[]>([]);
+  const [isApprovalClientDropdownOpen, setIsApprovalClientDropdownOpen] = React.useState(false);
   const [approvalSearchValue, setApprovalSearchValue] = React.useState('');
   const [approvalExpandedRows, setApprovalExpandedRows] = React.useState<Set<number>>(new Set());
   const [approvalPage, setApprovalPage] = React.useState(1);
@@ -767,10 +786,10 @@ const APIKeys: React.FunctionComponent = () => {
     if (statusFilter !== 'All' && key.status !== statusFilter) {
       return false;
     }
-    if (tiersFilter !== 'All' && key.tiers !== tiersFilter) {
+    if (tiersFilter.length > 0 && !tiersFilter.includes(key.tiers)) {
       return false;
     }
-    if (apiFilter !== 'All' && key.api !== apiFilter) {
+    if (apiFilter.length > 0 && !apiFilter.includes(key.api)) {
       return false;
     }
     if (searchValue && !key.name.toLowerCase().includes(searchValue.toLowerCase()) && 
@@ -784,19 +803,74 @@ const APIKeys: React.FunctionComponent = () => {
   // Use availableApis for filter dropdown (all available APIs), but only show APIs that are actually used in apiKeys
   const uniqueApis = availableApis; // Show all available APIs in the filter
   const uniqueTiers = Array.from(new Set(apiKeys.map(k => k.tiers)));
+  
+  // Handle tier selection toggle
+  const handleTierToggle = (tier: string) => {
+    setTiersFilter(prev => {
+      if (prev.includes(tier)) {
+        return prev.filter(t => t !== tier);
+      } else {
+        return [...prev, tier];
+      }
+    });
+  };
+  
+  // Handle approval tier selection toggle
+  const handleApprovalTierToggle = (tier: string) => {
+    setApprovalTiersFilter(prev => {
+      if (prev.includes(tier)) {
+        return prev.filter(t => t !== tier);
+      } else {
+        return [...prev, tier];
+      }
+    });
+  };
+  
+  // Handle API selection toggle
+  const handleApiToggle = (api: string) => {
+    setApiFilter(prev => {
+      if (prev.includes(api)) {
+        return prev.filter(a => a !== api);
+      } else {
+        return [...prev, api];
+      }
+    });
+  };
+  
+  // Handle approval API selection toggle
+  const handleApprovalApiToggle = (api: string) => {
+    setApprovalApiFilter(prev => {
+      if (prev.includes(api)) {
+        return prev.filter(a => a !== api);
+      } else {
+        return [...prev, api];
+      }
+    });
+  };
+  
+  // Handle approval client selection toggle
+  const handleApprovalClientToggle = (client: string) => {
+    setApprovalClientFilter(prev => {
+      if (prev.includes(client)) {
+        return prev.filter(c => c !== client);
+      } else {
+        return [...prev, client];
+      }
+    });
+  };
 
   // Filter approval API keys
   const filteredApprovalApiKeys = approvalApiKeys.filter(key => {
     if (approvalStatusFilter !== 'All' && key.status !== approvalStatusFilter) {
       return false;
     }
-    if (approvalTiersFilter !== 'All' && key.tiers !== approvalTiersFilter) {
+    if (approvalTiersFilter.length > 0 && !approvalTiersFilter.includes(key.tiers)) {
       return false;
     }
-    if (approvalApiFilter !== 'All' && key.api !== approvalApiFilter) {
+    if (approvalApiFilter.length > 0 && !approvalApiFilter.includes(key.api)) {
       return false;
     }
-    if (approvalClientFilter !== 'All' && key.client !== approvalClientFilter) {
+    if (approvalClientFilter.length > 0 && (!key.client || !approvalClientFilter.includes(key.client))) {
       return false;
     }
     if (approvalSearchValue && !key.name.toLowerCase().includes(approvalSearchValue.toLowerCase()) && 
@@ -1131,28 +1205,136 @@ const APIKeys: React.FunctionComponent = () => {
               </div>
 
               <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Tiers</Title>
-              <select 
-                style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}
-                value={tiersFilter}
-                onChange={(e) => setTiersFilter(e.target.value)}
-              >
-                <option value="All">All</option>
-                {uniqueTiers.map(tier => (
-                  <option key={tier} value={tier}>{tier}</option>
-                ))}
-              </select>
+              <div style={{ marginBottom: '16px' }}>
+                <Dropdown
+                  isOpen={isTiersDropdownOpen}
+                  onOpenChange={(isOpen) => setIsTiersDropdownOpen(isOpen)}
+                  toggle={(toggleRef) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      onClick={() => setIsTiersDropdownOpen(!isTiersDropdownOpen)}
+                      isExpanded={isTiersDropdownOpen}
+                      style={{ width: '100%', minHeight: '36px', padding: '4px 8px' }}
+                    >
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center', width: '100%', minHeight: '28px' }}>
+                        {tiersFilter.length === 0 ? (
+                          <span style={{ color: '#6a6e73', fontSize: '14px' }}>All</span>
+                        ) : (
+                          <>
+                            {tiersFilter.map(tier => (
+                              <Label
+                                key={tier}
+                                onClose={() => handleTierToggle(tier)}
+                                style={{ margin: 0 }}
+                              >
+                                {tier}
+                              </Label>
+                            ))}
+                            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Button
+                                variant="plain"
+                                aria-label="Clear all"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setTiersFilter([]);
+                                }}
+                                style={{ padding: '2px', minWidth: 'auto' }}
+                              >
+                                <TimesIcon style={{ fontSize: '12px' }} />
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </MenuToggle>
+                  )}
+                >
+                  <DropdownList>
+                    {availableTiers.map(tier => (
+                      <DropdownItem
+                        key={tier}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTierToggle(tier);
+                        }}
+                      >
+                        <Checkbox
+                          isChecked={tiersFilter.includes(tier)}
+                          id={`tier-${tier}`}
+                          label={tier}
+                          onChange={() => handleTierToggle(tier)}
+                        />
+                      </DropdownItem>
+                    ))}
+                  </DropdownList>
+                </Dropdown>
+              </div>
 
               <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>API</Title>
-              <select 
-                style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px' }}
-                value={apiFilter}
-                onChange={(e) => setApiFilter(e.target.value)}
-              >
-                <option value="All">All</option>
+              <div style={{ marginBottom: '16px' }}>
+                <Dropdown
+                  isOpen={isApiDropdownOpen}
+                  onOpenChange={(isOpen) => setIsApiDropdownOpen(isOpen)}
+                  toggle={(toggleRef) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      onClick={() => setIsApiDropdownOpen(!isApiDropdownOpen)}
+                      isExpanded={isApiDropdownOpen}
+                      style={{ width: '100%', minHeight: '36px', padding: '4px 8px' }}
+                    >
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center', width: '100%', minHeight: '28px' }}>
+                        {apiFilter.length === 0 ? (
+                          <span style={{ color: '#6a6e73', fontSize: '14px' }}>All</span>
+                        ) : (
+                          <>
+                            {apiFilter.map(api => (
+                              <Label
+                                key={api}
+                                onClose={() => handleApiToggle(api)}
+                                style={{ margin: 0 }}
+                              >
+                                {api}
+                              </Label>
+                            ))}
+                            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Button
+                                variant="plain"
+                                aria-label="Clear all"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setApiFilter([]);
+                                }}
+                                style={{ padding: '2px', minWidth: 'auto' }}
+                              >
+                                <TimesIcon style={{ fontSize: '12px' }} />
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </MenuToggle>
+                  )}
+                >
+                  <DropdownList>
                 {uniqueApis.map(api => (
-                  <option key={api} value={api}>{api}</option>
-                ))}
-              </select>
+                      <DropdownItem
+                        key={api}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleApiToggle(api);
+                        }}
+                      >
+                        <Checkbox
+                          isChecked={apiFilter.includes(api)}
+                          id={`api-${api}`}
+                          label={api}
+                          onChange={() => handleApiToggle(api)}
+                        />
+                      </DropdownItem>
+                    ))}
+                  </DropdownList>
+                </Dropdown>
+              </div>
             </div>
           </GridItem>
 
@@ -1271,7 +1453,19 @@ const APIKeys: React.FunctionComponent = () => {
                               {key.status}
                             </Label>
                           </td>
-                          <td style={{ padding: '12px' }}>{key.tiers}</td>
+                          <td style={{ padding: '12px' }}>
+                            <Label
+                              style={{
+                                backgroundColor: getTierBackgroundColor(key.tiers),
+                                color: '#151515',
+                                border: 'none',
+                                padding: '4px 8px',
+                                fontSize: '14px'
+                              }}
+                            >
+                              {key.tiers}
+                            </Label>
+                          </td>
                           <td style={{ padding: '12px' }}>
                             <Button 
                               variant="link" 
@@ -1330,16 +1524,16 @@ const APIKeys: React.FunctionComponent = () => {
                                   variant="danger"
                                   title="Rejection reason:"
                                   style={{ marginTop: key.useCase ? '16px' : '0' }}
+                                  actionLinks={
+                                    key.status === 'Rejected' ? (
+                                      <AlertActionLink onClick={() => setIsRequestModalOpen(true)}>
+                                        Request new API key
+                                      </AlertActionLink>
+                                    ) : undefined
+                                  }
                                 >
                                   {key.rejectionReason}
                                 </Alert>
-                              )}
-                              {key.status === 'Rejected' && (
-                                <div style={{ marginTop: '16px' }}>
-                                  <Button variant="link" isInline onClick={() => {}}>
-                                    Request new API key
-                                  </Button>
-                                </div>
                               )}
                             </td>
                           </tr>
@@ -1466,40 +1660,202 @@ const APIKeys: React.FunctionComponent = () => {
               </div>
 
               <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Tiers</Title>
-              <select 
-                style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}
-                value={approvalTiersFilter}
-                onChange={(e) => setApprovalTiersFilter(e.target.value)}
-              >
-                <option value="All">All</option>
-                {uniqueApprovalTiers.map(tier => (
-                  <option key={tier} value={tier}>{tier}</option>
-                ))}
-              </select>
+              <div style={{ marginBottom: '16px' }}>
+                <Dropdown
+                  isOpen={isApprovalTiersDropdownOpen}
+                  onOpenChange={(isOpen) => setIsApprovalTiersDropdownOpen(isOpen)}
+                  toggle={(toggleRef) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      onClick={() => setIsApprovalTiersDropdownOpen(!isApprovalTiersDropdownOpen)}
+                      isExpanded={isApprovalTiersDropdownOpen}
+                      style={{ width: '100%', minHeight: '36px', padding: '4px 8px' }}
+                    >
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center', width: '100%', minHeight: '28px' }}>
+                        {approvalTiersFilter.length === 0 ? (
+                          <span style={{ color: '#6a6e73', fontSize: '14px' }}>All</span>
+                        ) : (
+                          <>
+                            {approvalTiersFilter.map(tier => (
+                              <Label
+                                key={tier}
+                                onClose={() => handleApprovalTierToggle(tier)}
+                                style={{ margin: 0 }}
+                              >
+                                {tier}
+                              </Label>
+                            ))}
+                            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Button
+                                variant="plain"
+                                aria-label="Clear all"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setApprovalTiersFilter([]);
+                                }}
+                                style={{ padding: '2px', minWidth: 'auto' }}
+                              >
+                                <TimesIcon style={{ fontSize: '12px' }} />
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </MenuToggle>
+                  )}
+                >
+                  <DropdownList>
+                    {availableTiers.map(tier => (
+                      <DropdownItem
+                        key={tier}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleApprovalTierToggle(tier);
+                        }}
+                      >
+                        <Checkbox
+                          isChecked={approvalTiersFilter.includes(tier)}
+                          id={`approval-tier-${tier}`}
+                          label={tier}
+                          onChange={() => handleApprovalTierToggle(tier)}
+                        />
+                      </DropdownItem>
+                    ))}
+                  </DropdownList>
+                </Dropdown>
+              </div>
 
               <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>API</Title>
-              <select 
-                style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}
-                value={approvalApiFilter}
-                onChange={(e) => setApprovalApiFilter(e.target.value)}
-              >
-                <option value="All">All</option>
+              <div style={{ marginBottom: '16px' }}>
+                <Dropdown
+                  isOpen={isApprovalApiDropdownOpen}
+                  onOpenChange={(isOpen) => setIsApprovalApiDropdownOpen(isOpen)}
+                  toggle={(toggleRef) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      onClick={() => setIsApprovalApiDropdownOpen(!isApprovalApiDropdownOpen)}
+                      isExpanded={isApprovalApiDropdownOpen}
+                      style={{ width: '100%', minHeight: '36px', padding: '4px 8px' }}
+                    >
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center', width: '100%', minHeight: '28px' }}>
+                        {approvalApiFilter.length === 0 ? (
+                          <span style={{ color: '#6a6e73', fontSize: '14px' }}>All</span>
+                        ) : (
+                          <>
+                            {approvalApiFilter.map(api => (
+                              <Label
+                                key={api}
+                                onClose={() => handleApprovalApiToggle(api)}
+                                style={{ margin: 0 }}
+                              >
+                                {api}
+                              </Label>
+                            ))}
+                            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Button
+                                variant="plain"
+                                aria-label="Clear all"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setApprovalApiFilter([]);
+                                }}
+                                style={{ padding: '2px', minWidth: 'auto' }}
+                              >
+                                <TimesIcon style={{ fontSize: '12px' }} />
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </MenuToggle>
+                  )}
+                >
+                  <DropdownList>
                 {uniqueApprovalApis.map(api => (
-                  <option key={api} value={api}>{api}</option>
-                ))}
-              </select>
+                      <DropdownItem
+                        key={api}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleApprovalApiToggle(api);
+                        }}
+                      >
+                        <Checkbox
+                          isChecked={approvalApiFilter.includes(api)}
+                          id={`approval-api-${api}`}
+                          label={api}
+                          onChange={() => handleApprovalApiToggle(api)}
+                        />
+                      </DropdownItem>
+                    ))}
+                  </DropdownList>
+                </Dropdown>
+              </div>
 
               <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Client</Title>
-              <select 
-                style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px' }}
-                value={approvalClientFilter}
-                onChange={(e) => setApprovalClientFilter(e.target.value)}
-              >
-                <option value="All">All</option>
+              <div style={{ marginBottom: '16px' }}>
+                <Dropdown
+                  isOpen={isApprovalClientDropdownOpen}
+                  onOpenChange={(isOpen) => setIsApprovalClientDropdownOpen(isOpen)}
+                  toggle={(toggleRef) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      onClick={() => setIsApprovalClientDropdownOpen(!isApprovalClientDropdownOpen)}
+                      isExpanded={isApprovalClientDropdownOpen}
+                      style={{ width: '100%', minHeight: '36px', padding: '4px 8px' }}
+                    >
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center', width: '100%', minHeight: '28px' }}>
+                        {approvalClientFilter.length === 0 ? (
+                          <span style={{ color: '#6a6e73', fontSize: '14px' }}>All</span>
+                        ) : (
+                          <>
+                            {approvalClientFilter.map(client => (
+                              <Label
+                                key={client}
+                                onClose={() => handleApprovalClientToggle(client)}
+                                style={{ margin: 0 }}
+                              >
+                                {client}
+                              </Label>
+                            ))}
+                            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Button
+                                variant="plain"
+                                aria-label="Clear all"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setApprovalClientFilter([]);
+                                }}
+                                style={{ padding: '2px', minWidth: 'auto' }}
+                              >
+                                <TimesIcon style={{ fontSize: '12px' }} />
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </MenuToggle>
+                  )}
+                >
+                  <DropdownList>
                 {uniqueApprovalClients.map(client => (
-                  <option key={client} value={client}>{client}</option>
-                ))}
-              </select>
+                      <DropdownItem
+                        key={client}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleApprovalClientToggle(client || '');
+                        }}
+                      >
+                        <Checkbox
+                          isChecked={client ? approvalClientFilter.includes(client) : false}
+                          id={`approval-client-${client}`}
+                          label={client || ''}
+                          onChange={() => handleApprovalClientToggle(client || '')}
+                        />
+                      </DropdownItem>
+                    ))}
+                  </DropdownList>
+                </Dropdown>
+              </div>
             </div>
           </GridItem>
 
@@ -1619,7 +1975,15 @@ const APIKeys: React.FunctionComponent = () => {
                               </Label>
                             </td>
                             <td style={{ padding: '12px' }}>
-                              <Label color={key.tiers === 'Gold' ? 'yellow' : key.tiers === 'Silver' ? 'grey' : 'blue'}>
+                              <Label
+                                style={{
+                                  backgroundColor: getTierBackgroundColor(key.tiers),
+                                  color: '#151515',
+                                  border: 'none',
+                                  padding: '4px 8px',
+                                  fontSize: '14px'
+                                }}
+                              >
                                 {key.tiers}
                               </Label>
                             </td>
@@ -1763,13 +2127,13 @@ const APIKeys: React.FunctionComponent = () => {
             style={{ marginBottom: '16px' }}
           >
             <Dropdown
-              isOpen={isApiDropdownOpen}
-              onOpenChange={(isOpen) => setIsApiDropdownOpen(isOpen)}
+              isOpen={isModalApiDropdownOpen}
+              onOpenChange={(isOpen) => setIsModalApiDropdownOpen(isOpen)}
               toggle={(toggleRef) => (
                 <MenuToggle 
                   ref={toggleRef} 
-                  onClick={() => setIsApiDropdownOpen(!isApiDropdownOpen)} 
-                  isExpanded={isApiDropdownOpen}
+                  onClick={() => setIsModalApiDropdownOpen(!isModalApiDropdownOpen)} 
+                  isExpanded={isModalApiDropdownOpen}
                   style={{ width: '100%' }}
                 >
                   {selectedApi || ''}
@@ -1782,7 +2146,7 @@ const APIKeys: React.FunctionComponent = () => {
                     key={api}
                     onClick={() => {
                       setSelectedApi(api);
-                      setIsApiDropdownOpen(false);
+                      setIsModalApiDropdownOpen(false);
                       // Clear tier error state when API is selected
                       setHasAttemptedTierSelection(false);
                     }}
@@ -2007,8 +2371,8 @@ const APIKeys: React.FunctionComponent = () => {
                     setApiKeys(prev => [newApiKey, ...prev]);
                     // Reset filters to show the new key
                     setStatusFilter('Pending');
-                    setTiersFilter('All');
-                    setApiFilter('All');
+                    setTiersFilter([]);
+                    setApiFilter([]);
                     setSearchValue('');
                     setAlertApiKeyInfo({ api: selectedApi, apiKeyName });
                     setShowSuccessAlert(true);
@@ -2060,8 +2424,8 @@ const APIKeys: React.FunctionComponent = () => {
                   setApiKeys(prev => [newApiKey, ...prev]);
                   // Reset filters to show the new key
                   setStatusFilter('Active');
-                  setTiersFilter('All');
-                  setApiFilter('All');
+                  setTiersFilter([]);
+                  setApiFilter([]);
                   setSearchValue('');
                   // Show success alert
                   setAlertApiKeyInfo({ api: selectedApi, apiKeyName });

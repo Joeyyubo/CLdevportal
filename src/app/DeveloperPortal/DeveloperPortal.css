@@ -55,7 +55,7 @@ input[readonly]:active {
 .info-tooltip [class*="pf-c-tooltip__content"],
 .info-tooltip [class*="pf-v6-c-tooltip__content"] {
   background-color: #4d4d4d !important;
-  color: white !important;
+  color: #ffffff !important;
   border-radius: 4px !important;
   padding: 0 !important;
 }
@@ -85,16 +85,28 @@ input[readonly]:active {
   padding: 4px;
   min-width: auto;
   z-index: 10;
-  color: white !important;
+  color: #ffffff !important;
+}
+
+.info-tooltip-close:hover,
+.info-tooltip-close:focus,
+.info-tooltip-close:active {
+  color: #ffffff !important;
 }
 
 .info-tooltip-close svg {
   font-size: 14px;
-  color: white;
+  color: #ffffff !important;
+}
+
+.info-tooltip-close:hover svg,
+.info-tooltip-close:focus svg,
+.info-tooltip-close:active svg {
+  color: #ffffff !important;
 }
 
 .info-tooltip-text {
-  color: white;
+  color: #ffffff !important;
   line-height: 1.5;
   font-size: 14px;
   padding-right: 20px;
