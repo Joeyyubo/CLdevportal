@@ -284,6 +284,11 @@ const APIKeys: React.FunctionComponent = () => {
   const [deletingApiKey, setDeletingApiKey] = React.useState<APIKey | null>(null);
   const [deleteConfirmationText, setDeleteConfirmationText] = React.useState('');
   
+  // Reject API key modal states
+  const [isRejectModalOpen, setIsRejectModalOpen] = React.useState(false);
+  const [rejectingApiKey, setRejectingApiKey] = React.useState<APIKey | null>(null);
+  const [rejectionReason, setRejectionReason] = React.useState('');
+  
   // Available tiers
   const availableTiers = ['Gold', 'Silver', 'Bronze'];
   
@@ -538,9 +543,20 @@ const APIKeys: React.FunctionComponent = () => {
   };
 
   const handleReject = (key: APIKey) => {
-    setApprovalApiKeys(prev => prev.map(k => 
-      k.name === key.name ? { ...k, status: 'Rejected' as const, rejectionReason: 'Rejection reason: Request rejected by API owner.' } : k
-    ));
+    setRejectingApiKey(key);
+    setRejectionReason('');
+    setIsRejectModalOpen(true);
+  };
+  
+  const handleConfirmReject = () => {
+    if (rejectingApiKey && rejectionReason.trim()) {
+      setApprovalApiKeys(prev => prev.map(k => 
+        k.name === rejectingApiKey.name ? { ...k, status: 'Rejected' as const, rejectionReason: rejectionReason.trim() } : k
+      ));
+      setIsRejectModalOpen(false);
+      setRejectingApiKey(null);
+      setRejectionReason('');
+    }
   };
 
   const handleUserDropdownToggle = () => {
@@ -743,7 +759,7 @@ const APIKeys: React.FunctionComponent = () => {
                   API products
                 </NavItem>
               )}
-              <NavItem itemId="api-keys" isActive={location.pathname.includes('/api-keys')} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
+              <NavItem itemId="api-keys" isActive={location.pathname.includes('/api-keys') || location.pathname.includes('/api-key-details')} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
                 API Access
               </NavItem>
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
@@ -1961,7 +1977,7 @@ const APIKeys: React.FunctionComponent = () => {
                               <Button 
                                 variant="link" 
                                 isInline
-                                onClick={() => navigate(`/developer-portal/api-key-details/${encodeURIComponent(key.name)}`)}
+                                onClick={() => navigate(`/developer-portal/api-key-details/${encodeURIComponent(key.name)}?fromApproval=true`)}
                                 style={{ textDecoration: 'none' }}
                               >
                                 {key.name}
@@ -2789,6 +2805,86 @@ const APIKeys: React.FunctionComponent = () => {
             }}
           >
             Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+
+      {/* Reject API key modal */}
+      <Modal
+        isOpen={isRejectModalOpen}
+        onClose={() => {
+          setIsRejectModalOpen(false);
+          setRejectingApiKey(null);
+          setRejectionReason('');
+        }}
+        variant="small"
+        style={{ '--pf-v6-c-backdrop--BackgroundColor': 'rgba(200, 200, 200, 0.8)' } as React.CSSProperties}
+      >
+        <ModalHeader>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <ExclamationTriangleIcon style={{ color: '#F0AB00', fontSize: '24px' }} />
+            <Title headingLevel="h2">Reject API key</Title>
+          </div>
+        </ModalHeader>
+        <ModalBody style={{ padding: '24px' }}>
+          <p style={{ marginBottom: '24px', fontSize: '14px', color: '#6a6e73' }}>
+            This will deny this API key request. The applicant will be notified of the reason and can submit a new request.
+          </p>
+
+          <FormGroup label="API key name" fieldId="reject-api-key-name" style={{ marginBottom: '16px' }}>
+            <TextInput
+              id="reject-api-key-name"
+              value={rejectingApiKey?.name || ''}
+              readOnly
+              style={{ backgroundColor: '#f5f5f5', userSelect: 'none', outline: 'none', cursor: 'default' }}
+            />
+          </FormGroup>
+
+          <FormGroup label="Use case" fieldId="reject-use-case" style={{ marginBottom: '16px' }}>
+            <TextInput
+              id="reject-use-case"
+              value={rejectingApiKey?.useCase || ''}
+              readOnly
+              style={{ backgroundColor: '#f5f5f5', userSelect: 'none', outline: 'none', cursor: 'default' }}
+            />
+          </FormGroup>
+
+          <FormGroup 
+            label={
+              <span>
+                Provide a reason for the rejection <span style={{ color: '#C9190B' }}>*</span>
+              </span>
+            }
+            isRequired
+            fieldId="rejection-reason"
+          >
+            <TextArea
+              id="rejection-reason"
+              value={rejectionReason}
+              onChange={(_, value) => setRejectionReason(value)}
+              placeholder="Give the requester some reasons why you reject this API key request"
+              rows={4}
+              style={{ resize: 'vertical' }}
+            />
+          </FormGroup>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            variant="link"
+            onClick={() => {
+              setIsRejectModalOpen(false);
+              setRejectingApiKey(null);
+              setRejectionReason('');
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={handleConfirmReject}
+            isDisabled={!rejectionReason.trim()}
+          >
+            Reject
           </Button>
         </ModalFooter>
       </Modal>

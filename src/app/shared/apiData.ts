@@ -234,5 +234,55 @@ export const initialSharedApiKeys: SharedAPIKey[] = [
     useCase: 'Work for my personal flight application test. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium est a porttitor vehicula. Quisque vel commodo urna. Morbi mattis rutrum ante, ipsum dolor sit amet,',
     rejectionReason: 'Rejection reason: ion test. Lorem ipsum dolor sit amururururtur at.'
   },
+  // API keys for approval (API owner perspective)
+  { 
+    name: 'IssuedAPIkey_1', 
+    status: 'Active', 
+    tiers: 'Gold', 
+    api: 'Toystore', 
+    activeTime: 'Jan 20, 2026',
+    useCase: 'Work for my personal flight application production.'
+  },
+  { 
+    name: 'IssuedAPIkey_2', 
+    status: 'Active', 
+    tiers: 'Gold', 
+    api: 'Petstore', 
+    activeTime: 'Jan 20, 2026',
+    useCase: 'Integration with booking management system.'
+  },
+  { 
+    name: 'IssuedAPIkey_3', 
+    status: 'Active', 
+    tiers: 'Gold', 
+    api: 'Carstore', 
+    activeTime: 'Sep 05, 2025',
+    useCase: 'Booking service integration.'
+  },
+  { 
+    name: 'Pendingkeyreq_1', 
+    status: 'Pending', 
+    tiers: 'Silver', 
+    api: 'Birdstore', 
+    activeTime: 'Sep 05, 2025',
+    useCase: 'Pending approval for airport information management system.'
+  },
+  { 
+    name: 'Pendingkeyreq_2', 
+    status: 'Pending', 
+    tiers: 'Bronze', 
+    api: 'Cloudstore', 
+    activeTime: 'Sep 05, 2025',
+    useCase: 'Payment processing service integration.'
+  },
+  { 
+    name: 'RejectedAPIkey', 
+    status: 'Rejected', 
+    tiers: 'Bronze', 
+    api: 'Bikestore', 
+    activeTime: 'Sep 05, 2025',
+    useCase: 'Work for my personal flight application test. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium est a porttitor vehicula. Quisque vel commodo urna. Morbi mattis rutrum ante, ipsum dolor sit amet,',
+    rejectionReason: 'Rejection reason: ion test. Lorem ipsum dolor sit amururururtur at.'
+  },
 ];
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Button,
   Masthead,
@@ -69,10 +69,41 @@ import {
   CodeBranchIcon,
   CheckCircleIcon,
   TimesCircleIcon,
+  TrashIcon,
+  ClockIcon,
+  CheckIcon,
+  TimesIcon,
 } from '@patternfly/react-icons';
 import './DeveloperPortal.css';
+import { initialSharedApiKeys, SharedAPIKey, availableApis } from '../shared/apiData';
 
-// Sample API key details data
+// Get tier background color
+const getTierBackgroundColor = (tier: string): string => {
+  const tierLower = tier.toLowerCase();
+  if (tierLower === 'gold') {
+    return '#FDF7E7';
+  } else if (tierLower === 'silver') {
+    return '#F5F5F5';
+  } else if (tierLower === 'bronze') {
+    return '#F2F9F9';
+  }
+  return '#F2F9F9'; // default to bronze color
+};
+
+// Get plan display text from tier
+const getPlanDisplayText = (tier: string): string => {
+  const tierLower = tier.toLowerCase();
+  if (tierLower === 'gold') {
+    return 'Gold 1 req/daily';
+  } else if (tierLower === 'silver') {
+    return 'Silver 1 req/daily';
+  } else if (tierLower === 'bronze') {
+    return 'Bronze 1 req/daily';
+  }
+  return `${tier} 1 req/daily`;
+};
+
+// Sample API key details data (fallback for keys not in shared data)
 const apiKeyDetailsData: Record<string, any> = {
   'personal keys': {
     name: 'Personal key',
@@ -225,6 +256,36 @@ const APIKeyDetails: React.FunctionComponent = () => {
   const [reapplyDescriptionText, setReapplyDescriptionText] = React.useState('');
   const [selectedReapplyPlan, setSelectedReapplyPlan] = React.useState('Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;');
   const [isReapplyPlanDropdownOpen, setIsReapplyPlanDropdownOpen] = React.useState(false);
+  
+  // State for reject modal (from approval)
+  const [isRejectModalOpen, setIsRejectModalOpen] = React.useState(false);
+  const [rejectionReason, setRejectionReason] = React.useState('');
+  
+  // State for Client dropdown
+  const [isClientDropdownOpen, setIsClientDropdownOpen] = React.useState(false);
+  
+  // Edit API key modal states
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+  const [editApiKeyName, setEditApiKeyName] = React.useState('');
+  const [editSelectedApi, setEditSelectedApi] = React.useState('');
+  const [editSelectedTier, setEditSelectedTier] = React.useState('');
+  const [editUseCase, setEditUseCase] = React.useState('');
+  const [isEditApiDropdownOpen, setIsEditApiDropdownOpen] = React.useState(false);
+  const [isEditTierDropdownOpen, setIsEditTierDropdownOpen] = React.useState(false);
+  
+  // Available tiers
+  const availableTiers = ['Gold', 'Silver', 'Bronze'];
+  
+  // State for user dropdown and notifications
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
+  const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = React.useState(false);
+  
+  const location = useLocation();
+  
+  // Get fromApi parameter from URL to determine if coming from API details page
+  const searchParams = new URLSearchParams(location.search);
+  const fromApi = searchParams.get('fromApi');
+  const fromApproval = searchParams.get('fromApproval') === 'true';
 
   // Get current role from localStorage or use default
   const getCurrentRole = (): string => {
@@ -237,16 +298,51 @@ const APIKeyDetails: React.FunctionComponent = () => {
   };
   
   const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
+  
+  // Listen for storage changes to update role when changed in another tab/window
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      const role = getCurrentRole();
+      setCurrentRole(role);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    // Also listen for custom storage event (for same-tab updates)
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   // Decode the key name from URL
   const decodedKeyName = keyName ? decodeURIComponent(keyName) : null;
-  const keyDetailsData = decodedKeyName ? apiKeyDetailsData[decodedKeyName] : null;
   
-  // Use updated plan if exists, otherwise use original
-  const keyDetails = keyDetailsData ? {
-    ...keyDetailsData,
-    plan: updatedPlan || keyDetailsData.plan
-  } : null;
+  // Try to find the key in shared API keys data first
+  const sharedKeyData = decodedKeyName 
+    ? initialSharedApiKeys.find(key => key.name === decodedKeyName)
+    : null;
+  
+  // Fallback to apiKeyDetailsData if not found in shared data
+  const fallbackKeyData = decodedKeyName ? apiKeyDetailsData[decodedKeyName] : null;
+  
+  // Use shared data if available, otherwise use fallback
+  const keyDetails = sharedKeyData ? {
+    name: sharedKeyData.name,
+    status: sharedKeyData.status,
+    apiName: sharedKeyData.api,
+    plan: getPlanDisplayText(sharedKeyData.tiers),
+    tiers: sharedKeyData.tiers,
+    lastUsed: sharedKeyData.activeTime,
+    description: sharedKeyData.useCase || '',
+    apiKey: 'cbjNd-nvMqT', // Mock API key
+    apiUrl: `https://api.example.com/v1/${sharedKeyData.api.toLowerCase().replace(/\s+/g, '-')}`,
+    useCase: sharedKeyData.useCase,
+    rejectionReason: sharedKeyData.rejectionReason,
+  } : (fallbackKeyData ? {
+    ...fallbackKeyData,
+    plan: updatedPlan || fallbackKeyData.plan
+  } : null);
 
   if (!keyDetails) {
     return <div>API key not found</div>;
@@ -272,6 +368,8 @@ const APIKeyDetails: React.FunctionComponent = () => {
       navigate('/self-service');
     } else if (itemId === 'dev-portal') {
       navigate('/developer-portal');
+    } else if (itemId === 'api-keys') {
+      navigate('/developer-portal/api-keys');
     } else if (itemId === 'policies') {
       navigate('/policies');
     } else if (itemId === 'observability') {
@@ -280,6 +378,31 @@ const APIKeyDetails: React.FunctionComponent = () => {
       navigate('/developer-portal');
     }
   };
+  
+  const handleUserDropdownToggle = () => {
+    setIsUserDropdownOpen(!isUserDropdownOpen);
+  };
+
+  const handleUserDropdownSelect = (_event?: React.MouseEvent | undefined, role?: string | number | undefined) => {
+    const newRole = String(role);
+    setCurrentRole(newRole);
+    // Save to localStorage
+    try {
+      localStorage.setItem('currentRole', newRole);
+      // Trigger storage event
+      window.dispatchEvent(new Event('storage'));
+    } catch (e) {
+      console.error('Failed to save role to localStorage:', e);
+    }
+    setIsUserDropdownOpen(false);
+  };
+
+  const handleNotificationDrawerToggle = () => {
+    setIsNotificationDrawerOpen(!isNotificationDrawerOpen);
+  };
+  
+  // Mock unread count (you can implement actual notification logic)
+  const unreadCount = 0;
 
   const handleCopyCode = () => {
     setCopiedCode(true);
@@ -289,6 +412,36 @@ const APIKeyDetails: React.FunctionComponent = () => {
   const handleCopyApiKey = () => {
     setCopiedApiKey(true);
     setTimeout(() => setCopiedApiKey(false), 2000);
+  };
+
+  // Handle approve for API keys from approval tab
+  const handleApprove = () => {
+    // Update the key status in shared data
+    const updatedKeys = initialSharedApiKeys.map(key => 
+      key.name === keyDetails.name ? { ...key, status: 'Active' as const } : key
+    );
+    // In a real app, this would be an API call
+    // For now, we'll navigate back to the API keys page
+    setIsClientDropdownOpen(false);
+    navigate('/developer-portal/api-keys?tab=approval');
+  };
+
+  // Handle reject for API keys from approval tab
+  const handleReject = () => {
+    setIsClientDropdownOpen(false);
+    setRejectionReason('');
+    setIsRejectModalOpen(true);
+  };
+
+  // Handle confirm reject
+  const handleConfirmReject = () => {
+    if (rejectionReason.trim()) {
+      // In a real app, this would be an API call
+      // For now, we'll navigate back to the API keys page
+      setIsRejectModalOpen(false);
+      setRejectionReason('');
+      navigate('/developer-portal/api-keys?tab=approval');
+    }
   };
 
   const copyText = `curl -X POST ${keyDetails.apiUrl} \\
@@ -336,16 +489,58 @@ const APIKeyDetails: React.FunctionComponent = () => {
         </MastheadBrand>
       </MastheadMain>
       <MastheadContent>
-        <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'flex-end' }}>
-          <Button variant="plain" aria-label="Help" style={{ color: '#151515' }}>
-            <HelpIcon />
-          </Button>
-          <Button variant="plain" aria-label="Notifications" style={{ color: '#151515' }}>
-            <BellIcon />
-          </Button>
-          <Button variant="plain" aria-label="User" style={{ color: '#151515' }}>
-            <UserIcon />
-          </Button>
+        <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'flex-end', gap: '16px' }}>
+          <div style={{ position: 'relative' }}>
+            <Button
+              variant="plain"
+              aria-label="Notifications"
+              onClick={handleNotificationDrawerToggle}
+              style={{ color: '#151515' }}
+            >
+              <BellIcon />
+            </Button>
+            {unreadCount > 0 && (
+              <Badge
+                isRead={false}
+                style={{
+                  position: 'absolute',
+                  top: '-4px',
+                  right: '-4px',
+                  minWidth: '18px',
+                  height: '18px',
+                  fontSize: '11px',
+                  padding: '0 4px'
+                }}
+              >
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </Badge>
+            )}
+          </div>
+          <Dropdown
+            isOpen={isUserDropdownOpen}
+            onSelect={handleUserDropdownSelect}
+            onOpenChange={(isOpen) => setIsUserDropdownOpen(isOpen)}
+            toggle={(toggleRef) => (
+              <MenuToggle
+                ref={toggleRef}
+                onClick={handleUserDropdownToggle}
+                aria-expanded={isUserDropdownOpen}
+                aria-label="User account menu"
+                variant="plainText"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <UserIcon />
+                  <span>{currentRole}</span>
+                </div>
+              </MenuToggle>
+            )}
+            popperProps={{ appendTo: () => document.body }}
+          >
+            <DropdownList>
+              <DropdownItem value="API consumer">API consumer</DropdownItem>
+              <DropdownItem value="API owner">API owner</DropdownItem>
+            </DropdownList>
+          </Dropdown>
         </div>
       </MastheadContent>
     </Masthead>
@@ -362,7 +557,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
             <NavItem itemId="catalog" icon={<ArchiveIcon />} onClick={() => handleNavClick('catalog')}>
               Catalog
             </NavItem>
-            <NavItem itemId="apis" icon={<CogIcon />} onClick={() => handleNavClick('apis')}>
+            <NavItem itemId="apis" isActive={fromApi !== null} icon={<CogIcon />} onClick={() => handleNavClick('apis')}>
               APIs
             </NavItem>
             <NavItem itemId="docs" icon={<FileAltIcon />} onClick={() => handleNavClick('docs')}>
@@ -390,8 +585,13 @@ const APIKeyDetails: React.FunctionComponent = () => {
               isExpanded={connectivityLinkExpanded}
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
-              <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                API products
+              {currentRole !== 'API consumer' && (
+                <NavItem itemId="dev-portal" isActive={location.pathname === '/developer-portal' && !location.pathname.includes('/api-keys') && !fromApi} icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                  API products
+                </NavItem>
+              )}
+              <NavItem itemId="api-keys" isActive={(location.pathname.includes('/api-keys') || location.pathname.includes('/api-key-details')) && !fromApi} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
+                API Access
               </NavItem>
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
@@ -415,43 +615,167 @@ const APIKeyDetails: React.FunctionComponent = () => {
       <Page masthead={masthead} sidebar={sidebar}>
         <PageSection>
           <Breadcrumb style={{ marginBottom: '16px' }}>
-            <BreadcrumbItem>
-              <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-                API products
-              </Button>
-            </BreadcrumbItem>
-            <BreadcrumbItem>
-              <Button variant="link" isInline onClick={() => navigate('/developer-portal#api-keys')}>
-                API keys
-              </Button>
-            </BreadcrumbItem>
+            {fromApi ? (
+              <>
+                <BreadcrumbItem>
+                  <Button variant="link" isInline onClick={() => navigate('/apis')}>
+                    APIs
+                  </Button>
+                </BreadcrumbItem>
+                <BreadcrumbItem>
+                  <Button variant="link" isInline onClick={() => navigate(`/apis/api-details/${encodeURIComponent(fromApi)}`)}>
+                    {fromApi}
+                  </Button>
+                </BreadcrumbItem>
+                <BreadcrumbItem>{keyDetails.name}</BreadcrumbItem>
+              </>
+            ) : (
+              <>
+                <BreadcrumbItem>
+                  <Button variant="link" isInline onClick={() => navigate('/developer-portal/api-keys')}>
+                    API Access
+                  </Button>
+                </BreadcrumbItem>
+                <BreadcrumbItem>{keyDetails.name}</BreadcrumbItem>
+              </>
+            )}
           </Breadcrumb>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Title headingLevel="h1" size="2xl">
-              {keyDetails.name}
-            </Title>
-            <Label
-              variant="outline"
-              icon={keyDetails.status === 'Active' ? <CheckCircleIcon /> : <TimesCircleIcon />}
-              color={keyDetails.status === 'Active' ? 'green' : 'red'}
+              <Title headingLevel="h1" size="2xl">
+                {keyDetails.name}
+              </Title>
+              <Label
+                variant="outline"
+                icon={keyDetails.status === 'Active' ? <CheckCircleIcon /> : keyDetails.status === 'Pending' ? <ClockIcon /> : <TimesCircleIcon />}
+                color={keyDetails.status === 'Active' ? 'green' : keyDetails.status === 'Pending' ? 'blue' : 'red'}
                 style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}
-            >
-              {keyDetails.status}
-            </Label>
+              >
+                {keyDetails.status}
+              </Label>
             </div>
-            {keyDetails.status === 'Disabled' && (
-              <Button variant="primary" onClick={() => setIsReapplyModalOpen(true)}>
-                Reapply
-              </Button>
-            )}
+            {/* Show kebab menu based on source and status */}
+            {(() => {
+              // From API keys approval: only show for Pending status
+              if (fromApproval) {
+                if (keyDetails.status === 'Pending') {
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                        <span style={{ fontSize: '12px', color: '#6a6e73', marginBottom: '4px' }}>Client</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '14px', color: '#151515' }}>{currentRole}</span>
+                          <Dropdown
+                            isOpen={isClientDropdownOpen}
+                            onOpenChange={(isOpen) => setIsClientDropdownOpen(isOpen)}
+                            toggle={(toggleRef) => (
+                              <MenuToggle
+                                ref={toggleRef}
+                                onClick={() => setIsClientDropdownOpen(!isClientDropdownOpen)}
+                                isExpanded={isClientDropdownOpen}
+                                variant="plain"
+                                aria-label="Client actions"
+                              >
+                                <EllipsisVIcon />
+                              </MenuToggle>
+                            )}
+                            popperProps={{ 
+                              appendTo: () => document.body,
+                              position: 'bottom',
+                              flipBehavior: ['bottom', 'top']
+                            }}
+                          >
+                            <DropdownList>
+                              <DropdownItem
+                                icon={<CheckIcon />}
+                                onClick={handleApprove}
+                              >
+                                Approve
+                              </DropdownItem>
+                              <DropdownItem
+                                icon={<TimesIcon />}
+                                onClick={handleReject}
+                              >
+                                Reject
+                              </DropdownItem>
+                            </DropdownList>
+                          </Dropdown>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                // Active and Rejected: don't show kebab menu
+                return null;
+              }
+              // From My API keys: show for Active and Pending (existing behavior)
+              if (keyDetails.status !== 'Rejected') {
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                      <span style={{ fontSize: '12px', color: '#6a6e73', marginBottom: '4px' }}>Client</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '14px', color: '#151515' }}>{currentRole}</span>
+                        <Dropdown
+                          isOpen={isClientDropdownOpen}
+                          onOpenChange={(isOpen) => setIsClientDropdownOpen(isOpen)}
+                          toggle={(toggleRef) => (
+                            <MenuToggle
+                              ref={toggleRef}
+                              onClick={() => setIsClientDropdownOpen(!isClientDropdownOpen)}
+                              isExpanded={isClientDropdownOpen}
+                              variant="plain"
+                              aria-label="Client actions"
+                            >
+                              <EllipsisVIcon />
+                            </MenuToggle>
+                          )}
+                          popperProps={{ 
+                            appendTo: () => document.body,
+                            position: 'bottom',
+                            flipBehavior: ['bottom', 'top']
+                          }}
+                        >
+                          <DropdownList>
+                            <DropdownItem
+                              icon={<PencilAltIcon />}
+                              onClick={() => {
+                                setIsClientDropdownOpen(false);
+                                // Initialize edit modal with current key details
+                                setEditApiKeyName(keyDetails.name);
+                                setEditSelectedApi(keyDetails.apiName);
+                                setEditSelectedTier(keyDetails.tiers || 'Bronze');
+                                setEditUseCase(keyDetails.useCase || '');
+                                setIsEditModalOpen(true);
+                              }}
+                            >
+                              {keyDetails.status === 'Active' ? 'Edit active API key' : 'Edit pending API key'}
+                            </DropdownItem>
+                            <DropdownItem
+                              icon={<TrashIcon />}
+                              onClick={() => {
+                                setIsClientDropdownOpen(false);
+                                setDeleteConfirmText('');
+                                setIsDeleteModalOpen(true);
+                              }}
+                            >
+                              {keyDetails.status === 'Active' ? 'Delete active API key' : 'Delete pending API key'}
+                            </DropdownItem>
+                          </DropdownList>
+                        </Dropdown>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
           </div>
 
           <Tabs activeKey={activeTab} onSelect={handleTabClick} style={{ marginBottom: '24px' }}>
             <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>} />
             <Tab eventKey={1} title={<TabTitleText>Metrics</TabTitleText>} />
-            <Tab eventKey={2} title={<TabTitleText>Setting</TabTitleText>} />
           </Tabs>
 
           {activeTab === 0 && (
@@ -467,13 +791,9 @@ const APIKeyDetails: React.FunctionComponent = () => {
                     </div>
 
                     <ActionGroup style={{ marginBottom: '24px' }}>
-                      <Button variant="link">
+                      <Button variant="link" onClick={() => navigate(`/apis/api-details/${encodeURIComponent(keyDetails.apiName)}`)}>
                         <FileAltIcon style={{ marginRight: '6px' }} />
                         VIEW API
-                      </Button>
-                      <Button variant="link">
-                        <CodeBranchIcon style={{ marginRight: '6px' }} />
-                        VIEW SOURCE
                       </Button>
                       <Button variant="link">
                         <UsersIcon style={{ marginRight: '6px' }} />
@@ -483,75 +803,60 @@ const APIKeyDetails: React.FunctionComponent = () => {
 
                     <DescriptionList columnModifier={{ default: '1Col', md: '1Col' }}>
                       <DescriptionListGroup>
-                        <DescriptionListTerm>Description</DescriptionListTerm>
-                        <DescriptionListDescription>{keyDetails.description}</DescriptionListDescription>
-                      </DescriptionListGroup>
-                      
-                      <DescriptionListGroup>
-                        <DescriptionListTerm>Name</DescriptionListTerm>
-                        <DescriptionListDescription>
-                          <Button 
-                            variant="link" 
-                            isInline 
-                            onClick={() => navigate(`/developer-portal/api-key-details/${encodeURIComponent(keyDetails.name)}`)}
-                          >
-                            {keyDetails.name}
-                          </Button>
-                        </DescriptionListDescription>
-                      </DescriptionListGroup>
-
-                      <DescriptionListGroup>
-                        <DescriptionListTerm>API key</DescriptionListTerm>
-                        <DescriptionListDescription>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontFamily: 'monospace', fontSize: '14px', color: '#6a6e73' }}>
-                              {keyDetails.apiKey}*****************
-                            </span>
-                            <Tooltip content={copiedApiKey ? "Copied!" : "Copy to clipboard"}>
-                              <Button
-                                variant="plain"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(keyDetails.apiKey);
-                                  handleCopyApiKey();
-                                }}
-                                style={{ padding: '4px' }}
-                              >
-                                <CopyIcon style={{ fontSize: '16px' }} />
-                              </Button>
-                            </Tooltip>
-                          </div>
-                        </DescriptionListDescription>
-                      </DescriptionListGroup>
-
-                      <DescriptionListGroup>
                         <DescriptionListTerm>API</DescriptionListTerm>
                         <DescriptionListDescription>
                           <Button 
                             variant="link" 
                             isInline 
-                            onClick={() => navigate(`/developer-portal/api-details/${encodeURIComponent(keyDetails.apiName)}`)}
+                            onClick={() => navigate(`/apis/api-details/${encodeURIComponent(keyDetails.apiName)}`)}
+                            style={{ textDecoration: 'none' }}
                           >
                             {keyDetails.apiName}
                           </Button>
                         </DescriptionListDescription>
                       </DescriptionListGroup>
-
+                      
                       <DescriptionListGroup>
-                        <DescriptionListTerm>API key plan</DescriptionListTerm>
+                        <DescriptionListTerm>API KEY NAME</DescriptionListTerm>
                         <DescriptionListDescription>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span>{keyDetails.plan}</span>
-                            <ArrowUpIcon style={{ color: '#67b350', fontSize: '16px' }} />
-                          </div>
+                          {keyDetails.name}
                         </DescriptionListDescription>
                       </DescriptionListGroup>
 
                       <DescriptionListGroup>
-                        <DescriptionListTerm>Last used</DescriptionListTerm>
+                        <DescriptionListTerm>PLAN</DescriptionListTerm>
+                        <DescriptionListDescription>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Label
+                              style={{
+                                backgroundColor: getTierBackgroundColor(keyDetails.tiers || 'Bronze'),
+                                color: '#151515',
+                                border: 'none',
+                                padding: '4px 12px'
+                              }}
+                            >
+                              {keyDetails.tiers || 'Bronze'}
+                            </Label>
+                            <span>{keyDetails.plan}</span>
+                          </div>
+                        </DescriptionListDescription>
+                      </DescriptionListGroup>
+
+                      {keyDetails.useCase && (
+                        <DescriptionListGroup>
+                          <DescriptionListTerm>USE CASE</DescriptionListTerm>
+                          <DescriptionListDescription>
+                            {keyDetails.useCase}
+                          </DescriptionListDescription>
+                        </DescriptionListGroup>
+                      )}
+
+                      <DescriptionListGroup>
+                        <DescriptionListTerm>LAST ACTIVE TIME</DescriptionListTerm>
                         <DescriptionListDescription>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#67b350' }}>
                             <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#67b350' }}></div>
-                            {keyDetails.lastUsed}
+                            <span>{keyDetails.lastUsed ? keyDetails.lastUsed.toUpperCase() : (keyDetails.activeTime || 'N/A')}</span>
                           </div>
                         </DescriptionListDescription>
                       </DescriptionListGroup>
@@ -731,110 +1036,6 @@ const APIKeyDetails: React.FunctionComponent = () => {
             </>
           )}
 
-          {activeTab === 2 && (
-            <div style={{ position: 'relative' }}>
-              {/* Success Alert */}
-              {showUpdateSuccess && (
-                <div style={{ 
-                  position: 'fixed',
-                  top: '100px',
-                  right: '24px',
-                  zIndex: 200,
-                  maxWidth: '500px',
-                  animation: 'fadeIn 0.3s ease-in'
-                }}>
-                  <Alert 
-                    variant="success"
-                    title="API key update successfully"
-                    className="no-shadow-alert"
-                    isLiveRegion
-                  >
-                    <div style={{ marginBottom: '8px' }}>
-                      <strong>{keyDetails.name}</strong> request to {lastSelectedPlan.split(' ')[0].toLowerCase()} plan has been approved by API owner.
-                    </div>
-                    <Button 
-                      variant="link" 
-                      isInline
-                      onClick={() => {
-                        setShowUpdateSuccess(false);
-                        setActiveTab(0);
-                        // Scroll to top if needed
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                    >
-                      View API key
-                    </Button>
-                  </Alert>
-                </div>
-              )}
-
-              {/* API key update/reapply section */}
-              <Card style={{ border: '1px solid #67b350', marginBottom: '24px' }}>
-                <CardBody>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                    <div style={{ 
-                      width: '24px', 
-                      height: '24px', 
-                      borderRadius: '50%', 
-                      backgroundColor: '#67b350',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <ArrowUpIcon style={{ color: 'white', fontSize: '16px' }} />
-                    </div>
-                    <Title headingLevel="h3" size="lg">
-                      {keyDetails.status === 'Active' ? 'API key update' : 'API key reapply'}
-                    </Title>
-                  </div>
-                  <p style={{ marginBottom: '16px', color: '#151515' }}>
-                    {keyDetails.status === 'Active' 
-                      ? 'Update this API key to have more quota of API usage limit.'
-                      : 'Reapply for this API key to have more quota of API usage limit.'}
-                  </p>
-                  <Button 
-                    variant="primary" 
-                    onClick={() => {
-                      if (keyDetails.status === 'Active') {
-                      setIsUpdateModalOpen(true);
-                      setSelectedPlan('Gold plan (1000 reqs/day, 5000 reqs/week; 30000 reqs/month)');
-                      setIsPlanDropdownOpen(false);
-                      } else {
-                        setIsReapplyModalOpen(true);
-                      }
-                    }}
-                  >
-                    {keyDetails.status === 'Active' ? 'Update' : 'Reapply'}
-                  </Button>
-                </CardBody>
-              </Card>
-
-              {/* Danger zone section */}
-              <Card style={{ border: '1px solid #c9190b' }}>
-                <CardBody>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                    <div style={{ 
-                      width: '24px', 
-                      height: '24px', 
-                      borderRadius: '50%', 
-                      backgroundColor: '#f0ab00',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <ExclamationTriangleIcon style={{ color: 'white', fontSize: '16px' }} />
-                    </div>
-                    <Title headingLevel="h3" size="lg">Danger zone</Title>
-                  </div>
-                  <p style={{ marginBottom: '16px', color: '#151515' }}>
-                    Permanently delete this API key. This action cannot be undone and will immediately revoke access for any applications using this key.
-                  </p>
-                  <Button variant="danger" onClick={() => setIsDeleteModalOpen(true)}>Delete API key</Button>
-                </CardBody>
-              </Card>
-            </div>
-          )}
-
           {/* Update Modal */}
           <Modal
             isOpen={isUpdateModalOpen}
@@ -935,68 +1136,250 @@ const APIKeyDetails: React.FunctionComponent = () => {
             </ModalFooter>
           </Modal>
 
-          {/* Delete Modal */}
+          {/* Edit API key modal */}
           <Modal
-            isOpen={isDeleteModalOpen}
-            variant="small"
-            title="Delete this API key?"
+            isOpen={isEditModalOpen}
             onClose={() => {
-              setIsDeleteModalOpen(false);
-              setDeleteConfirmText('');
+              setIsEditModalOpen(false);
+              setEditApiKeyName('');
+              setEditSelectedApi('');
+              setEditSelectedTier('');
+              setEditUseCase('');
             }}
-            style={{ '--pf-v6-c-backdrop--BackgroundColor': 'rgba(200, 200, 200, 0.8)' } as React.CSSProperties}
+            variant="small"
+            style={{ maxWidth: '500px' }}
           >
             <ModalHeader>
-              <Title headingLevel="h2">Delete this API key?</Title>
+              <Title headingLevel="h2">
+                {keyDetails.status === 'Active' ? 'Edit active API key' : 'Edit pending API key'}
+              </Title>
             </ModalHeader>
-            <ModalBody>
-              <Alert 
-                variant="danger" 
-                title="This action cannot be undone."
-                style={{ marginBottom: '24px' }}
-                className="no-shadow-alert"
-              >
-                Deleting this API key will immediately revoke access for any applications currently using it. Proceed with caution.
-              </Alert>
-
-              <p style={{ marginBottom: '16px', color: '#151515', fontWeight: 'bold' }}>
-                To confirm deletion, type the API key name below:
+            <ModalBody style={{ padding: '24px' }}>
+              <p style={{ marginBottom: '16px', fontSize: '14px', color: '#6a6e73' }}>
+                {keyDetails.status === 'Active' 
+                  ? 'You can edit active API keys to change tiers or add more details.'
+                  : 'You can edit the pending API keys to correct mistakes or add more details.'}
               </p>
 
-              <TextInput 
-                value={keyDetails.name}
-                readOnly
-                style={{ marginBottom: '16px', backgroundColor: '#f5f5f5' }}
+              <Alert
+                variant="warning"
+                isInline
+                title={
+                  keyDetails.status === 'Active'
+                    ? 'This API key will become pending approval after the update.'
+                    : 'This API key will remain pending approval after updates.'
+                }
+                style={{ marginBottom: '16px' }}
               />
 
-              <FormGroup label="Type the name of the API key to confirm *" isRequired>
+              <FormGroup 
+                label={
+                  <span>
+                    API <span style={{ color: '#C9190B' }}>*</span>
+                  </span>
+                }
+                isRequired={false}
+                style={{ marginBottom: '16px' }}
+              >
+                {keyDetails.status === 'Active' ? (
+                  <TextInput
+                    value={editSelectedApi}
+                    readOnly
+                    style={{ backgroundColor: '#f5f5f5', userSelect: 'none', outline: 'none', cursor: 'default' }}
+                  />
+                ) : (
+                  <Dropdown
+                    isOpen={isEditApiDropdownOpen}
+                    onOpenChange={(isOpen) => setIsEditApiDropdownOpen(isOpen)}
+                    toggle={(toggleRef) => (
+                      <MenuToggle 
+                        ref={toggleRef} 
+                        onClick={() => setIsEditApiDropdownOpen(!isEditApiDropdownOpen)} 
+                        isExpanded={isEditApiDropdownOpen}
+                        style={{ width: '100%' }}
+                      >
+                        {editSelectedApi || ''}
+                      </MenuToggle>
+                    )}
+                  >
+                    <DropdownList>
+                      {availableApis.map((api) => (
+                        <DropdownItem
+                          key={api}
+                          onClick={() => {
+                            setEditSelectedApi(api);
+                            setIsEditApiDropdownOpen(false);
+                          }}
+                        >
+                          {api}
+                        </DropdownItem>
+                      ))}
+                    </DropdownList>
+                  </Dropdown>
+                )}
+              </FormGroup>
+
+              <FormGroup 
+                label={
+                  <span>
+                    API key name <span style={{ color: '#C9190B' }}>*</span>
+                  </span>
+                }
+                isRequired={false}
+                style={{ marginBottom: '16px' }}
+              >
                 <TextInput
-                  value={deleteConfirmText}
-                  onChange={(_, value) => setDeleteConfirmText(value)}
-                  type="text"
+                  value={editApiKeyName}
+                  onChange={(_, value) => setEditApiKeyName(value)}
+                />
+              </FormGroup>
+
+              <FormGroup 
+                label={
+                  <span>
+                    Tiers <span style={{ color: '#C9190B' }}>*</span>
+                  </span>
+                }
+                isRequired={false}
+                style={{ marginBottom: '16px' }}
+              >
+                <Dropdown
+                  isOpen={isEditTierDropdownOpen}
+                  onOpenChange={(isOpen) => setIsEditTierDropdownOpen(isOpen)}
+                  toggle={(toggleRef) => (
+                    <MenuToggle 
+                      ref={toggleRef} 
+                      onClick={() => setIsEditTierDropdownOpen(!isEditTierDropdownOpen)} 
+                      isExpanded={isEditTierDropdownOpen}
+                      style={{ width: '100%' }}
+                    >
+                      {editSelectedTier ? `${editSelectedTier} (Limits: 1 daily)` : ''}
+                    </MenuToggle>
+                  )}
+                >
+                  <DropdownList>
+                    {availableTiers.map((tier) => (
+                      <DropdownItem
+                        key={tier}
+                        onClick={() => {
+                          setEditSelectedTier(tier);
+                          setIsEditTierDropdownOpen(false);
+                        }}
+                      >
+                        {tier} (Limits: 1 daily)
+                      </DropdownItem>
+                    ))}
+                  </DropdownList>
+                </Dropdown>
+              </FormGroup>
+
+              <FormGroup label="Use case" style={{ marginBottom: '24px' }}>
+                <TextArea
+                  value={editUseCase}
+                  onChange={(_, value) => setEditUseCase(value)}
+                  rows={1}
                 />
               </FormGroup>
             </ModalBody>
             <ModalFooter>
-              <Button 
-                variant="link" 
+              <Button
+                key="save"
+                variant="primary"
+                onClick={() => {
+                  // Update key details (in a real app, this would update the backend)
+                  setIsEditModalOpen(false);
+                  setEditApiKeyName('');
+                  setEditSelectedApi('');
+                  setEditSelectedTier('');
+                  setEditUseCase('');
+                  // Navigate back to API keys page or refresh
+                  navigate('/developer-portal/api-keys');
+                }}
+                isDisabled={!editSelectedApi || !editApiKeyName || !editSelectedTier}
+              >
+                Save
+              </Button>
+              <Button
+                key="cancel"
+                variant="link"
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setEditApiKeyName('');
+                  setEditSelectedApi('');
+                  setEditSelectedTier('');
+                  setEditUseCase('');
+                }}
+              >
+                Cancel
+              </Button>
+            </ModalFooter>
+          </Modal>
+
+          {/* Delete API key modal */}
+          <Modal
+            isOpen={isDeleteModalOpen}
+            onClose={() => {
+              setIsDeleteModalOpen(false);
+              setDeleteConfirmText('');
+            }}
+            variant="small"
+            style={{ maxWidth: '500px' }}
+          >
+            <ModalHeader>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <ExclamationTriangleIcon style={{ color: '#F0AB00', fontSize: '24px' }} />
+                <Title headingLevel="h2">
+                  {keyDetails.status === 'Active' ? 'Delete active API key' : 'Delete pending API key'}
+                </Title>
+              </div>
+            </ModalHeader>
+            <ModalBody style={{ padding: '24px' }}>
+              <p style={{ marginBottom: '16px', fontSize: '14px', color: '#6a6e73' }}>
+                {keyDetails.status === 'Active'
+                  ? 'The API key will be deleted and removed. The deletion will immediately disable access for all applications currently using it.'
+                  : 'The API key will be deleted and removed before approval. The deletion can not be undone.'}
+              </p>
+
+              <FormGroup 
+                label={
+                  <span>
+                    Type <span style={{ color: '#0066CC' }}>{keyDetails.name}</span> to confirm <span style={{ color: '#C9190B' }}>*</span>
+                  </span>
+                }
+                isRequired={false}
+                style={{ marginBottom: '16px' }}
+              >
+                <TextInput
+                  value={deleteConfirmText}
+                  onChange={(_, value) => setDeleteConfirmText(value)}
+                  placeholder=""
+                />
+              </FormGroup>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                key="delete"
+                variant="danger"
+                onClick={() => {
+                  if (deleteConfirmText === keyDetails.name) {
+                    setIsDeleteModalOpen(false);
+                    setDeleteConfirmText('');
+                    navigate(`/developer-portal?revoked=${encodeURIComponent(keyDetails.name)}&type=key#api-keys`);
+                  }
+                }}
+                isDisabled={deleteConfirmText !== keyDetails.name}
+              >
+                Delete
+              </Button>
+              <Button
+                key="cancel"
+                variant="link"
                 onClick={() => {
                   setIsDeleteModalOpen(false);
                   setDeleteConfirmText('');
                 }}
               >
                 Cancel
-              </Button>
-              <Button 
-                variant="danger" 
-                onClick={() => {
-                  setIsDeleteModalOpen(false);
-                  setDeleteConfirmText('');
-                  navigate(`/developer-portal?revoked=${encodeURIComponent(keyDetails.name)}&type=key#api-keys`);
-                }}
-                isDisabled={deleteConfirmText !== keyDetails.name}
-              >
-                Delete
               </Button>
             </ModalFooter>
           </Modal>
