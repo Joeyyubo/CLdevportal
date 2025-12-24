@@ -667,7 +667,12 @@ const APIKeyDetails: React.FunctionComponent = () => {
                       <EllipsisVIcon />
                     </MenuToggle>
                   )}
-                  popperProps={{ appendTo: () => document.body }}
+                  popperProps={{ 
+                    appendTo: () => document.body,
+                    position: 'bottom-end',
+                    enableFlip: true,
+                    flipBehavior: ['bottom-end', 'bottom-start', 'top-end', 'top-start']
+                  }}
                 >
                   <DropdownList>
                     <DropdownItem
@@ -708,7 +713,12 @@ const APIKeyDetails: React.FunctionComponent = () => {
                       <EllipsisVIcon />
                     </MenuToggle>
                   )}
-                  popperProps={{ appendTo: () => document.body }}
+                  popperProps={{ 
+                    appendTo: () => document.body,
+                    position: 'bottom-end',
+                    enableFlip: true,
+                    flipBehavior: ['bottom-end', 'bottom-start', 'top-end', 'top-start']
+                  }}
                 >
                   <DropdownList>
                     <DropdownItem
