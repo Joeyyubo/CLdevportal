@@ -45,6 +45,8 @@ import {
   TextArea,
   FormGroup,
   Alert,
+  AlertActionLink,
+  AlertActionCloseButton,
 } from '@patternfly/react-core';
 import {
   HomeIcon,
@@ -356,6 +358,9 @@ const APIKeyDetails: React.FunctionComponent = () => {
   const kebabMenuRef = React.useRef<HTMLButtonElement>(null);
   const [isRejectModalOpen, setIsRejectModalOpen] = React.useState(false);
   const [rejectionReason, setRejectionReason] = React.useState('');
+  
+  // Approve notification state
+  const [showApproveNotification, setShowApproveNotification] = React.useState(false);
 
   // Get current role from localStorage or use default
   const getCurrentRole = (): string => {
@@ -635,6 +640,35 @@ const APIKeyDetails: React.FunctionComponent = () => {
 
   return (
     <>
+      {/* Approve Notification */}
+      {showApproveNotification && (
+        <div style={{
+          position: 'fixed',
+          top: '80px',
+          right: '24px',
+          zIndex: 1000,
+          maxWidth: '500px',
+          width: '100%'
+        }}>
+          <Alert
+            variant="success"
+            isLiveRegion
+            title="API key request has been approved"
+            actionClose={
+              <AlertActionCloseButton onClose={() => setShowApproveNotification(false)} />
+            }
+          >
+            <div style={{ marginTop: '8px', fontSize: '14px' }}>
+              <div>API: {keyDetails.apiName}</div>
+              <div>API key: {keyDetails.name} - {(() => {
+                const tierMatch = keyDetails.plan.match(/(Gold|Silver|Bronze)/i);
+                return tierMatch ? tierMatch[1].toLowerCase() : 'unknown';
+              })()} tier</div>
+            </div>
+          </Alert>
+        </div>
+      )}
+      
       <Page masthead={masthead} sidebar={sidebar}>
         <PageSection>
           <Breadcrumb style={{ marginBottom: '16px' }}>
@@ -750,11 +784,19 @@ const APIKeyDetails: React.FunctionComponent = () => {
                     <DropdownItem
                       key="approve"
                       onClick={() => {
-                        // Approve the API key - update status and navigate back
+                        // Approve the API key - update status
                         // In a real app, this would make an API call
                         setIsOwnerKebabMenuOpen(false);
-                        // Navigate back to API keys approval page
-                        navigate('/developer-portal/api-keys?tab=approval');
+                        
+                        // Extract tier from plan string (e.g., "Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;" -> "silver")
+                        const tierMatch = keyDetails.plan.match(/(Gold|Silver|Bronze)/i);
+                        const tier = tierMatch ? tierMatch[1].toLowerCase() : 'unknown';
+                        
+                        // Show approve notification
+                        setShowApproveNotification(true);
+                        setTimeout(() => {
+                          setShowApproveNotification(false);
+                        }, 10000);
                       }}
                     >
                       Approve

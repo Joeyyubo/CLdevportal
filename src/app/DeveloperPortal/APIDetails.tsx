@@ -38,6 +38,7 @@ import {
   ActionGroup,
   Alert,
   AlertActionLink,
+  AlertActionCloseButton,
   Tooltip,
   Modal,
   ModalBody,
@@ -72,6 +73,7 @@ import {
   LockIcon,
   CaretDownIcon,
   CaretUpIcon,
+  TrashIcon,
 } from '@patternfly/react-icons';
 import './DeveloperPortal.css';
 
@@ -83,9 +85,23 @@ const apiDetailsData: Record<string, any> = {
     contact: 'Jane doe',
     owner: 'Ticket team',
     description: 'Description of the API. Validated aggregated stream activity fact table, used for metrics.',
-    lifecycle: 'production',
+    lifecycle: 'staging',
     updated: '2 MIN AGO',
     apiKeyRequest: 'No approval needed',
+    // API Product fields
+    productDescription: 'Description of the API product.',
+    status: 'Draft',
+    version: 'V1',
+    namespace: 'namespace-1',
+    apiKeyApproval: 'Need manual approval',
+    api: 'Air-flight-api',
+    route: 'Airflight-1',
+    policies: 'Airflight-plans',
+    policiesTiers: [
+      { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
+      { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
+      { name: 'Bronze', value: '10/day', color: '#004d99', bgColor: '#e6f1fa' },
+    ],
   },
   'Booking API': {
     name: 'Booking API',
@@ -311,6 +327,10 @@ const APIDetails: React.FunctionComponent = () => {
   const [authorizeApiKey, setAuthorizeApiKey] = React.useState('vt9Dz-taKWW-KAsDZ-UhpBx');
   const [copied, setCopied] = React.useState(false);
   const userToggleRef = React.useRef<HTMLButtonElement>(null);
+  
+  // Publish notification state
+  const [showPublishNotification, setShowPublishNotification] = React.useState(false);
+  const [apiProductStatus, setApiProductStatus] = React.useState<string>('Draft');
 
   // Decode API name from URL and get details
   const decodedApiName = apiName ? decodeURIComponent(apiName) : '';
@@ -322,10 +342,27 @@ const APIDetails: React.FunctionComponent = () => {
         contact: 'Unknown',
         owner: 'Unknown',
         description: 'API details not available',
-        lifecycle: 'production',
+        lifecycle: 'staging',
         updated: 'Unknown',
         apiKeyRequest: 'Need approval',
+        // Default API Product fields
+        productDescription: 'Description of the API product.',
+        status: 'Draft',
+        version: 'V1',
+        namespace: 'namespace-1',
+        apiKeyApproval: 'Need manual approval',
+        api: decodedApiName.toLowerCase().replace(/\s+/g, '-'),
+        route: 'route-1',
+        policies: 'N/A',
+        policiesTiers: [],
       } : apiDetailsData['Flights API']);
+
+  // Initialize status from apiDetails
+  React.useEffect(() => {
+    if (apiDetails.status) {
+      setApiProductStatus(apiDetails.status);
+    }
+  }, [apiDetails.status]);
 
   // Load starred status from localStorage
   const getStarredAPIs = (): string[] => {
@@ -565,8 +602,42 @@ const APIDetails: React.FunctionComponent = () => {
     </PageSidebar>
   );
 
+  // Handle publish API product
+  const handlePublish = () => {
+    setApiProductStatus('Published');
+    setShowPublishNotification(true);
+    setTimeout(() => {
+      setShowPublishNotification(false);
+    }, 10000);
+  };
+
   return (
     <>
+      {/* Publish Notification */}
+      {showPublishNotification && (
+        <div style={{
+          position: 'fixed',
+          top: '80px',
+          right: '24px',
+          zIndex: 1000,
+          maxWidth: '500px',
+          width: '100%'
+        }}>
+          <Alert
+            variant="success"
+            isLiveRegion
+            title="API product has been successfully published"
+            actionClose={
+              <AlertActionCloseButton onClose={() => setShowPublishNotification(false)} />
+            }
+          >
+            <div style={{ marginTop: '8px', fontSize: '14px' }}>
+              API product: {apiDetails.name}
+            </div>
+          </Alert>
+        </div>
+      )}
+      
       <Page masthead={masthead} sidebar={sidebar}>
         <PageSection>
           <Breadcrumb style={{ marginBottom: '16px' }}>
@@ -592,207 +663,166 @@ const APIDetails: React.FunctionComponent = () => {
           <Tabs activeKey={activeTab} onSelect={handleTabClick} style={{ marginBottom: '24px' }}>
             <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>} />
             <Tab eventKey={1} title={<TabTitleText>Definition</TabTitleText>} />
-            <Tab eventKey={2} title={<TabTitleText>Policy</TabTitleText>} />
           </Tabs>
 
           {activeTab === 0 && (
             <>
-              <Grid hasGutter>
-          <GridItem span={6}>
-            <Card style={{ height: '100%' }}>
-              <CardBody>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-                  <Title headingLevel="h3" size="lg">About</Title>
-                  <Button variant="plain" aria-label="Edit">
-                    <PencilAltIcon />
-                  </Button>
-                </div>
-
-                <ActionGroup style={{ marginBottom: '24px' }}>
-                  <Button variant="link">
-                    <FileAltIcon style={{ marginRight: '6px' }} />
-                    VIEW TECHDOCS
-                  </Button>
-                  <Button variant="link">
-                    <CodeBranchIcon style={{ marginRight: '6px' }} />
-                    VIEW SOURCE
-                  </Button>
-                  <Button variant="link">
-                    <UsersIcon style={{ marginRight: '6px' }} />
-                    CONTACT OWNER
-                  </Button>
-                </ActionGroup>
-
-                <DescriptionList columnModifier={{ default: '1Col', md: '2Col' }}>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>Description</DescriptionListTerm>
-                    <DescriptionListDescription>{apiDetails.description}</DescriptionListDescription>
-                  </DescriptionListGroup>
-                  
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>Owner</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <Button variant="link" isInline icon={<UsersIcon />}>
-                        {apiDetails.owner}
+              {/* API Product Card */}
+              <Card style={{ marginBottom: '24px' }}>
+                <CardBody>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                    <Title headingLevel="h3" size="lg">API Product</Title>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {apiProductStatus === 'Draft' ? (
+                        <Button variant="primary" onClick={handlePublish}>
+                          Publish API product
+                        </Button>
+                      ) : (
+                        <Button variant="secondary" onClick={() => setApiProductStatus('Draft')}>
+                          Unpublish API product
+                        </Button>
+                      )}
+                      <Button variant="plain" aria-label="Edit">
+                        <PencilAltIcon />
                       </Button>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
+                      <Button variant="plain" aria-label="Delete">
+                        <TrashIcon />
+                      </Button>
+                    </div>
+                  </div>
 
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>Type</DescriptionListTerm>
-                    <DescriptionListDescription>openapi</DescriptionListDescription>
-                  </DescriptionListGroup>
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 500, marginBottom: '8px' }}>Product Name</div>
+                    <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.name}</div>
+                  </div>
 
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>Lifecycle</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <Badge isRead>{apiDetails.lifecycle}</Badge>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
+                  <div style={{ marginBottom: '24px' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 500, marginBottom: '8px' }}>Description</div>
+                    <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.productDescription || 'Description of the API product.'}</div>
+                  </div>
 
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>Tags</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <Badge isRead>{apiDetails.tag}</Badge>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
+                  <DescriptionList columnModifier={{ default: '1Col', md: '2Col' }}>
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>STATUS</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        <Badge isRead style={{ backgroundColor: '#f5f5f5', color: '#151515' }}>
+                          {apiProductStatus}
+                        </Badge>
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
 
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>Updated</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#67b350' }}></div>
-                        {apiDetails.updated}
-                      </div>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>VERSION</DescriptionListTerm>
+                      <DescriptionListDescription>{apiDetails.version || 'V1'}</DescriptionListDescription>
+                    </DescriptionListGroup>
 
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>API key request</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {apiDetails.apiKeyRequest === 'No approval needed' ? (
-                          <>
-                            <CheckCircleIcon style={{ color: '#67b350' }} />
-                            <span style={{ color: '#67b350', fontWeight: 500 }}>No approval needed</span>
-                          </>
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>TAGS</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        <Badge isRead>{apiDetails.tag}</Badge>
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
+
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>NAMESPACE</DescriptionListTerm>
+                      <DescriptionListDescription>{apiDetails.namespace || 'namespace-1'}</DescriptionListDescription>
+                    </DescriptionListGroup>
+
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>API KEY APPROVAL</DescriptionListTerm>
+                      <DescriptionListDescription>{apiDetails.apiKeyApproval || 'Need manual approval'}</DescriptionListDescription>
+                    </DescriptionListGroup>
+
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>API</DescriptionListTerm>
+                      <DescriptionListDescription>{apiDetails.api || apiDetails.name.toLowerCase().replace(/\s+/g, '-')}</DescriptionListDescription>
+                    </DescriptionListGroup>
+
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>ROUTE</DescriptionListTerm>
+                      <DescriptionListDescription>{apiDetails.route || 'route-1'}</DescriptionListDescription>
+                    </DescriptionListGroup>
+
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>POLICIES</DescriptionListTerm>
+                      <DescriptionListDescription>{apiDetails.policies || 'N/A'}</DescriptionListDescription>
+                    </DescriptionListGroup>
+
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>POLICIES TIERS</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        {apiDetails.policiesTiers && apiDetails.policiesTiers.length > 0 ? (
+                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            {apiDetails.policiesTiers.map((tier: any, index: number) => (
+                              <Badge
+                                key={index}
+                                isRead
+                                style={{
+                                  backgroundColor: tier.bgColor || '#f5f5f5',
+                                  color: tier.color || '#151515',
+                                  border: `1px solid ${tier.color || '#151515'}`,
+                                  padding: '4px 8px',
+                                  borderRadius: '12px',
+                                  fontSize: '12px'
+                                }}
+                              >
+                                {tier.name}: {tier.value}
+                              </Badge>
+                            ))}
+                          </div>
                         ) : (
-                          <>
-                            <ExclamationCircleIcon style={{ color: '#f0ab00' }} />
-                            <span style={{ color: '#f0ab00', fontWeight: 500 }}>Need approval</span>
-                          </>
+                          <span style={{ color: '#6a6e73' }}>N/A</span>
                         )}
-                      </div>
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-                </DescriptionList>
-              </CardBody>
-            </Card>
-          </GridItem>
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
+                  </DescriptionList>
+                </CardBody>
+              </Card>
 
-          <GridItem span={6}>
-            <Card style={{ height: '100%' }}>
-              <CardBody>
-                <Title headingLevel="h3" size="lg" style={{ marginBottom: '24px' }}>Relations</Title>
-                
-                <svg width="100%" height="200" style={{ padding: '20px' }}>
-                  <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                      <polygon points="0 0, 10 3, 0 6" fill="#0066CC" />
-                    </marker>
-                  </defs>
-                  
-                  {/* Connection lines */}
-                  <line x1="120" y1="90" x2="220" y2="90" stroke="#0066CC" strokeWidth="2" markerEnd="url(#arrowhead)" />
-                  <line x1="320" y1="90" x2="400" y2="90" stroke="#0066CC" strokeWidth="2" markerEnd="url(#arrowhead)" />
-                  
-                  {/* Ticket team node */}
-                  <g>
-                    <rect x="40" y="60" width="80" height="60" rx="8" fill="#e7f1fa" stroke="#0066CC" strokeWidth="2" />
-                    <foreignObject x="42" y="72" width="76" height="38">
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center' }}>
-                        <div style={{ fontSize: '12px', color: '#0066CC', fontWeight: 600 }}>Ticket team</div>
-                        <div style={{ fontSize: '12px', color: '#8b8d90' }}>Team</div>
-                      </div>
-                    </foreignObject>
-                  </g>
-                  
-                  {/* Flight-ticket-api node (center) */}
-                  <g>
-                    <rect x="220" y="60" width="100" height="60" rx="8" fill="#ffffff" stroke="#0066CC" strokeWidth="2" />
-                    <foreignObject x="222" y="72" width="96" height="38">
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center' }}>
-                        <div style={{ fontSize: '12px', color: '#0066CC', fontWeight: 600 }}>Flight-ticket-api</div>
-                        <div style={{ fontSize: '12px', color: '#8b8d90' }}>API</div>
-                      </div>
-                    </foreignObject>
-                  </g>
-                  
-                  {/* Dev team node */}
-                  <g>
-                    <rect x="400" y="60" width="70" height="60" rx="8" fill="#e7f1fa" stroke="#0066CC" strokeWidth="2" />
-                    <foreignObject x="402" y="72" width="66" height="38">
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center' }}>
-                        <div style={{ fontSize: '12px', color: '#0066CC', fontWeight: 600 }}>Dev team</div>
-                        <div style={{ fontSize: '12px', color: '#8b8d90' }}>Team</div>
-                      </div>
-                    </foreignObject>
-                  </g>
-                </svg>
-                
-                {/* View graph button in bottom left */}
-                <div style={{ marginTop: '16px' }}>
-                  <Button variant="link" isInline style={{ fontSize: '14px' }}>
-                    View graph
-                    <ExternalLinkAltIcon style={{ marginLeft: '6px' }} />
-                  </Button>
-                </div>
-              </CardBody>
-            </Card>
-          </GridItem>
-        </Grid>
+              {/* API Card */}
+              <Card>
+                <CardBody>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                    <Title headingLevel="h3" size="lg">API</Title>
+                  </div>
 
-        <div style={{ marginTop: '24px' }}>
-          <Card>
-            <CardBody>
-              <Title headingLevel="h3" size="lg" style={{ marginBottom: '16px' }}>Providers</Title>
-              <table style={{ width: '100%' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                    <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>API owner</th>
-                    <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>System</th>
-                    <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Owner</th>
-                    <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Type</th>
-                    <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Lifecycle</th>
-                    <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold' }}>Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                    <td style={{ padding: '12px' }}>
-                      <Button variant="link" isInline>
-                        API owner name
-                      </Button>
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <UsersIcon style={{ marginRight: '4px' }} />
-                      open-banking-api-hub
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <UsersIcon style={{ marginRight: '4px' }} />
-                      Security Team
-                    </td>
-                    <td style={{ padding: '12px' }}>service</td>
-                    <td style={{ padding: '12px' }}>production</td>
-                    <td style={{ padding: '12px', color: '#6a6e73' }}>API that provides authorized third...</td>
-                  </tr>
-                </tbody>
-              </table>
-            </CardBody>
-          </Card>
-        </div>
-        </>
-        )}
+                  <ActionGroup style={{ marginBottom: '24px' }}>
+                    <Button variant="link">
+                      <FileAltIcon style={{ marginRight: '6px' }} />
+                      VIEW TECHDOCS
+                    </Button>
+                    <Button variant="link">
+                      <CodeBranchIcon style={{ marginRight: '6px' }} />
+                      VIEW SOURCE
+                    </Button>
+                    <Button variant="link">
+                      <UsersIcon style={{ marginRight: '6px' }} />
+                      CONTACT OWNER
+                    </Button>
+                  </ActionGroup>
+
+                  <div style={{ marginBottom: '24px' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 500, marginBottom: '8px' }}>Description</div>
+                    <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.description}</div>
+                  </div>
+
+                  <DescriptionList columnModifier={{ default: '1Col', md: '2Col' }}>
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>TYPE</DescriptionListTerm>
+                      <DescriptionListDescription>openapi</DescriptionListDescription>
+                    </DescriptionListGroup>
+
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>LIFECYCLE</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        <Badge isRead>{apiDetails.lifecycle}</Badge>
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
+                  </DescriptionList>
+                </CardBody>
+              </Card>
+            </>
+          )}
 
         {activeTab === 1 && (
           <div style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #d0d0d0' }}>

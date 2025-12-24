@@ -38,6 +38,12 @@ import {
   TextArea,
   Radio,
   Divider as PFDivider,
+  Alert,
+  AlertActionLink,
+  AlertActionCloseButton,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
 } from '@patternfly/react-core';
 import {
   StarIcon,
@@ -124,15 +130,96 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const [isTagDropdownOpen, setIsTagDropdownOpen] = React.useState(false);
   const [description, setDescription] = React.useState('');
   const [openApiSpecUrl, setOpenApiSpecUrl] = React.useState('');
+  const [openApiSpecUrlError, setOpenApiSpecUrlError] = React.useState<string>('');
   const [isOpenApiSpecMenuOpen, setIsOpenApiSpecMenuOpen] = React.useState(false);
+  
+  // Success notification state
+  const [showSuccessNotification, setShowSuccessNotification] = React.useState(false);
+  const [createdApiProductName, setCreatedApiProductName] = React.useState('');
+  
+  // Publish notification state
+  const [showPublishNotification, setShowPublishNotification] = React.useState(false);
+  const [publishedApiProductName, setPublishedApiProductName] = React.useState('');
+
+  // URL validation function
+  const validateUrl = (url: string): string => {
+    if (!url || url.trim() === '') {
+      return ''; // Empty is allowed (will be validated on submit if required)
+    }
+    try {
+      // Try to create a URL object to validate the URL format
+      new URL(url);
+      return ''; // Valid URL
+    } catch (e) {
+      return 'Enter the full path to your API spec file. Eg.https://github.com/backstage/';
+    }
+  };
+
+  const handleOpenApiSpecUrlChange = (value: string) => {
+    setOpenApiSpecUrl(value);
+    const error = validateUrl(value);
+    setOpenApiSpecUrlError(error);
+  };
   const [selectedHttpRoute, setSelectedHttpRoute] = React.useState('');
   const [isHttpRouteDropdownOpen, setIsHttpRouteDropdownOpen] = React.useState(false);
   const [httpRoutePolicies, setHttpRoutePolicies] = React.useState('');
   const [apiKeyApproval, setApiKeyApproval] = React.useState<'manual' | 'automatic'>('manual');
   
+  // HTTPRoute interface with PlanPolicy information
+  interface HTTPRoute {
+    name: string;
+    planPolicy: string;
+    planDetails?: string; // e.g., "Gold: 100/day; Silver: 50/day; Bronze: 10/day"
+  }
+
   // Available tags and HTTP routes
   const availableTags = ['Aircraft', 'Ticket', 'Payment', 'Client'];
-  const availableHttpRoutes = ['backstage.io/expose:true', 'route-1', 'route-2', 'route-3'];
+  const availableHttpRoutes: HTTPRoute[] = [
+    {
+      name: 'Airflight-1',
+      planPolicy: 'Airflight-plans',
+      planDetails: 'Gold: 100/day; Silver: 50/day; Bronze: 10/day'
+    },
+    {
+      name: 'Airflight-2',
+      planPolicy: 'N/A'
+    },
+    {
+      name: 'backstage.io/expose:true',
+      planPolicy: 'N/A'
+    },
+    {
+      name: 'route-1',
+      planPolicy: 'route-plans',
+      planDetails: 'Gold: 200/day; Silver: 100/day; Bronze: 20/day'
+    },
+    {
+      name: 'route-2',
+      planPolicy: 'N/A'
+    },
+    {
+      name: 'route-3',
+      planPolicy: 'route-plans-2',
+      planDetails: 'Gold: 150/day; Silver: 75/day; Bronze: 15/day'
+    }
+  ];
+  
+  // Get selected HTTPRoute object
+  const selectedRouteObject = React.useMemo(() => {
+    if (!selectedHttpRoute) return null;
+    return availableHttpRoutes.find(route => route.name === selectedHttpRoute);
+  }, [selectedHttpRoute]);
+  
+  // Parse plan details to extract tier information
+  const parsePlanDetails = (planDetails?: string) => {
+    if (!planDetails) return [];
+    // Parse format: "Gold: 100/day; Silver: 50/day; Bronze: 10/day"
+    const tiers = planDetails.split(';').map(tier => {
+      const [name, value] = tier.split(':').map(s => s.trim());
+      return { name, value };
+    });
+    return tiers;
+  };
   
   // Get current role from localStorage or use default
   const getCurrentRole = (): string => {
@@ -344,6 +431,65 @@ const DeveloperPortal: React.FunctionComponent = () => {
 
   return (
     <>
+      {/* Success Notification */}
+      {showSuccessNotification && (
+        <div style={{
+          position: 'fixed',
+          top: '80px',
+          right: '24px',
+          zIndex: 1000,
+          maxWidth: '500px',
+          width: '100%'
+        }}>
+          <Alert
+            variant="success"
+            isLiveRegion
+            title="API product has been successfully created"
+            actionLinks={
+              <AlertActionLink onClick={() => {
+                // Navigate to API product details page
+                navigate(`/developer-portal/api-details/${encodeURIComponent(createdApiProductName)}`);
+                setShowSuccessNotification(false);
+              }}>
+                View details
+              </AlertActionLink>
+            }
+            actionClose={
+              <AlertActionCloseButton onClose={() => setShowSuccessNotification(false)} />
+            }
+          >
+            <div style={{ marginTop: '8px', fontSize: '14px' }}>
+              API product: {createdApiProductName}
+            </div>
+          </Alert>
+        </div>
+      )}
+
+      {/* Publish Notification */}
+      {showPublishNotification && (
+        <div style={{
+          position: 'fixed',
+          top: showSuccessNotification ? '180px' : '80px',
+          right: '24px',
+          zIndex: 1000,
+          maxWidth: '500px',
+          width: '100%'
+        }}>
+          <Alert
+            variant="success"
+            isLiveRegion
+            title="API product has been successfully published"
+            actionClose={
+              <AlertActionCloseButton onClose={() => setShowPublishNotification(false)} />
+            }
+          >
+            <div style={{ marginTop: '8px', fontSize: '14px' }}>
+              API product: {publishedApiProductName}
+            </div>
+          </Alert>
+        </div>
+      )}
+      
       <Page masthead={masthead} sidebar={sidebar}>
       <PageSection>
         <div style={{ marginBottom: '24px' }}>
@@ -679,97 +825,109 @@ const DeveloperPortal: React.FunctionComponent = () => {
             API product info
           </Title>
           
-          <FormGroup 
-            label={
-              <span>
-                API product name <span style={{ color: '#C9190B' }}>*</span>
-              </span>
-            }
-            isRequired={false}
-            style={{ marginBottom: '16px' }}
-          >
-            <TextInput
-              value={apiProductName}
-              onChange={(_, value) => setApiProductName(value)}
-              placeholder="Air flight API"
-            />
-            <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
-              Give a unique name for your API product.
-            </p>
-          </FormGroup>
-
-          <FormGroup 
-            label={
-              <span>
-                Resource name <span style={{ color: '#C9190B' }}>*</span>
-              </span>
-            }
-            isRequired={false}
-            style={{ marginBottom: '16px' }}
-          >
-            <TextInput
-              value={resourceName}
-              onChange={(_, value) => setResourceName(value)}
-            />
-            <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
-              Kubernetes resource name with lowercase, hyphens. Eg.flight_API.
-            </p>
-          </FormGroup>
-
-          <FormGroup 
-            label={
-              <span>
-                Version <span style={{ color: '#C9190B' }}>*</span>
-              </span>
-            }
-            isRequired={false}
-            style={{ marginBottom: '16px' }}
-          >
-            <TextInput
-              value={version}
-              onChange={(_, value) => setVersion(value)}
-            />
-            <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
-              Give a version to your API product.
-            </p>
-          </FormGroup>
-
-          <FormGroup 
-            label="Tag"
-            style={{ marginBottom: '16px' }}
-          >
-                <Dropdown
-              isOpen={isTagDropdownOpen}
-              onOpenChange={(isOpen) => setIsTagDropdownOpen(isOpen)}
-                  toggle={(toggleRef) => (
-                <MenuToggle 
-                  ref={toggleRef} 
-                  onClick={() => setIsTagDropdownOpen(!isTagDropdownOpen)} 
-                  isExpanded={isTagDropdownOpen}
-                  style={{ width: '100%' }}
-                >
-                  {selectedTag || 'Aircraft'}
-                    </MenuToggle>
-                  )}
-                >
-                  <DropdownList>
-                {availableTags.map((tag) => (
-                      <DropdownItem
-                    key={tag}
-                        onClick={() => {
-                      setSelectedTag(tag);
-                      setIsTagDropdownOpen(false);
-                        }}
-                      >
-                    {tag}
-                      </DropdownItem>
-                    ))}
-                  </DropdownList>
-                </Dropdown>
-            <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
-              Add a tag to your API product.
-            </p>
+          <Grid hasGutter>
+            {/* First row: API product name and Resource name */}
+            <GridItem span={6}>
+              <FormGroup 
+                label={
+                  <span>
+                    API product name <span style={{ color: '#C9190B' }}>*</span>
+                  </span>
+                }
+                isRequired={false}
+                style={{ marginBottom: '16px' }}
+              >
+                <TextInput
+                  value={apiProductName}
+                  onChange={(_, value) => setApiProductName(value)}
+                  placeholder="Air flight API"
+                />
+                <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
+                  Give a unique name for your API product.
+                </p>
               </FormGroup>
+            </GridItem>
+
+            <GridItem span={6}>
+              <FormGroup 
+                label={
+                  <span>
+                    Resource name <span style={{ color: '#C9190B' }}>*</span>
+                  </span>
+                }
+                isRequired={false}
+                style={{ marginBottom: '16px' }}
+              >
+                <TextInput
+                  value={resourceName}
+                  onChange={(_, value) => setResourceName(value)}
+                />
+                <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
+                  Kubernetes resource name with lowercase, hyphens. Eg.flight_API.
+                </p>
+              </FormGroup>
+            </GridItem>
+
+            {/* Second row: Version and Tag */}
+            <GridItem span={6}>
+              <FormGroup 
+                label={
+                  <span>
+                    Version <span style={{ color: '#C9190B' }}>*</span>
+                  </span>
+                }
+                isRequired={false}
+                style={{ marginBottom: '16px' }}
+              >
+                <TextInput
+                  value={version}
+                  onChange={(_, value) => setVersion(value)}
+                />
+                <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
+                  Give a version to your API product.
+                </p>
+              </FormGroup>
+            </GridItem>
+
+            <GridItem span={6}>
+              <FormGroup 
+                label="Tag"
+                style={{ marginBottom: '16px' }}
+              >
+                    <Dropdown
+                  isOpen={isTagDropdownOpen}
+                  onOpenChange={(isOpen) => setIsTagDropdownOpen(isOpen)}
+                      toggle={(toggleRef) => (
+                    <MenuToggle 
+                      ref={toggleRef} 
+                      onClick={() => setIsTagDropdownOpen(!isTagDropdownOpen)} 
+                      isExpanded={isTagDropdownOpen}
+                      style={{ width: '100%' }}
+                    >
+                      {selectedTag || 'Aircraft'}
+                        </MenuToggle>
+                      )}
+                    >
+                      <DropdownList>
+                    {availableTags.map((tag) => (
+                          <DropdownItem
+                        key={tag}
+                            onClick={() => {
+                          setSelectedTag(tag);
+                          setIsTagDropdownOpen(false);
+                            }}
+                          >
+                        {tag}
+                          </DropdownItem>
+                    ))}
+                      </DropdownList>
+                    </Dropdown>
+                <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
+                  Add a tag to your API product.
+                </p>
+              </FormGroup>
+            </GridItem>
+          </Grid>
 
           <FormGroup 
             label="Description"
@@ -778,11 +936,9 @@ const DeveloperPortal: React.FunctionComponent = () => {
             <TextArea
               value={description}
               onChange={(_, value) => setDescription(value)}
-              rows={4}
+              rows={1}
             />
           </FormGroup>
-
-          <Divider style={{ marginBottom: '24px' }} />
 
           {/* Add API and Associate route */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
@@ -808,9 +964,10 @@ const DeveloperPortal: React.FunctionComponent = () => {
             <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
               <TextInput
                 value={openApiSpecUrl}
-                onChange={(_, value) => setOpenApiSpecUrl(value)}
+                onChange={(_, value) => handleOpenApiSpecUrlChange(value)}
                 placeholder=""
                 style={{ flex: 1 }}
+                validated={openApiSpecUrlError ? 'error' : 'default'}
               />
               <Dropdown
                 isOpen={isOpenApiSpecMenuOpen}
@@ -848,9 +1005,19 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 </DropdownList>
               </Dropdown>
             </div>
-            <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
-              Enter the full path to your API spec file. Eg.https://github.com/backstage/.
-            </p>
+            {openApiSpecUrlError ? (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem variant="error">
+                    {openApiSpecUrlError}
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            ) : (
+              <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
+                Enter the full path to your API spec file. Eg.https://github.com/backstage/.
+              </p>
+            )}
           </FormGroup>
 
           <FormGroup 
@@ -872,20 +1039,33 @@ const DeveloperPortal: React.FunctionComponent = () => {
                   isExpanded={isHttpRouteDropdownOpen}
                       style={{ width: '100%' }}
                     >
-                  {selectedHttpRoute || ''}
+                  {selectedHttpRoute || 'Select HTTPRoute'}
                     </MenuToggle>
                   )}
+                  popperProps={{ 
+                    appendTo: () => document.body,
+                    position: 'bottom',
+                    enableFlip: true,
+                    preventOverflow: true
+                  }}
                 >
-                  <DropdownList>
+                  <DropdownList style={{ maxHeight: '150px', overflowY: 'auto' }}>
                 {availableHttpRoutes.map((route) => (
                     <DropdownItem
-                    key={route}
+                    key={route.name}
                       onClick={() => {
-                      setSelectedHttpRoute(route);
+                      setSelectedHttpRoute(route.name);
                       setIsHttpRouteDropdownOpen(false);
                       }}
+                      style={{ padding: '8px 12px' }}
                     >
-                    {route}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <div style={{ fontWeight: 500, color: '#151515' }}>{route.name}</div>
+                        <div style={{ fontSize: '12px', color: '#6a6e73' }}>
+                          Associated PlanPolicy: {route.planPolicy}
+                          {route.planDetails && ` (${route.planDetails})`}
+                        </div>
+                      </div>
                     </DropdownItem>
                 ))}
                   </DropdownList>
@@ -897,26 +1077,91 @@ const DeveloperPortal: React.FunctionComponent = () => {
 
           <Divider style={{ marginBottom: '24px' }} />
 
-          {/* HTTPRoute policies */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <Title headingLevel="h3" size="md" style={{ marginBottom: 0 }}>
-              HTTPRoute policies
-            </Title>
-            <Tooltip content="Information about HTTPRoute policies">
-              <Button variant="plain" aria-label="Info" style={{ padding: '4px' }}>
-                <InfoCircleIcon style={{ fontSize: '16px', color: '#151515' }} />
-              </Button>
-            </Tooltip>
-          </div>
+          {/* HTTPRoute policies - only show when a route is selected */}
+          {selectedHttpRoute && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <Title headingLevel="h3" size="md" style={{ marginBottom: 0 }}>
+                  HTTPRoute policies
+                </Title>
+                <Tooltip content="Information about HTTPRoute policies">
+                  <Button variant="plain" aria-label="Info" style={{ padding: '4px' }}>
+                    <InfoCircleIcon style={{ fontSize: '16px', color: '#151515' }} />
+                  </Button>
+                </Tooltip>
+              </div>
 
-          <FormGroup style={{ marginBottom: '24px' }}>
-                <TextArea
-              value={httpRoutePolicies}
-              onChange={(_, value) => setHttpRoutePolicies(value)}
-              rows={6}
-              placeholder=""
-                />
-              </FormGroup>
+              {selectedRouteObject && selectedRouteObject.planPolicy && selectedRouteObject.planPolicy !== 'N/A' && selectedRouteObject.planDetails ? (
+            <Card style={{ marginBottom: '24px', border: '1px solid #d0d0d0' }}>
+              <CardBody>
+                <div style={{ marginBottom: '12px' }}>
+                  <span style={{ fontWeight: 500, color: '#151515' }}>PlanPolicy: </span>
+                  <span style={{ color: '#151515' }}>{selectedRouteObject.planPolicy}</span>
+                </div>
+                <div>
+                  <span style={{ fontWeight: 500, color: '#151515', marginRight: '8px' }}>Tiers:</span>
+                  {parsePlanDetails(selectedRouteObject.planDetails).map((tier, index) => {
+                    // Determine badge color based on tier name
+                    let badgeColor = '#6a6e73';
+                    let badgeBgColor = '#f5f5f5';
+                    if (tier.name === 'Gold') {
+                      badgeColor = '#795600';
+                      badgeBgColor = '#fef5e7';
+                    } else if (tier.name === 'Silver') {
+                      badgeColor = '#6a6e73';
+                      badgeBgColor = '#f5f5f5';
+                    } else if (tier.name === 'Bronze') {
+                      badgeColor = '#004d99';
+                      badgeBgColor = '#e6f1fa';
+                    }
+                    return (
+                      <Badge
+                        key={index}
+                        isRead
+                        style={{
+                          marginRight: '8px',
+                          backgroundColor: badgeBgColor,
+                          color: badgeColor,
+                          border: `1px solid ${badgeColor}`,
+                          padding: '4px 8px',
+                          borderRadius: '12px',
+                          fontSize: '12px'
+                        }}
+                      >
+                        {tier.name}: {tier.value}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              </CardBody>
+            </Card>
+          ) : selectedRouteObject && selectedRouteObject.planPolicy === 'N/A' ? (
+            <Alert
+              variant="warning"
+              title="PlanPolicy association Failed: PlanPolicy does not have the right auth policy"
+              style={{ marginBottom: '24px' }}
+            >
+              The PlanPolicy{' '}
+              <Button variant="link" isInline style={{ padding: 0, textDecoration: 'underline', fontSize: 'inherit' }}>
+                '{selectedRouteObject.name}'
+              </Button>{' '}
+              does not have the right auth policy. Please check the{' '}
+              <Button variant="link" isInline style={{ padding: 0, textDecoration: 'underline', fontSize: 'inherit' }}>
+                PlanPolicy configuration
+              </Button>
+            </Alert>
+          ) : (
+            <FormGroup style={{ marginBottom: '24px' }}>
+              <TextArea
+                value={httpRoutePolicies}
+                onChange={(_, value) => setHttpRoutePolicies(value)}
+                rows={1}
+                placeholder=""
+              />
+            </FormGroup>
+          )}
+            </>
+          )}
 
           <Divider style={{ marginBottom: '24px' }} />
 
@@ -960,6 +1205,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
             variant="primary"
             onClick={() => {
               // Handle create logic here
+              const productName = apiProductName;
               setIsCreateModalOpen(false);
               setApiProductName('');
               setResourceName('');
@@ -967,9 +1213,19 @@ const DeveloperPortal: React.FunctionComponent = () => {
               setSelectedTag('Aircraft');
               setDescription('');
               setOpenApiSpecUrl('');
+              setOpenApiSpecUrlError('');
               setSelectedHttpRoute('');
               setHttpRoutePolicies('');
               setApiKeyApproval('manual');
+              
+              // Show success notification
+              setCreatedApiProductName(productName);
+              setShowSuccessNotification(true);
+              
+              // Auto-hide notification after 10 seconds
+              setTimeout(() => {
+                setShowSuccessNotification(false);
+              }, 10000);
             }}
             isDisabled={!apiProductName || !resourceName || !version || !openApiSpecUrl || !selectedHttpRoute}
           >

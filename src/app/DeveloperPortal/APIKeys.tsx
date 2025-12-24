@@ -237,6 +237,10 @@ const APIKeys: React.FunctionComponent = () => {
   const [alertApiKeyInfo, setAlertApiKeyInfo] = React.useState<{ api: string; apiKeyName: string } | null>(null);
   const [showRejectedAlert, setShowRejectedAlert] = React.useState(false);
   const [rejectedApiKeyInfo, setRejectedApiKeyInfo] = React.useState<{ api: string; apiKeyName: string; reason: string } | null>(null);
+  
+  // Approve notification state
+  const [showApproveNotification, setShowApproveNotification] = React.useState(false);
+  const [approvedApiKeyInfo, setApprovedApiKeyInfo] = React.useState<{ api: string; apiKeyName: string; tier: string } | null>(null);
 
   // Get current role from localStorage or use default
   const getCurrentRole = (): string => {
@@ -533,6 +537,21 @@ const APIKeys: React.FunctionComponent = () => {
     setApprovalApiKeys(prev => prev.map(k => 
       k.name === key.name ? { ...k, status: 'Active' as const } : k
     ));
+    
+    // Extract tier from tiers string (e.g., "Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;" -> "silver")
+    const tierMatch = key.tiers.match(/(Gold|Silver|Bronze)/i);
+    const tier = tierMatch ? tierMatch[1].toLowerCase() : 'unknown';
+    
+    // Show approve notification
+    setApprovedApiKeyInfo({
+      api: key.api,
+      apiKeyName: key.name,
+      tier: tier
+    });
+    setShowApproveNotification(true);
+    setTimeout(() => {
+      setShowApproveNotification(false);
+    }, 10000);
   };
 
   const handleReject = (key: APIKey) => {
@@ -1079,6 +1098,32 @@ const APIKeys: React.FunctionComponent = () => {
               <div style={{ marginTop: '8px', fontSize: '14px' }}>
                 <div>API: {alertApiKeyInfo.api}</div>
                 <div>API key name: {alertApiKeyInfo.apiKeyName}</div>
+              </div>
+            </Alert>
+          </div>
+        )}
+
+        {/* Approve Notification */}
+        {showApproveNotification && approvedApiKeyInfo && (
+          <div style={{ 
+            position: 'fixed', 
+            top: showSuccessAlert ? '180px' : (showRejectedAlert ? '180px' : '80px'),
+            right: '24px', 
+            zIndex: 1000,
+            maxWidth: '500px',
+            width: '100%'
+          }}>
+            <Alert
+              variant="success"
+              isLiveRegion
+              title="API key request has been approved"
+              actionClose={
+                <AlertActionCloseButton onClose={() => setShowApproveNotification(false)} />
+              }
+            >
+              <div style={{ marginTop: '8px', fontSize: '14px' }}>
+                <div>API: {approvedApiKeyInfo.api}</div>
+                <div>API key: {approvedApiKeyInfo.apiKeyName} - {approvedApiKeyInfo.tier} tier</div>
               </div>
             </Alert>
           </div>
