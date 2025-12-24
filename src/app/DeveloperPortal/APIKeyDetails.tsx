@@ -590,7 +590,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
             <NavItem itemId="catalog" icon={<ArchiveIcon />} onClick={() => handleNavClick('catalog')}>
               Catalog
             </NavItem>
-            <NavItem itemId="apis" icon={<CogIcon />} onClick={() => handleNavClick('apis')}>
+            <NavItem itemId="apis" isActive={source === 'apis'} icon={<CogIcon />} onClick={() => handleNavClick('apis')}>
               APIs
             </NavItem>
             <NavItem itemId="docs" icon={<FileAltIcon />} onClick={() => handleNavClick('docs')}>
@@ -623,7 +623,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
                   API products
                 </NavItem>
               )}
-              <NavItem itemId="api-keys" isActive={location.pathname.includes('/api-keys') || location.pathname.includes('/api-key-details')} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
+              <NavItem itemId="api-keys" isActive={(location.pathname.includes('/api-keys') || location.pathname.includes('/api-key-details')) && source !== 'apis'} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
                 API Access
               </NavItem>
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
@@ -677,34 +677,30 @@ const APIKeyDetails: React.FunctionComponent = () => {
       <Page masthead={masthead} sidebar={sidebar}>
         <PageSection>
           <Breadcrumb style={{ marginBottom: '16px' }}>
-            {source === 'apis' && apiNameFromQuery ? (
-              <>
-                <BreadcrumbItem>
-                  <Button variant="link" isInline onClick={() => navigate('/apis')}>
-                    API
-                  </Button>
-                </BreadcrumbItem>
-                <BreadcrumbItem>
-                  <Button variant="link" isInline onClick={() => navigate(`/apis/api-details/${encodeURIComponent(apiNameFromQuery)}`)}>
-                    {apiNameFromQuery}
-                  </Button>
-                </BreadcrumbItem>
-                <BreadcrumbItem>
-                  {keyDetails.name}
-                </BreadcrumbItem>
-              </>
-            ) : (
-              <>
-                <BreadcrumbItem>
-                  <Button variant="link" isInline onClick={() => navigate('/developer-portal/api-keys')}>
-                    API Access
-                  </Button>
-                </BreadcrumbItem>
-                <BreadcrumbItem>
-                  {keyDetails.name}
-                </BreadcrumbItem>
-              </>
+            {source === 'apis' && apiNameFromQuery && (
+              <BreadcrumbItem>
+                <Button variant="link" isInline onClick={() => navigate('/apis')}>
+                  APIs
+                </Button>
+              </BreadcrumbItem>
             )}
+            {source === 'apis' && apiNameFromQuery && (
+              <BreadcrumbItem>
+                <Button variant="link" isInline onClick={() => navigate(`/apis/api-details/${encodeURIComponent(apiNameFromQuery)}`)}>
+                  {apiNameFromQuery}
+                </Button>
+              </BreadcrumbItem>
+            )}
+            {source !== 'apis' && (
+              <BreadcrumbItem>
+                <Button variant="link" isInline onClick={() => navigate('/developer-portal/api-keys')}>
+                  API Access
+                </Button>
+              </BreadcrumbItem>
+            )}
+            <BreadcrumbItem>
+              {keyDetails.name}
+            </BreadcrumbItem>
           </Breadcrumb>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>

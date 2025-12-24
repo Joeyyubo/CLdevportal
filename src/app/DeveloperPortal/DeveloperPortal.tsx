@@ -987,7 +987,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 )}
                 popperProps={{ 
                   appendTo: () => document.body,
-                  position: 'right',
+                  position: 'right' as const,
                   enableFlip: true,
                   preventOverflow: true
                 }}
@@ -1044,7 +1044,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                   )}
                   popperProps={{ 
                     appendTo: () => document.body,
-                    position: 'right',
+                    position: 'right' as const,
                     enableFlip: true,
                     preventOverflow: true
                   }}
