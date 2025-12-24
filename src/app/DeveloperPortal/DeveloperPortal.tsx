@@ -124,6 +124,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const [isTagDropdownOpen, setIsTagDropdownOpen] = React.useState(false);
   const [description, setDescription] = React.useState('');
   const [openApiSpecUrl, setOpenApiSpecUrl] = React.useState('');
+  const [isOpenApiSpecMenuOpen, setIsOpenApiSpecMenuOpen] = React.useState(false);
   const [selectedHttpRoute, setSelectedHttpRoute] = React.useState('');
   const [isHttpRouteDropdownOpen, setIsHttpRouteDropdownOpen] = React.useState(false);
   const [httpRoutePolicies, setHttpRoutePolicies] = React.useState('');
@@ -509,17 +510,17 @@ const DeveloperPortal: React.FunctionComponent = () => {
               <GridItem span={9}>
                   <Card>
                     <CardBody>
-                      <div style={{ marginBottom: '16px' }}>
-                      <Title headingLevel="h2" size="lg" style={{ marginBottom: '16px' }}>
-                        API product ({apiProducts.length})
+                      <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Title headingLevel="h2" size="lg">
+                          API product
                         </Title>
-                      <SearchInput
-                        placeholder="Search"
-                        value={productSearchValue}
-                        onChange={(_, value) => setProductSearchValue(value)}
-                        onClear={() => setProductSearchValue('')}
-                        style={{ width: '100%', maxWidth: '300px' }}
-                      />
+                        <SearchInput
+                          placeholder="Search"
+                          value={productSearchValue}
+                          onChange={(_, value) => setProductSearchValue(value)}
+                          onClear={() => setProductSearchValue('')}
+                          style={{ width: '100%', maxWidth: '300px' }}
+                        />
                       </div>
                     <div style={{ overflowX: 'auto', width: '100%' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: '800px' }}>
@@ -788,7 +789,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
             <Title headingLevel="h3" size="md" style={{ marginBottom: 0 }}>
               Add API and Associate route
             </Title>
-            <Tooltip content="Information about adding API and associating route">
+            <Tooltip content="Register an existing API and associate an HTTRroute for your API product">
               <Button variant="plain" aria-label="Info" style={{ padding: '4px' }}>
                 <InfoCircleIcon style={{ fontSize: '16px', color: '#151515' }} />
               </Button>
@@ -811,9 +812,41 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 placeholder=""
                 style={{ flex: 1 }}
               />
-              <Button variant="plain" aria-label="Add" style={{ padding: '8px' }}>
-                <PlusIcon />
-              </Button>
+              <Dropdown
+                isOpen={isOpenApiSpecMenuOpen}
+                onSelect={() => setIsOpenApiSpecMenuOpen(false)}
+                onOpenChange={(isOpen) => setIsOpenApiSpecMenuOpen(isOpen)}
+                toggle={(toggleRef) => (
+                  <MenuToggle
+                    ref={toggleRef}
+                    variant="plain"
+                    onClick={() => setIsOpenApiSpecMenuOpen(!isOpenApiSpecMenuOpen)}
+                    isExpanded={isOpenApiSpecMenuOpen}
+                    aria-label="Add API spec options"
+                    style={{ padding: '8px' }}
+                  >
+                    <PlusIcon />
+                  </MenuToggle>
+                )}
+                popperProps={{ 
+                  appendTo: () => document.body,
+                  position: 'right',
+                  enableFlip: true,
+                  preventOverflow: true
+                }}
+              >
+                <DropdownList>
+                  <DropdownItem
+                    key="upload-yaml"
+                    onClick={() => {
+                      // TODO: Implement upload YAML file functionality
+                      setIsOpenApiSpecMenuOpen(false);
+                    }}
+                  >
+                    Upload YAML file
+                  </DropdownItem>
+                </DropdownList>
+              </Dropdown>
             </div>
             <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
               Enter the full path to your API spec file. Eg.https://github.com/backstage/.
