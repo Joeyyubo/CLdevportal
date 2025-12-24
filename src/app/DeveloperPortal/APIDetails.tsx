@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
   Button,
   Masthead,
@@ -177,10 +177,112 @@ const apiDetailsData: Record<string, any> = {
     updated: '5 DAYS AGO',
     apiKeyRequest: 'Need approval',
   },
+  'Airport API': {
+    name: 'Airport API',
+    tag: 'Ticket',
+    contact: 'Ticket Team',
+    owner: 'Ticket team',
+    description: 'Flight ticket information API for users to get flight details',
+    lifecycle: 'production',
+    updated: '2 MIN AGO',
+    apiKeyRequest: 'No approval needed',
+  },
+  'Payment API': {
+    name: 'Payment API',
+    tag: 'Payment',
+    contact: 'Payment Team',
+    owner: 'Payment team',
+    description: 'API for flight payment processing and transactions',
+    lifecycle: 'production',
+    updated: '15 MIN AGO',
+    apiKeyRequest: 'Need approval',
+  },
+  'Aircraft API': {
+    name: 'Aircraft API',
+    tag: 'Aircraft',
+    contact: 'Aircraft Team',
+    owner: 'Aircraft team',
+    description: 'Aircraft application data and maintenance information',
+    lifecycle: 'production',
+    updated: '3 HOURS AGO',
+    apiKeyRequest: 'No approval needed',
+  },
+  'Client API': {
+    name: 'Client API',
+    tag: 'Client',
+    contact: 'Client Team',
+    owner: 'Client team',
+    description: 'API of client data management and customer information',
+    lifecycle: 'production',
+    updated: '2 MIN AGO',
+    apiKeyRequest: 'No approval needed',
+  },
+  'Aircraft Region API': {
+    name: 'Aircraft Region API',
+    tag: 'Aircraft',
+    contact: 'Aircraft Team',
+    owner: 'Aircraft team',
+    description: 'Aircraft type in different regions with location data',
+    lifecycle: 'production',
+    updated: '3 HOURS AGO',
+    apiKeyRequest: 'No approval needed',
+  },
+  'Booking Management API': {
+    name: 'Booking Management API',
+    tag: 'Ticket',
+    contact: 'Ticket Team',
+    owner: 'Ticket team',
+    description: 'Comprehensive booking management and reservation system',
+    lifecycle: 'production',
+    updated: '1 HOUR AGO',
+    apiKeyRequest: 'Need approval',
+  },
+  'Loyalty Program API': {
+    name: 'Loyalty Program API',
+    tag: 'Client',
+    contact: 'Client Team',
+    owner: 'Client team',
+    description: 'Customer loyalty points and rewards program management',
+    lifecycle: 'production',
+    updated: '4 DAYS AGO',
+    apiKeyRequest: 'No approval needed',
+  },
+  'Payment Processing API': {
+    name: 'Payment Processing API',
+    tag: 'Payment',
+    contact: 'Payment Team',
+    owner: 'Payment team',
+    description: 'Secure payment processing and transaction handling',
+    lifecycle: 'production',
+    updated: '5 DAYS AGO',
+    apiKeyRequest: 'Need approval',
+  },
+  'Flight Status API': {
+    name: 'Flight Status API',
+    tag: 'Ticket',
+    contact: 'Ticket Team',
+    owner: 'Ticket team',
+    description: 'Real-time flight status updates and schedule information',
+    lifecycle: 'production',
+    updated: '1 DAY AGO',
+    apiKeyRequest: 'No approval needed',
+  },
+  'Client Registration API': {
+    name: 'Client Registration API',
+    tag: 'Client',
+    contact: 'Client Team',
+    owner: 'Client team',
+    description: 'Client account registration and profile management',
+    lifecycle: 'production',
+    updated: '2 DAYS AGO',
+    apiKeyRequest: 'Need approval',
+  },
 };
 
 const APIDetails: React.FunctionComponent = () => {
   const { apiName } = useParams<{ apiName: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = React.useState(0);
   const [searchValue, setSearchValue] = React.useState('');
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
@@ -209,13 +311,21 @@ const APIDetails: React.FunctionComponent = () => {
   const [authorizeApiKey, setAuthorizeApiKey] = React.useState('vt9Dz-taKWW-KAsDZ-UhpBx');
   const [copied, setCopied] = React.useState(false);
   const userToggleRef = React.useRef<HTMLButtonElement>(null);
-  const navigate = useNavigate();
 
   // Decode API name from URL and get details
   const decodedApiName = apiName ? decodeURIComponent(apiName) : '';
   const apiDetails = decodedApiName && apiDetailsData[decodedApiName] 
     ? apiDetailsData[decodedApiName] 
-    : apiDetailsData['Flights API'];
+    : (decodedApiName ? {
+        name: decodedApiName,
+        tag: 'Unknown',
+        contact: 'Unknown',
+        owner: 'Unknown',
+        description: 'API details not available',
+        lifecycle: 'production',
+        updated: 'Unknown',
+        apiKeyRequest: 'Need approval',
+      } : apiDetailsData['Flights API']);
 
   // Load starred status from localStorage
   const getStarredAPIs = (): string[] => {
@@ -271,12 +381,31 @@ const APIDetails: React.FunctionComponent = () => {
   };
 
   const handleNavClick = (itemId: string) => {
-    if (itemId === 'dev-portal') {
-      navigate('/developer-portal');
+    if (itemId === 'home') {
+      navigate('/home');
+    } else if (itemId === 'catalog') {
+      navigate('/catalog');
     } else if (itemId === 'apis') {
       navigate('/apis');
+    } else if (itemId === 'docs') {
+      navigate('/docs');
+    } else if (itemId === 'learning') {
+      navigate('/learning');
+    } else if (itemId === 'self-service') {
+      navigate('/self-service');
+    } else if (itemId === 'dev-portal') {
+      navigate('/developer-portal');
+    } else if (itemId === 'api-keys') {
+      navigate('/developer-portal/api-keys');
+    } else if (itemId === 'observability') {
+      navigate('/observability');
+    } else if (itemId === 'policies') {
+      navigate('/policies');
+    } else if (itemId === 'administration') {
+      navigate('/administration');
+    } else if (itemId === 'settings') {
+      navigate('/settings');
     } else {
-      // For now, navigate to developer portal for other items
       navigate('/developer-portal');
     }
   };
@@ -411,8 +540,13 @@ const APIDetails: React.FunctionComponent = () => {
               isExpanded={connectivityLinkExpanded}
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
-              <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                API products
+              {currentRole !== 'API consumer' && (
+                <NavItem itemId="dev-portal" isActive={location.pathname.includes('/api-details')} icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                  API products
+                </NavItem>
+              )}
+              <NavItem itemId="api-keys" isActive={location.pathname.includes('/api-keys')} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
+                API Access
               </NavItem>
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
@@ -442,9 +576,7 @@ const APIDetails: React.FunctionComponent = () => {
               </Button>
             </BreadcrumbItem>
             <BreadcrumbItem>
-              <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-                API products
-              </Button>
+              {apiDetails.name}
             </BreadcrumbItem>
           </Breadcrumb>
 

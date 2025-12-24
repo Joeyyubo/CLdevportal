@@ -400,9 +400,34 @@ const APIKeyDetails: React.FunctionComponent = () => {
     return <div>API key not found</div>;
   }
 
+  // Determine if this API key is from approval tab
+  // Approval API keys have names like: IssuedAPIkey_*, Pendingkeyreq_*, RejectedAPIkey
+  const isFromApprovalTab = decodedKeyName && (
+    decodedKeyName.startsWith('IssuedAPIkey_') ||
+    decodedKeyName.startsWith('Pendingkeyreq_') ||
+    decodedKeyName === 'RejectedAPIkey'
+  );
+
+  // Show metrics tab only if:
+  // 1. Not from approval tab (My API keys)
+  // 2. Status is Active
+  const shouldShowMetricsTab = !isFromApprovalTab && keyDetails.status === 'Active';
+
+  // If metrics tab is hidden and user is currently on metrics tab, switch to overview
+  React.useEffect(() => {
+    if (!shouldShowMetricsTab && activeTab === 1) {
+      setActiveTab(0);
+    }
+  }, [shouldShowMetricsTab, activeTab]);
+
   const handleTabClick = (_event: React.MouseEvent<HTMLElement, MouseEvent>, eventKey: string | number) => {
     const tabKey = typeof eventKey === 'number' ? eventKey : 0;
-    setActiveTab(tabKey);
+    // If metrics tab is hidden and user tries to access it, reset to overview
+    if (tabKey === 1 && !shouldShowMetricsTab) {
+      setActiveTab(0);
+    } else {
+      setActiveTab(tabKey);
+    }
   };
 
   const handleUserDropdownToggle = () => {
@@ -668,7 +693,12 @@ const APIKeyDetails: React.FunctionComponent = () => {
                       <EllipsisVIcon />
                     </MenuToggle>
                   )}
-                  popperProps={{ appendTo: () => document.body }}
+                  popperProps={{ 
+                    appendTo: () => document.body,
+                    position: 'right',
+                    enableFlip: true,
+                    preventOverflow: true
+                  }}
                 >
                   <DropdownList>
                     <DropdownItem
@@ -678,7 +708,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
                         setIsKebabMenuOpen(false);
                       }}
                     >
-                      Edit {keyDetails.name}
+                      {keyDetails.status === 'Pending' ? 'Edit pending API key' : 'Edit active API key'}
                     </DropdownItem>
                     <DropdownItem
                       key="delete"
@@ -687,7 +717,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
                         setIsKebabMenuOpen(false);
                       }}
                     >
-                      Delete {keyDetails.name}
+                      {keyDetails.status === 'Pending' ? 'Delete pending API key' : 'Delete active API key'}
                     </DropdownItem>
                   </DropdownList>
                 </Dropdown>
@@ -709,7 +739,12 @@ const APIKeyDetails: React.FunctionComponent = () => {
                       <EllipsisVIcon />
                     </MenuToggle>
                   )}
-                  popperProps={{ appendTo: () => document.body }}
+                  popperProps={{ 
+                    appendTo: () => document.body,
+                    position: 'right',
+                    enableFlip: true,
+                    preventOverflow: true
+                  }}
                 >
                   <DropdownList>
                     <DropdownItem
@@ -742,7 +777,9 @@ const APIKeyDetails: React.FunctionComponent = () => {
 
           <Tabs activeKey={activeTab} onSelect={handleTabClick} style={{ marginBottom: '24px' }}>
             <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>} />
-            <Tab eventKey={1} title={<TabTitleText>Metrics</TabTitleText>} />
+            {shouldShowMetricsTab && (
+              <Tab eventKey={1} title={<TabTitleText>Metrics</TabTitleText>} />
+            )}
           </Tabs>
 
           {activeTab === 0 && (
