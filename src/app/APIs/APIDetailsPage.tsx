@@ -1405,7 +1405,10 @@ const APIDetailsPage: React.FunctionComponent = () => {
                                   <Button 
                                     variant="link" 
                                     isInline
-                                    onClick={() => navigate(`/developer-portal/api-key-details/${encodeURIComponent(key.name)}`)}
+                                    onClick={() => {
+                                      const decodedApiName = apiName ? decodeURIComponent(apiName) : '';
+                                      navigate(`/developer-portal/api-key-details/${encodeURIComponent(key.name)}?apiName=${encodeURIComponent(decodedApiName)}&source=apis`);
+                                    }}
                                   >
                                     {key.name}
                                   </Button>
@@ -1709,7 +1712,10 @@ const APIDetailsPage: React.FunctionComponent = () => {
                                   <Button 
                                     variant="link" 
                                     isInline
-                                    onClick={() => navigate(`/developer-portal/api-key-details/${encodeURIComponent(key.name)}`)}
+                                    onClick={() => {
+                                      const decodedApiName = apiName ? decodeURIComponent(apiName) : '';
+                                      navigate(`/developer-portal/api-key-details/${encodeURIComponent(key.name)}?apiName=${encodeURIComponent(decodedApiName)}&source=apis`);
+                                    }}
                                   >
                                     {key.name}
                                   </Button>

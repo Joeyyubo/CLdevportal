@@ -335,6 +335,11 @@ const APIKeyDetails: React.FunctionComponent = () => {
   const { keyName } = useParams<{ keyName: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Get API name and source from URL query parameters
+  const searchParams = new URLSearchParams(location.search);
+  const apiNameFromQuery = searchParams.get('apiName');
+  const source = searchParams.get('source');
   const [activeTab, setActiveTab] = React.useState(0);
   const [copiedCode, setCopiedCode] = React.useState(false);
   const [copiedApiKey, setCopiedApiKey] = React.useState(false);
@@ -672,14 +677,34 @@ const APIKeyDetails: React.FunctionComponent = () => {
       <Page masthead={masthead} sidebar={sidebar}>
         <PageSection>
           <Breadcrumb style={{ marginBottom: '16px' }}>
-            <BreadcrumbItem>
-              <Button variant="link" isInline onClick={() => navigate('/developer-portal/api-keys')}>
-                API Access
-              </Button>
-            </BreadcrumbItem>
-            <BreadcrumbItem>
-              {keyDetails.name}
-            </BreadcrumbItem>
+            {source === 'apis' && apiNameFromQuery ? (
+              <>
+                <BreadcrumbItem>
+                  <Button variant="link" isInline onClick={() => navigate('/apis')}>
+                    API
+                  </Button>
+                </BreadcrumbItem>
+                <BreadcrumbItem>
+                  <Button variant="link" isInline onClick={() => navigate(`/apis/api-details/${encodeURIComponent(apiNameFromQuery)}`)}>
+                    {apiNameFromQuery}
+                  </Button>
+                </BreadcrumbItem>
+                <BreadcrumbItem>
+                  {keyDetails.name}
+                </BreadcrumbItem>
+              </>
+            ) : (
+              <>
+                <BreadcrumbItem>
+                  <Button variant="link" isInline onClick={() => navigate('/developer-portal/api-keys')}>
+                    API Access
+                  </Button>
+                </BreadcrumbItem>
+                <BreadcrumbItem>
+                  {keyDetails.name}
+                </BreadcrumbItem>
+              </>
+            )}
           </Breadcrumb>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
