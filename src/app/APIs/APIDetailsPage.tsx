@@ -81,7 +81,7 @@ import {
   AngleDownIcon,
   CheckIcon,
 } from '@patternfly/react-icons';
-import { apisRequiringApproval, initialSharedApiKeys, SharedAPIKey } from '../shared/apiData';
+import { apisRequiringApproval } from '../shared/apiData';
 import './APIs.css';
 
 // API details data for APIs module
@@ -196,6 +196,8 @@ const apiDetailsData: Record<string, any> = {
   },
 };
 
+import { apisRequiringApproval } from '../shared/apiData';
+
 interface APIKey {
   name: string;
   status: 'Active' | 'Pending' | 'Rejected';
@@ -256,12 +258,6 @@ const APIDetailsPage: React.FunctionComponent = () => {
   const [isTierDropdownOpen, setIsTierDropdownOpen] = React.useState(false);
   const [useCase, setUseCase] = React.useState('');
   const [hasAttemptedTierSelection, setHasAttemptedTierSelection] = React.useState(false);
-  
-  // Check if API key name already exists
-  const isApiKeyNameDuplicate = React.useMemo(() => {
-    if (!apiKeyName.trim()) return false;
-    return apiKeys.some(key => key.name.toLowerCase() === apiKeyName.trim().toLowerCase());
-  }, [apiKeyName, apiKeys]);
 
   // API keys approval tab states
   interface ApprovalAPIKey {
@@ -275,12 +271,19 @@ const APIDetailsPage: React.FunctionComponent = () => {
     rejectionReason?: string;
   }
 
-  const initialApprovalApiKeys: ApprovalAPIKey[] = [
+  // All approval API keys - based on API Access page relationships
+  // IssuedAPIkey_1 -> Flights API
+  // IssuedAPIkey_2 -> Booking API
+  // IssuedAPIkey_3 -> Create Booking API
+  // Pendingkeyreq_1 -> Airport API
+  // Pendingkeyreq_2 -> Payment API
+  // RejectedAPIkey -> Aircraft API
+  const allApprovalApiKeys: ApprovalAPIKey[] = [
     { 
       name: 'IssuedAPIkey_1', 
       status: 'Active', 
       tiers: 'Gold', 
-      api: apiName || '', 
+      api: 'Flights API', 
       activeTime: 'Jan 20,2026',
       client: 'Joe',
       useCase: 'Work for my personal flight application production.'
@@ -289,16 +292,25 @@ const APIDetailsPage: React.FunctionComponent = () => {
       name: 'IssuedAPIkey_2', 
       status: 'Active', 
       tiers: 'Gold', 
-      api: apiName || '', 
+      api: 'Booking API', 
       activeTime: 'Jan 20,2026',
       client: 'Jee',
       useCase: 'Integration with booking management system.'
     },
     { 
+      name: 'IssuedAPIkey_3', 
+      status: 'Active', 
+      tiers: 'Gold', 
+      api: 'Create Booking API', 
+      activeTime: 'Sep 05,2025',
+      client: 'Jay',
+      useCase: 'Booking service integration.'
+    },
+    { 
       name: 'Pendingkeyreq_1', 
       status: 'Pending', 
       tiers: 'Silver', 
-      api: apiName || '', 
+      api: 'Airport API', 
       activeTime: 'Sep 05,2025',
       client: 'John',
       useCase: 'Pending approval for airport information management system.'
@@ -307,22 +319,34 @@ const APIDetailsPage: React.FunctionComponent = () => {
       name: 'Pendingkeyreq_2', 
       status: 'Pending', 
       tiers: 'Bronze', 
-      api: apiName || '', 
+      api: 'Payment API', 
       activeTime: 'Sep 05,2025',
       client: 'Linda',
+      useCase: 'Payment processing service integration.'
     },
     { 
       name: 'RejectedAPIkey', 
       status: 'Rejected', 
       tiers: 'Bronze', 
-      api: apiName || '', 
+      api: 'Aircraft API', 
       activeTime: 'Sep 05,2025',
       client: 'Ross',
       rejectionReason: 'Rejection reason: ion test.em ipsum dolor sit amururururtur at.'
     },
   ];
+  
+  // Filter to only show approval API keys for the current API
+  const initialApprovalApiKeys = allApprovalApiKeys.filter(key => key.api === (apiName ? decodeURIComponent(apiName) : ''));
 
+  // Update approvalApiKeys when apiName changes
   const [approvalApiKeys, setApprovalApiKeys] = React.useState<ApprovalAPIKey[]>(initialApprovalApiKeys);
+  
+  React.useEffect(() => {
+    const decodedName = apiName ? decodeURIComponent(apiName) : '';
+    const filtered = allApprovalApiKeys.filter(key => key.api === decodedName);
+    setApprovalApiKeys(filtered);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiName]);
   const [approvalSearchValue, setApprovalSearchValue] = React.useState('');
   const [approvalStatusFilter, setApprovalStatusFilter] = React.useState('All');
   const [approvalTiersFilter, setApprovalTiersFilter] = React.useState('All');
@@ -333,22 +357,6 @@ const APIDetailsPage: React.FunctionComponent = () => {
   const [isApprovalInfoPopoverOpen, setIsApprovalInfoPopoverOpen] = React.useState(false);
   const approvalInfoPopoverRef = React.useRef<HTMLButtonElement>(null);
   const approvalTooltipContentRef = React.useRef<HTMLDivElement>(null);
-
-  // Filter approval API keys
-  const filteredApprovalApiKeys = React.useMemo(() => {
-    return approvalApiKeys.filter(key => {
-      if (approvalStatusFilter !== 'All' && key.status !== approvalStatusFilter) return false;
-      if (approvalTiersFilter !== 'All' && key.tiers !== approvalTiersFilter) return false;
-      if (approvalClientFilter !== 'All' && key.client !== approvalClientFilter) return false;
-      if (approvalSearchValue && !key.name.toLowerCase().includes(approvalSearchValue.toLowerCase())) return false;
-      return true;
-    });
-  }, [approvalApiKeys, approvalStatusFilter, approvalTiersFilter, approvalClientFilter, approvalSearchValue]);
-
-  const paginatedApprovalApiKeys = React.useMemo(() => {
-    const start = (approvalPage - 1) * approvalPerPage;
-    return filteredApprovalApiKeys.slice(start, start + approvalPerPage);
-  }, [filteredApprovalApiKeys, approvalPage, approvalPerPage]);
 
   const uniqueApprovalClients = React.useMemo(() => {
     return Array.from(new Set(approvalApiKeys.map(key => key.client).filter(Boolean))) as string[];
@@ -395,86 +403,93 @@ const APIDetailsPage: React.FunctionComponent = () => {
     ? apiDetailsData[decodedApiName] 
     : apiDetailsData['Flights API'];
   
+  // Filter approval API keys (must be after apiDetails and decodedApiName are declared)
+  const filteredApprovalApiKeys = React.useMemo(() => {
+    return approvalApiKeys.filter(key => {
+      // Only show API keys that match the current API
+      if (key.api !== apiDetails.name && key.api !== decodedApiName) return false;
+      if (approvalStatusFilter !== 'All' && key.status !== approvalStatusFilter) return false;
+      if (approvalTiersFilter !== 'All' && key.tiers !== approvalTiersFilter) return false;
+      if (approvalClientFilter !== 'All' && key.client !== approvalClientFilter) return false;
+      if (approvalSearchValue && !key.name.toLowerCase().includes(approvalSearchValue.toLowerCase())) return false;
+      return true;
+    });
+  }, [approvalApiKeys, apiDetails.name, decodedApiName, approvalStatusFilter, approvalTiersFilter, approvalClientFilter, approvalSearchValue]);
+
+  const paginatedApprovalApiKeys = React.useMemo(() => {
+    const start = (approvalPage - 1) * approvalPerPage;
+    return filteredApprovalApiKeys.slice(start, start + approvalPerPage);
+  }, [filteredApprovalApiKeys, approvalPage, approvalPerPage]);
+  
   // Check if Tiers field should show error (when user tried to select tier but API is not selected)
   // In API details page, API is always selected, so this will always be false
   const isTierFieldError = hasAttemptedTierSelection && !apiDetails.name;
 
-  // Get API keys based on role
-  // For API consumer: filter from shared API keys data to show only keys associated with current API
-  // For other roles: use sample data (all keys associated with current API)
-  const apiKeys: APIKey[] = React.useMemo(() => {
-    if (currentRole === 'API consumer') {
-      // Filter shared API keys to show only those associated with the current API
-      return initialSharedApiKeys
-        .filter(key => key.api === apiDetails.name)
-        .map(key => ({
-          name: key.name,
-          status: key.status,
-          tiers: key.tiers,
-          api: key.api,
-          activeTime: key.activeTime,
-          useCase: key.useCase,
-          rejectionReason: key.rejectionReason,
-        }));
-    } else {
-      // For other roles, use sample data (all keys associated with current API)
-      return [
-        { 
-          name: 'MyAPIkey_1', 
-          status: 'Active' as const, 
-          tiers: 'Gold', 
-          api: apiDetails.name,
-          activeTime: 'Jan 20, 2026',
-          useCase: 'Work for my personal flight application production. This API key is used for accessing flight booking services.'
-        },
-        { 
-          name: 'MyAPIkey_2', 
-          status: 'Active' as const, 
-          tiers: 'Gold', 
-          api: apiDetails.name,
-          activeTime: 'Jan 20, 2026',
-          useCase: 'Integration with flight management system for inventory tracking.'
-        },
-        { 
-          name: 'MyAPIkey_3', 
-          status: 'Active' as const, 
-          tiers: 'Gold', 
-          api: apiDetails.name,
-          activeTime: 'Sep 05, 2025',
-          useCase: 'Flight service integration for booking and management.'
-        },
-        { 
-          name: 'MyAPIkey_4', 
-          status: 'Pending' as const, 
-          tiers: 'Silver', 
-          api: apiDetails.name,
-          activeTime: 'Sep 05, 2025',
-          useCase: 'Pending approval for flight inventory management system.'
-        },
-        { 
-          name: 'MyAPIkey_5', 
-          status: 'Pending' as const, 
-          tiers: 'Bronze', 
-          api: apiDetails.name,
-          activeTime: 'Sep 05, 2025',
-          useCase: 'Flight storage service integration for file management.'
-        },
-        { 
-          name: 'MyAPIkey_6', 
-          status: 'Rejected' as const, 
-          tiers: 'Bronze', 
-          api: apiDetails.name,
-          activeTime: 'Sep 05, 2025',
-          useCase: 'Work for my personal flight application test. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium est a porttitor vehicula. Quisque vel commodo urna. Morbi mattis rutrum ante, ipsum dolor sit amet,',
-          rejectionReason: 'Rejection reason: ion test. Lorem ipsum dolor sit amururururtur at.'
-        },
-      ];
-    }
-  }, [currentRole, apiDetails.name]);
+  // Sample API keys data - based on API Access page relationships
+  // MyAPIkey_1 -> Flights API
+  // MyAPIkey_2 -> Booking API
+  // MyAPIkey_3 -> Create Booking API
+  // MyAPIkey_4 -> Airport API
+  // MyAPIkey_5 -> Payment API
+  // MyAPIkey_6 -> Aircraft API
+  const allApiKeys: APIKey[] = [
+    { 
+      name: 'MyAPIkey_1', 
+      status: 'Active', 
+      tiers: 'Gold', 
+      api: 'Flights API',
+      activeTime: 'Jan 20, 2026',
+      useCase: 'Work for my personal flight application production. This API key is used for accessing flight booking services.'
+    },
+    { 
+      name: 'MyAPIkey_2', 
+      status: 'Active', 
+      tiers: 'Gold', 
+      api: 'Booking API',
+      activeTime: 'Jan 20, 2026',
+      useCase: 'Integration with booking management system for inventory tracking.'
+    },
+    { 
+      name: 'MyAPIkey_3', 
+      status: 'Active', 
+      tiers: 'Gold', 
+      api: 'Create Booking API',
+      activeTime: 'Sep 05, 2025',
+      useCase: 'Booking service integration for booking and management.'
+    },
+    { 
+      name: 'MyAPIkey_4', 
+      status: 'Pending', 
+      tiers: 'Silver', 
+      api: 'Airport API',
+      activeTime: 'Sep 05, 2025',
+      useCase: 'Pending approval for airport information management system.'
+    },
+    { 
+      name: 'MyAPIkey_5', 
+      status: 'Pending', 
+      tiers: 'Bronze', 
+      api: 'Payment API',
+      activeTime: 'Sep 05, 2025',
+      useCase: 'Payment processing service integration for file management.'
+    },
+    { 
+      name: 'MyAPIkey_6', 
+      status: 'Rejected', 
+      tiers: 'Bronze', 
+      api: 'Aircraft API',
+      activeTime: 'Sep 05, 2025',
+      useCase: 'Work for my personal flight application test. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium est a porttitor vehicula. Quisque vel commodo urna. Morbi mattis rutrum ante, ipsum dolor sit amet,',
+      rejectionReason: 'Rejection reason: ion test. Lorem ipsum dolor sit amururururtur at.'
+    },
+  ];
+  
+  // Filter to only show API keys for the current API
+  const apiKeys = allApiKeys.filter(key => key.api === apiDetails.name);
 
   // Filter API keys based on search and filters
   const filteredApiKeys = React.useMemo(() => {
-    let filtered = apiKeys;
+    let filtered = apiKeys.filter(key => key.api === apiDetails.name);
     
     if (apiKeysSearchValue.trim()) {
       const searchLower = apiKeysSearchValue.toLowerCase();
@@ -493,21 +508,20 @@ const APIDetailsPage: React.FunctionComponent = () => {
     }
     
     return filtered;
-  }, [apiKeys, apiKeysSearchValue, statusFilter, tiersFilter]);
+  }, [apiKeys, apiDetails.name, apiKeysSearchValue, statusFilter, tiersFilter]);
 
-  // Calculate status counts
+  // Calculate status counts (only for keys matching current API)
   const statusCounts = React.useMemo(() => {
+    const apiKeysForCurrentApi = apiKeys.filter(k => k.api === apiDetails.name);
     return {
-      All: apiKeys.length,
-      Active: apiKeys.filter(k => k.status === 'Active').length,
-      Pending: apiKeys.filter(k => k.status === 'Pending').length,
-      Rejected: apiKeys.filter(k => k.status === 'Rejected').length,
+      All: apiKeysForCurrentApi.length,
+      Active: apiKeysForCurrentApi.filter(k => k.status === 'Active').length,
+      Pending: apiKeysForCurrentApi.filter(k => k.status === 'Pending').length,
+      Rejected: apiKeysForCurrentApi.filter(k => k.status === 'Rejected').length,
     };
-  }, [apiKeys]);
+  }, [apiKeys, apiDetails.name]);
 
-  const uniqueTiers = React.useMemo(() => {
-    return Array.from(new Set(apiKeys.map(k => k.tiers)));
-  }, [apiKeys]);
+  const uniqueTiers = Array.from(new Set(apiKeys.filter(k => k.api === apiDetails.name).map(k => k.tiers)));
 
   const toggleApiKeyRowExpanded = (index: number) => {
     setExpandedApiKeyRows(prev => {
@@ -725,28 +739,19 @@ const APIDetailsPage: React.FunctionComponent = () => {
           <BreadcrumbItem>{apiDetails.name}</BreadcrumbItem>
         </Breadcrumb>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Title headingLevel="h1" size="2xl">
-              {apiDetails.name}
-            </Title>
-            <Button variant="plain" aria-label="Star" onClick={handleStarClick}>
-              <StarIcon style={{ fill: isStarred ? '#0066CC' : 'inherit' }} />
-            </Button>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', fontSize: '14px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <div style={{ fontWeight: 'bold', color: '#151515' }}>Owner</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#151515' }}>
-                <UsersIcon style={{ fontSize: '16px' }} />
-                <span>{apiDetails.owner}</span>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <div style={{ fontWeight: 'bold', color: '#151515' }}>Lifecycle</div>
-              <div style={{ color: '#151515' }}>{apiDetails.lifecycle}</div>
-            </div>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+          <Title headingLevel="h1" size="2xl">
+            {apiDetails.name}
+          </Title>
+          <Button variant="plain" aria-label="Star" onClick={handleStarClick}>
+            <StarIcon style={{ fill: isStarred ? '#0066CC' : 'inherit' }} />
+          </Button>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px', fontSize: '14px', color: '#6a6e73' }}>
+          <span>Owner: {apiDetails.owner}</span>
+          <span>•</span>
+          <span>Lifecycle: {apiDetails.lifecycle}</span>
         </div>
 
         <Tabs activeKey={activeTab} onSelect={handleTabClick} style={{ marginBottom: '24px' }}>
@@ -1728,7 +1733,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
 
           <FormGroup 
             label={
-              <span style={{ color: isApiKeyNameDuplicate ? '#C9190B' : 'inherit' }}>
+              <span>
                 API key name <span style={{ color: '#C9190B' }}>*</span>
               </span>
             }
@@ -1738,14 +1743,8 @@ const APIDetailsPage: React.FunctionComponent = () => {
             <TextInput
               value={apiKeyName}
               onChange={(_, value) => setApiKeyName(value)}
-              validated={isApiKeyNameDuplicate ? 'error' : 'default'}
             />
-            {isApiKeyNameDuplicate && (
-              <p style={{ fontSize: '12px', color: '#C9190B', marginTop: '8px', marginBottom: 0 }}>
-                This API key name is already in use. Enter a unique name.
-              </p>
-            )}
-            {!apiKeyName && !isApiKeyNameDuplicate && (
+            {!apiKeyName && (
               <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
                 Set an easy-to-recognize name for this key
               </p>
@@ -1771,13 +1770,39 @@ const APIDetailsPage: React.FunctionComponent = () => {
                   isExpanded={isTierDropdownOpen}
                   style={{ 
                     width: '100%',
-                    textAlign: 'left',
                     borderColor: isTierFieldError ? '#C9190B' : undefined,
                     borderWidth: isTierFieldError ? '1px' : undefined,
                     borderStyle: isTierFieldError ? 'solid' : undefined
                   }}
+                  icon={null}
+                  className="custom-tier-toggle"
                 >
-                  {selectedTier || ''}
+                  <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                    <span style={{ flex: 1 }}>
+                      {selectedTier || ''}
+                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto', paddingRight: '8px' }}>
+                      <CaretDownIcon style={{ 
+                        color: isTierFieldError ? '#C7C7C7' : '#151515',
+                        fontSize: '14px',
+                        flexShrink: 0
+                      }} />
+                      {isTierFieldError && (
+                        <div style={{ 
+                          width: '16px', 
+                          height: '16px', 
+                          borderRadius: '50%', 
+                          backgroundColor: '#C9190B',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0
+                        }}>
+                          <ExclamationCircleIcon style={{ color: 'white', fontSize: '10px' }} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </MenuToggle>
               )}
             >
@@ -1806,7 +1831,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
             <TextArea
               value={useCase}
               onChange={(_, value) => setUseCase(value)}
-              rows={1}
+              rows={4}
             />
             {!useCase && (
               <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
@@ -1836,7 +1861,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
               setSelectedTier('');
               setUseCase('');
             }}
-            isDisabled={!apiKeyName || !selectedTier || isApiKeyNameDuplicate}
+            isDisabled={!apiKeyName || !selectedTier}
           >
             Request
           </Button>

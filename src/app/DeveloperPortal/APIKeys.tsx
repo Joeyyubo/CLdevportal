@@ -82,6 +82,7 @@ import {
   CaretDownIcon,
   BellIcon,
   CheckIcon,
+  EllipsisVIcon,
 } from '@patternfly/react-icons';
 import './DeveloperPortal.css';
 
@@ -267,7 +268,6 @@ const APIKeys: React.FunctionComponent = () => {
   const [useCase, setUseCase] = React.useState('');
   const [hasAttemptedTierSelection, setHasAttemptedTierSelection] = React.useState(false);
   const [generatedApiKey, setGeneratedApiKey] = React.useState('');
-  const [apiSearchValue, setApiSearchValue] = React.useState('');
   
   // Edit pending API key modal states
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
@@ -362,13 +362,6 @@ const APIKeys: React.FunctionComponent = () => {
   ];
 
   const [apiKeys, setApiKeys] = React.useState<APIKey[]>(initialApiKeys);
-  
-  // Check if API key name already exists
-  const isApiKeyNameDuplicate = React.useMemo(() => {
-    if (!apiKeyName.trim()) return false;
-    return apiKeys.some(key => key.name.toLowerCase() === apiKeyName.trim().toLowerCase());
-  }, [apiKeyName, apiKeys]);
-  
   const [processedRejectedKeys, setProcessedRejectedKeys] = React.useState<Set<string>>(() => {
     // Initialize with all existing Rejected keys to prevent showing alerts on initial load
     const rejectedKeys = new Set<string>();
@@ -387,7 +380,7 @@ const APIKeys: React.FunctionComponent = () => {
       name: 'IssuedAPIkey_1', 
       status: 'Active', 
       tiers: 'Gold', 
-      api: 'Toystore', 
+      api: 'Flights API', 
       activeTime: 'Jan 20,2026',
       client: 'Joe',
       useCase: 'Work for my personal flight application production.'
@@ -396,7 +389,7 @@ const APIKeys: React.FunctionComponent = () => {
       name: 'IssuedAPIkey_2', 
       status: 'Active', 
       tiers: 'Gold', 
-      api: 'Petstore', 
+      api: 'Booking API', 
       activeTime: 'Jan 20,2026',
       client: 'Jee',
       useCase: 'Integration with booking management system.'
@@ -405,7 +398,7 @@ const APIKeys: React.FunctionComponent = () => {
       name: 'IssuedAPIkey_3', 
       status: 'Active', 
       tiers: 'Gold', 
-      api: 'Carstore', 
+      api: 'Create Booking API', 
       activeTime: 'Sep 05,2025',
       client: 'Jay',
       useCase: 'Booking service integration.'
@@ -414,7 +407,7 @@ const APIKeys: React.FunctionComponent = () => {
       name: 'Pendingkeyreq_1', 
       status: 'Pending', 
       tiers: 'Silver', 
-      api: 'Birdstore', 
+      api: 'Airport API', 
       activeTime: 'Sep 05,2025',
       client: 'John',
       useCase: 'Pending approval for airport information management system.'
@@ -423,7 +416,7 @@ const APIKeys: React.FunctionComponent = () => {
       name: 'Pendingkeyreq_2', 
       status: 'Pending', 
       tiers: 'Bronze', 
-      api: 'Cloudstore', 
+      api: 'Payment API', 
       activeTime: 'Sep 05,2025',
       client: 'Linda',
       useCase: 'Payment processing service integration.'
@@ -432,7 +425,7 @@ const APIKeys: React.FunctionComponent = () => {
       name: 'RejectedAPIkey', 
       status: 'Rejected', 
       tiers: 'Bronze', 
-      api: 'Bikestore', 
+      api: 'Aircraft API', 
       activeTime: 'Sep 05,2025',
       client: 'Ross',
       useCase: 'Work for my personal flight application test. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium est a porttitor vehicula. Quisque vel commodo urna. Morbi mattis rutrum ante, ipsum dolor sit amet,',
@@ -547,7 +540,7 @@ const APIKeys: React.FunctionComponent = () => {
     setRejectionReason('');
     setIsRejectModalOpen(true);
   };
-  
+
   const handleConfirmReject = () => {
     if (rejectingApiKey && rejectionReason.trim()) {
       setApprovalApiKeys(prev => prev.map(k => 
@@ -759,7 +752,7 @@ const APIKeys: React.FunctionComponent = () => {
                   API products
                 </NavItem>
               )}
-              <NavItem itemId="api-keys" isActive={location.pathname.includes('/api-keys') || location.pathname.includes('/api-key-details')} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
+              <NavItem itemId="api-keys" isActive={location.pathname.includes('/api-keys')} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
                 API Access
               </NavItem>
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
@@ -1455,7 +1448,6 @@ const APIKeys: React.FunctionComponent = () => {
                                 variant="link" 
                                 isInline
                                 onClick={() => navigate(`/developer-portal/api-key-details/${encodeURIComponent(key.name)}`)}
-                                style={{ textDecoration: 'none' }}
                               >
                                 {key.name}
                               </Button>
@@ -1496,7 +1488,6 @@ const APIKeys: React.FunctionComponent = () => {
                               variant="link" 
                               isInline
                               onClick={() => navigate(`/apis/api-details/${encodeURIComponent(key.api)}`)}
-                              style={{ textDecoration: 'none' }}
                             >
                               {key.api}
                             </Button>
@@ -1517,8 +1508,8 @@ const APIKeys: React.FunctionComponent = () => {
                                     setIsEditModalOpen(true);
                                   }}
                                 >
-                                <PencilAltIcon />
-                              </Button>
+                                  <PencilAltIcon />
+                                </Button>
                               )}
                               {(key.status === 'Pending' || key.status === 'Active') && (
                                 <Button 
@@ -1530,8 +1521,8 @@ const APIKeys: React.FunctionComponent = () => {
                                     setIsDeleteModalOpen(true);
                                   }}
                                 >
-                                <TrashIcon />
-                              </Button>
+                                  <TrashIcon />
+                                </Button>
                               )}
                             </div>
                           </td>
@@ -1977,8 +1968,7 @@ const APIKeys: React.FunctionComponent = () => {
                               <Button 
                                 variant="link" 
                                 isInline
-                                onClick={() => navigate(`/developer-portal/api-key-details/${encodeURIComponent(key.name)}?fromApproval=true`)}
-                                style={{ textDecoration: 'none' }}
+                                onClick={() => navigate(`/developer-portal/api-key-details/${encodeURIComponent(key.name)}`)}
                               >
                                 {key.name}
                               </Button>
@@ -2019,7 +2009,6 @@ const APIKeys: React.FunctionComponent = () => {
                                 variant="link" 
                                 isInline
                                 onClick={() => navigate(`/apis/api-details/${encodeURIComponent(key.api)}`)}
-                                style={{ textDecoration: 'none' }}
                               >
                                 {key.api}
                               </Button>
@@ -2131,7 +2120,6 @@ const APIKeys: React.FunctionComponent = () => {
           setUseCase('');
           setHasAttemptedTierSelection(false);
           setGeneratedApiKey('');
-          setApiSearchValue('');
         }}
         variant="small"
         style={{ maxWidth: '500px' }}
@@ -2157,74 +2145,32 @@ const APIKeys: React.FunctionComponent = () => {
           >
             <Dropdown
               isOpen={isModalApiDropdownOpen}
-              onOpenChange={(isOpen) => {
-                setIsModalApiDropdownOpen(isOpen);
-                if (!isOpen) {
-                  setApiSearchValue(''); // Clear search when dropdown closes
-                }
-              }}
+              onOpenChange={(isOpen) => setIsModalApiDropdownOpen(isOpen)}
               toggle={(toggleRef) => (
                 <MenuToggle 
                   ref={toggleRef} 
                   onClick={() => setIsModalApiDropdownOpen(!isModalApiDropdownOpen)} 
                   isExpanded={isModalApiDropdownOpen}
-                  style={{ width: '100%', textAlign: 'left' }}
+                  style={{ width: '100%' }}
                 >
                   {selectedApi || ''}
                 </MenuToggle>
               )}
             >
-              <DropdownList
-                style={
-                  availableApis.length > 7
-                    ? {
-                        maxHeight: '240px',
-                        overflowY: 'auto',
-                        overflowX: 'hidden'
-                      }
-                    : undefined
-                }
-              >
-                {availableApis.length > 7 && (
-                  <div style={{ padding: '8px', borderBottom: '1px solid #d0d0d0' }}>
-                    <SearchInput
-                      value={apiSearchValue}
-                      onChange={(_, value) => setApiSearchValue(value)}
-                      onClear={() => setApiSearchValue('')}
-                      placeholder="Search"
-                      style={{ width: '100%' }}
-                    />
-                  </div>
-                )}
-                {(() => {
-                  const filteredApis = availableApis.filter(api => 
-                    !apiSearchValue || 
-                    api.toLowerCase().includes(apiSearchValue.toLowerCase())
-                  );
-                  
-                  if (apiSearchValue && filteredApis.length === 0) {
-                    return (
-                      <div style={{ padding: '16px', textAlign: 'center', color: '#151515' }}>
-                        No records to display
-                      </div>
-                    );
-                  }
-                  
-                  return filteredApis.map((api) => (
-                    <DropdownItem
-                      key={api}
-                      onClick={() => {
-                        setSelectedApi(api);
-                        setIsModalApiDropdownOpen(false);
-                        setApiSearchValue(''); // Clear search when API is selected
-                        // Clear tier error state when API is selected
-                        setHasAttemptedTierSelection(false);
-                      }}
-                    >
-                      {api}
-                    </DropdownItem>
-                  ));
-                })()}
+              <DropdownList>
+                {availableApis.map((api) => (
+                  <DropdownItem
+                    key={api}
+                    onClick={() => {
+                      setSelectedApi(api);
+                      setIsModalApiDropdownOpen(false);
+                      // Clear tier error state when API is selected
+                      setHasAttemptedTierSelection(false);
+                    }}
+                  >
+                    {api}
+                  </DropdownItem>
+                ))}
               </DropdownList>
             </Dropdown>
             {!selectedApi && (
@@ -2236,7 +2182,7 @@ const APIKeys: React.FunctionComponent = () => {
 
           <FormGroup 
             label={
-              <span style={{ color: isApiKeyNameDuplicate ? '#C9190B' : 'inherit' }}>
+              <span>
                 API key name <span style={{ color: '#C9190B' }}>*</span>
               </span>
             }
@@ -2246,14 +2192,8 @@ const APIKeys: React.FunctionComponent = () => {
             <TextInput
               value={apiKeyName}
               onChange={(_, value) => setApiKeyName(value)}
-              validated={isApiKeyNameDuplicate ? 'error' : 'default'}
             />
-            {isApiKeyNameDuplicate && (
-              <p style={{ fontSize: '12px', color: '#C9190B', marginTop: '8px', marginBottom: 0 }}>
-                This API key name is already in use. Enter a unique name.
-              </p>
-            )}
-            {!apiKeyName && !isApiKeyNameDuplicate && (
+            {!apiKeyName && (
               <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
                 Set an easy-to-recognize name for this key
               </p>
@@ -2296,7 +2236,6 @@ const APIKeys: React.FunctionComponent = () => {
                   isDisabled={!selectedApi}
                   style={{ 
                     width: '100%',
-                    textAlign: 'left',
                     borderColor: isTierFieldError ? '#C9190B' : undefined,
                     borderWidth: isTierFieldError ? '1px' : undefined,
                     borderStyle: isTierFieldError ? 'solid' : undefined
@@ -2331,11 +2270,11 @@ const APIKeys: React.FunctionComponent = () => {
             )}
           </FormGroup>
 
-          <FormGroup label="Use case" style={{ marginBottom: selectedApi && apisRequiringApproval.includes(selectedApi) ? '0' : '24px' }}>
+          <FormGroup label="Use case" style={{ marginBottom: selectedApi && apisRequiringApproval.includes(selectedApi) ? '16px' : '24px' }}>
             <TextArea
               value={useCase}
               onChange={(_, value) => setUseCase(value)}
-              rows={1}
+              rows={4}
             />
             {!useCase && (
               <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
@@ -2349,7 +2288,7 @@ const APIKeys: React.FunctionComponent = () => {
               variant="info"
               isInline
               title={`The API key request to '${selectedApi}' requires approval. You will be notified once it is processed.`}
-              style={{ marginTop: '16px', marginBottom: '24px' }}
+              style={{ marginTop: '0', marginBottom: '24px' }}
             />
           )}
             </>
@@ -2405,7 +2344,7 @@ const APIKeys: React.FunctionComponent = () => {
                 variant="warning"
                 isInline
                 title="Copy your API key"
-                style={{ marginTop: '16px', marginBottom: '24px' }}
+                style={{ marginTop: '16px' }}
               >
                 <div style={{ marginTop: '4px', fontSize: '14px' }}>
                   This API key is displayed only once. You will need to request a new one if this one is lost.
@@ -2463,7 +2402,7 @@ const APIKeys: React.FunctionComponent = () => {
                     setHasAttemptedTierSelection(false);
                   }
                 }}
-                isDisabled={!selectedApi || !apiKeyName || !selectedTier || isApiKeyNameDuplicate}
+                isDisabled={!selectedApi || !apiKeyName || !selectedTier}
               >
                 Request
               </Button>
@@ -2679,11 +2618,11 @@ const APIKeys: React.FunctionComponent = () => {
             </Dropdown>
           </FormGroup>
 
-          <FormGroup label="Use case" style={{ marginBottom: '24px' }}>
+          <FormGroup label="Use case" style={{ marginBottom: '16px' }}>
             <TextArea
               value={editUseCase}
               onChange={(_, value) => setEditUseCase(value)}
-              rows={1}
+              rows={4}
             />
           </FormGroup>
         </ModalBody>
@@ -2818,7 +2757,7 @@ const APIKeys: React.FunctionComponent = () => {
           setRejectionReason('');
         }}
         variant="small"
-        style={{ '--pf-v6-c-backdrop--BackgroundColor': 'rgba(200, 200, 200, 0.8)' } as React.CSSProperties}
+        style={{ maxWidth: '500px' }}
       >
         <ModalHeader>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -2827,25 +2766,23 @@ const APIKeys: React.FunctionComponent = () => {
           </div>
         </ModalHeader>
         <ModalBody style={{ padding: '24px' }}>
-          <p style={{ marginBottom: '24px', fontSize: '14px', color: '#6a6e73' }}>
+          <p style={{ marginBottom: '24px', fontSize: '14px', color: '#151515' }}>
             This will deny this API key request. The applicant will be notified of the reason and can submit a new request.
           </p>
 
-          <FormGroup label="API key name" fieldId="reject-api-key-name" style={{ marginBottom: '16px' }}>
+          <FormGroup label="API key name" style={{ marginBottom: '16px' }}>
             <TextInput
-              id="reject-api-key-name"
               value={rejectingApiKey?.name || ''}
               readOnly
-              style={{ backgroundColor: '#f5f5f5', userSelect: 'none', outline: 'none', cursor: 'default' }}
+              style={{ backgroundColor: '#f5f5f5' }}
             />
           </FormGroup>
 
-          <FormGroup label="Use case" fieldId="reject-use-case" style={{ marginBottom: '16px' }}>
+          <FormGroup label="Use case" style={{ marginBottom: '16px' }}>
             <TextInput
-              id="reject-use-case"
               value={rejectingApiKey?.useCase || ''}
               readOnly
-              style={{ backgroundColor: '#f5f5f5', userSelect: 'none', outline: 'none', cursor: 'default' }}
+              style={{ backgroundColor: '#f5f5f5' }}
             />
           </FormGroup>
 
@@ -2856,20 +2793,28 @@ const APIKeys: React.FunctionComponent = () => {
               </span>
             }
             isRequired
-            fieldId="rejection-reason"
+            style={{ marginBottom: '16px' }}
           >
             <TextArea
-              id="rejection-reason"
               value={rejectionReason}
               onChange={(_, value) => setRejectionReason(value)}
               placeholder="Give the requester some reasons why you reject this API key request"
               rows={4}
-              style={{ resize: 'vertical' }}
+              aria-label="Rejection reason input"
             />
           </FormGroup>
         </ModalBody>
         <ModalFooter>
           <Button
+            key="reject"
+            variant="danger"
+            onClick={handleConfirmReject}
+            isDisabled={!rejectionReason.trim()}
+          >
+            Reject
+          </Button>
+          <Button
+            key="cancel"
             variant="link"
             onClick={() => {
               setIsRejectModalOpen(false);
@@ -2878,13 +2823,6 @@ const APIKeys: React.FunctionComponent = () => {
             }}
           >
             Cancel
-          </Button>
-          <Button
-            variant="danger"
-            onClick={handleConfirmReject}
-            isDisabled={!rejectionReason.trim()}
-          >
-            Reject
           </Button>
         </ModalFooter>
       </Modal>
