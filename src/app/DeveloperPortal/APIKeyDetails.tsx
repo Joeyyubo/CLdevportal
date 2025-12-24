@@ -25,6 +25,7 @@ import {
   GridItem,
   Card,
   CardBody,
+  Badge,
   Tooltip,
   Label,
   ActionGroup,
@@ -667,12 +668,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
                       <EllipsisVIcon />
                     </MenuToggle>
                   )}
-                  popperProps={{ 
-                    appendTo: () => document.body,
-                    position: 'bottom-end',
-                    enableFlip: true,
-                    flipBehavior: ['bottom-end', 'bottom-start', 'top-end', 'top-start']
-                  }}
+                  popperProps={{ appendTo: () => document.body }}
                 >
                   <DropdownList>
                     <DropdownItem
@@ -713,12 +709,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
                       <EllipsisVIcon />
                     </MenuToggle>
                   )}
-                  popperProps={{ 
-                    appendTo: () => document.body,
-                    position: 'bottom-end',
-                    enableFlip: true,
-                    flipBehavior: ['bottom-end', 'bottom-start', 'top-end', 'top-start']
-                  }}
+                  popperProps={{ appendTo: () => document.body }}
                 >
                   <DropdownList>
                     <DropdownItem
