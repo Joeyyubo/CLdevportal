@@ -35,7 +35,15 @@ import {
   UserIcon,
   ExclamationTriangleIcon,
   StarIcon,
+  ArrowRightIcon,
+  ExternalLinkAltIcon,
 } from '@patternfly/react-icons';
+import {
+  Card,
+  CardBody,
+  Grid,
+  GridItem,
+} from '@patternfly/react-core';
 
 const Home: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -231,12 +239,219 @@ const Home: React.FunctionComponent = () => {
     </PageSidebar>
   );
 
+  // Get greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+
   return (
     <Page masthead={masthead} sidebar={sidebar}>
-      <PageSection>
-        <Title headingLevel="h1" size="2xl">
-          Home
+      <PageSection style={{ padding: '32px' }}>
+        {/* Greeting Section */}
+        <Title headingLevel="h1" size="2xl" style={{ marginBottom: '32px' }}>
+          {getGreeting()} Alex!
         </Title>
+
+        {/* Three Cards: Get started, Explore, Learn */}
+        <Grid hasGutter style={{ marginBottom: '48px' }}>
+          <GridItem span={4}>
+            <Card style={{ height: '100%', border: '1px solid #d0d0d0' }}>
+              <CardBody>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                  {/* Illustration placeholder */}
+                  <div style={{ 
+                    width: '120px', 
+                    height: '120px', 
+                    flexShrink: 0,
+                    backgroundColor: '#f0f0f0',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}>
+                    {/* Simple illustration representation */}
+                    <svg width="120" height="120" viewBox="0 0 120 120" style={{ position: 'absolute' }}>
+                      {/* Person silhouette */}
+                      <circle cx="30" cy="50" r="8" fill="#151515" />
+                      <rect x="22" y="58" width="16" height="20" rx="2" fill="#CC0000" />
+                      <rect x="20" y="78" width="20" height="25" rx="2" fill="#151515" />
+                      {/* Brain/Network structure */}
+                      <circle cx="70" cy="40" r="12" fill="none" stroke="#0066CC" strokeWidth="2" />
+                      <circle cx="85" cy="55" r="8" fill="none" stroke="#0066CC" strokeWidth="2" />
+                      <circle cx="75" cy="70" r="6" fill="none" stroke="#0066CC" strokeWidth="2" />
+                      <line x1="70" y1="40" x2="85" y2="55" stroke="#0066CC" strokeWidth="1.5" />
+                      <line x1="85" y1="55" x2="75" y2="70" stroke="#0066CC" strokeWidth="1.5" />
+                      {/* Chart representation */}
+                      <rect x="50" y="85" width="40" height="20" fill="#f0f0f0" stroke="#d0d0d0" />
+                      <rect x="52" y="95" width="6" height="8" fill="#0066CC" />
+                      <rect x="60" y="90" width="6" height="13" fill="#0066CC" />
+                      <rect x="68" y="97" width="6" height="6" fill="#0066CC" />
+                      <rect x="76" y="92" width="6" height="11" fill="#0066CC" />
+                      {/* Stacked rectangles */}
+                      <rect x="90" y="75" width="15" height="4" fill="#CC0000" />
+                      <rect x="90" y="80" width="15" height="4" fill="#F0AB00" />
+                      <rect x="90" y="85" width="15" height="4" fill="#0066CC" />
+                    </svg>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <Title headingLevel="h3" size="lg" style={{ marginBottom: '8px' }}>
+                      Get started
+                    </Title>
+                    <p style={{ marginBottom: '16px', color: '#6a6e73', fontSize: '14px' }}>
+                      Learn about Red Hat Developer Hub.
+                    </p>
+                    <Button 
+                      variant="link" 
+                      isInline
+                      onClick={() => navigate('/docs')}
+                      style={{ padding: 0 }}
+                    >
+                      Go to Tech Docs
+                      <ArrowRightIcon style={{ marginLeft: '8px' }} />
+                    </Button>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </GridItem>
+
+          <GridItem span={4}>
+            <Card style={{ height: '100%', border: '1px solid #d0d0d0' }}>
+              <CardBody>
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <Title headingLevel="h3" size="lg" style={{ marginBottom: '8px' }}>
+                    Explore
+                  </Title>
+                  <p style={{ marginBottom: '16px', color: '#6a6e73', fontSize: '14px', flex: 1 }}>
+                    Explore AI models, servers and templates.
+                  </p>
+                  <Button 
+                    variant="link" 
+                    isInline
+                    onClick={() => navigate('/catalog')}
+                    style={{ padding: 0, alignSelf: 'flex-start' }}
+                  >
+                    Go to Catalog
+                    <ArrowRightIcon style={{ marginLeft: '8px' }} />
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+          </GridItem>
+
+          <GridItem span={4}>
+            <Card style={{ height: '100%', border: '1px solid #d0d0d0' }}>
+              <CardBody>
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <Title headingLevel="h3" size="lg" style={{ marginBottom: '8px' }}>
+                    Learn
+                  </Title>
+                  <p style={{ marginBottom: '16px', color: '#6a6e73', fontSize: '14px', flex: 1 }}>
+                    Explore and develop new skills in AI.
+                  </p>
+                  <Button 
+                    variant="link" 
+                    isInline
+                    onClick={() => navigate('/learning')}
+                    style={{ padding: 0, alignSelf: 'flex-start' }}
+                  >
+                    Go to Learning Paths
+                    <ArrowRightIcon style={{ marginLeft: '8px' }} />
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+          </GridItem>
+        </Grid>
+
+        {/* Get started with Connectivity Link Section */}
+        <Title headingLevel="h2" size="xl" style={{ marginBottom: '24px' }}>
+          Get started with Connectivity Link
+        </Title>
+
+        <Grid hasGutter>
+          <GridItem span={6}>
+            <Card style={{ height: '100%', border: '1px solid #d0d0d0' }}>
+              <CardBody>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                  {/* Illustration placeholder */}
+                  <div style={{ 
+                    width: '120px', 
+                    height: '120px', 
+                    flexShrink: 0,
+                    backgroundColor: '#f0f0f0',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}>
+                    {/* Simple illustration representation */}
+                    <svg width="120" height="120" viewBox="0 0 120 120" style={{ position: 'absolute' }}>
+                      {/* Person silhouette */}
+                      <circle cx="25" cy="45" r="7" fill="#151515" />
+                      <rect x="18" y="52" width="14" height="18" rx="2" fill="#CC0000" />
+                      <rect x="16" y="70" width="18" height="22" rx="2" fill="#151515" />
+                      {/* Tablet */}
+                      <rect x="20" y="55" width="10" height="12" rx="1" fill="#f0f0f0" stroke="#d0d0d0" />
+                      {/* 3D bar shapes */}
+                      <rect x="50" y="30" width="20" height="30" fill="#0066CC" opacity="0.8" transform="skewX(-10)" />
+                      <rect x="70" y="40" width="20" height="25" fill="#0066CC" opacity="0.6" transform="skewX(-10)" />
+                      <rect x="90" y="50" width="20" height="20" fill="#0066CC" opacity="0.4" transform="skewX(-10)" />
+                      {/* Circuit patterns */}
+                      <circle cx="60" cy="50" r="2" fill="#0066CC" />
+                      <circle cx="80" cy="60" r="2" fill="#0066CC" />
+                      <line x1="60" y1="50" x2="80" y2="60" stroke="#0066CC" strokeWidth="1" />
+                    </svg>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ marginBottom: '16px', color: '#151515', fontSize: '14px', lineHeight: '1.5' }}>
+                      Browse the Connectivity Link services, observability, developer portal in the Connectivity Link portion.
+                    </p>
+                    <Button 
+                      variant="link" 
+                      isInline
+                      onClick={() => {}}
+                      style={{ padding: 0 }}
+                    >
+                      Learn more
+                      <ExternalLinkAltIcon style={{ marginLeft: '8px', fontSize: '14px' }} />
+                    </Button>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </GridItem>
+
+          <GridItem span={6}>
+            <Card style={{ height: '100%', border: '1px solid #d0d0d0' }}>
+              <CardBody>
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <Title headingLevel="h3" size="lg" style={{ marginBottom: '12px' }}>
+                    No available API key yet
+                  </Title>
+                  <p style={{ marginBottom: '24px', color: '#6a6e73', fontSize: '14px', lineHeight: '1.5', flex: 1 }}>
+                    Submit your request to generate an API key.
+                  </p>
+                  <Button 
+                    variant="link" 
+                    isInline
+                    onClick={() => navigate('/developer-portal/api-keys')}
+                    style={{ padding: 0, alignSelf: 'flex-start' }}
+                  >
+                    Request new API keys
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+          </GridItem>
+        </Grid>
       </PageSection>
     </Page>
   );

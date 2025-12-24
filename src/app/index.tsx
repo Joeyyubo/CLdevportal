@@ -25,11 +25,22 @@ import { AppRoutes, routes } from '@app/routes';
 import '@app/app.css';
 
 const App: React.FunctionComponent = () => {
+  // Set default role to API consumer on app startup
+  React.useEffect(() => {
+    try {
+      if (!localStorage.getItem('currentRole')) {
+        localStorage.setItem('currentRole', 'API consumer');
+      }
+    } catch (e) {
+      console.error('Failed to set default role:', e);
+    }
+  }, []);
+
   return (
     <Router>
       <Routes>
-        {/* Root redirects to developer-portal */}
-        <Route path="/" element={<Navigate to="/developer-portal" replace />} />
+        {/* Root redirects to home */}
+        <Route path="/" element={<Navigate to="/home" replace />} />
         
         {/* APIs page without AppLayout (has its own layout) */}
         <Route path="/apis" element={<APIs />} />
