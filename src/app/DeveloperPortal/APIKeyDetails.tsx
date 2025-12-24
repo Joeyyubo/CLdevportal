@@ -25,7 +25,6 @@ import {
   GridItem,
   Card,
   CardBody,
-  Badge,
   Tooltip,
   Label,
   ActionGroup,

@@ -196,8 +196,6 @@ const apiDetailsData: Record<string, any> = {
   },
 };
 
-import { apisRequiringApproval } from '../shared/apiData';
-
 interface APIKey {
   name: string;
   status: 'Active' | 'Pending' | 'Rejected';
@@ -1592,7 +1590,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
                                   </Label>
                                 </td>
                                 <td style={{ padding: '12px' }}>
-                                  <Label color={key.tiers === 'Gold' ? 'gold' : key.tiers === 'Silver' ? 'grey' : 'blue'}>
+                                  <Label color={key.tiers === 'Gold' ? 'yellow' : key.tiers === 'Silver' ? 'grey' : 'blue'}>
                                     {key.tiers}
                                   </Label>
                                 </td>
