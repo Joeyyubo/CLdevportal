@@ -271,12 +271,19 @@ const APIDetailsPage: React.FunctionComponent = () => {
     rejectionReason?: string;
   }
 
-  const initialApprovalApiKeys: ApprovalAPIKey[] = [
+  // All approval API keys - based on API Access page relationships
+  // IssuedAPIkey_1 -> Flights API
+  // IssuedAPIkey_2 -> Booking API
+  // IssuedAPIkey_3 -> Create Booking API
+  // Pendingkeyreq_1 -> Airport API
+  // Pendingkeyreq_2 -> Payment API
+  // RejectedAPIkey -> Aircraft API
+  const allApprovalApiKeys: ApprovalAPIKey[] = [
     { 
       name: 'IssuedAPIkey_1', 
       status: 'Active', 
       tiers: 'Gold', 
-      api: apiName || '', 
+      api: 'Flights API', 
       activeTime: 'Jan 20,2026',
       client: 'Joe',
       useCase: 'Work for my personal flight application production.'
@@ -285,16 +292,25 @@ const APIDetailsPage: React.FunctionComponent = () => {
       name: 'IssuedAPIkey_2', 
       status: 'Active', 
       tiers: 'Gold', 
-      api: apiName || '', 
+      api: 'Booking API', 
       activeTime: 'Jan 20,2026',
       client: 'Jee',
       useCase: 'Integration with booking management system.'
     },
     { 
+      name: 'IssuedAPIkey_3', 
+      status: 'Active', 
+      tiers: 'Gold', 
+      api: 'Create Booking API', 
+      activeTime: 'Sep 05,2025',
+      client: 'Jay',
+      useCase: 'Booking service integration.'
+    },
+    { 
       name: 'Pendingkeyreq_1', 
       status: 'Pending', 
       tiers: 'Silver', 
-      api: apiName || '', 
+      api: 'Airport API', 
       activeTime: 'Sep 05,2025',
       client: 'John',
       useCase: 'Pending approval for airport information management system.'
@@ -303,22 +319,34 @@ const APIDetailsPage: React.FunctionComponent = () => {
       name: 'Pendingkeyreq_2', 
       status: 'Pending', 
       tiers: 'Bronze', 
-      api: apiName || '', 
+      api: 'Payment API', 
       activeTime: 'Sep 05,2025',
       client: 'Linda',
+      useCase: 'Payment processing service integration.'
     },
     { 
       name: 'RejectedAPIkey', 
       status: 'Rejected', 
       tiers: 'Bronze', 
-      api: apiName || '', 
+      api: 'Aircraft API', 
       activeTime: 'Sep 05,2025',
       client: 'Ross',
       rejectionReason: 'Rejection reason: ion test.em ipsum dolor sit amururururtur at.'
     },
   ];
+  
+  // Filter to only show approval API keys for the current API
+  const initialApprovalApiKeys = allApprovalApiKeys.filter(key => key.api === (apiName ? decodeURIComponent(apiName) : ''));
 
+  // Update approvalApiKeys when apiName changes
   const [approvalApiKeys, setApprovalApiKeys] = React.useState<ApprovalAPIKey[]>(initialApprovalApiKeys);
+  
+  React.useEffect(() => {
+    const decodedName = apiName ? decodeURIComponent(apiName) : '';
+    const filtered = allApprovalApiKeys.filter(key => key.api === decodedName);
+    setApprovalApiKeys(filtered);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiName]);
   const [approvalSearchValue, setApprovalSearchValue] = React.useState('');
   const [approvalStatusFilter, setApprovalStatusFilter] = React.useState('All');
   const [approvalTiersFilter, setApprovalTiersFilter] = React.useState('All');
@@ -329,22 +357,6 @@ const APIDetailsPage: React.FunctionComponent = () => {
   const [isApprovalInfoPopoverOpen, setIsApprovalInfoPopoverOpen] = React.useState(false);
   const approvalInfoPopoverRef = React.useRef<HTMLButtonElement>(null);
   const approvalTooltipContentRef = React.useRef<HTMLDivElement>(null);
-
-  // Filter approval API keys
-  const filteredApprovalApiKeys = React.useMemo(() => {
-    return approvalApiKeys.filter(key => {
-      if (approvalStatusFilter !== 'All' && key.status !== approvalStatusFilter) return false;
-      if (approvalTiersFilter !== 'All' && key.tiers !== approvalTiersFilter) return false;
-      if (approvalClientFilter !== 'All' && key.client !== approvalClientFilter) return false;
-      if (approvalSearchValue && !key.name.toLowerCase().includes(approvalSearchValue.toLowerCase())) return false;
-      return true;
-    });
-  }, [approvalApiKeys, approvalStatusFilter, approvalTiersFilter, approvalClientFilter, approvalSearchValue]);
-
-  const paginatedApprovalApiKeys = React.useMemo(() => {
-    const start = (approvalPage - 1) * approvalPerPage;
-    return filteredApprovalApiKeys.slice(start, start + approvalPerPage);
-  }, [filteredApprovalApiKeys, approvalPage, approvalPerPage]);
 
   const uniqueApprovalClients = React.useMemo(() => {
     return Array.from(new Set(approvalApiKeys.map(key => key.client).filter(Boolean))) as string[];
@@ -391,17 +403,41 @@ const APIDetailsPage: React.FunctionComponent = () => {
     ? apiDetailsData[decodedApiName] 
     : apiDetailsData['Flights API'];
   
+  // Filter approval API keys (must be after apiDetails and decodedApiName are declared)
+  const filteredApprovalApiKeys = React.useMemo(() => {
+    return approvalApiKeys.filter(key => {
+      // Only show API keys that match the current API
+      if (key.api !== apiDetails.name && key.api !== decodedApiName) return false;
+      if (approvalStatusFilter !== 'All' && key.status !== approvalStatusFilter) return false;
+      if (approvalTiersFilter !== 'All' && key.tiers !== approvalTiersFilter) return false;
+      if (approvalClientFilter !== 'All' && key.client !== approvalClientFilter) return false;
+      if (approvalSearchValue && !key.name.toLowerCase().includes(approvalSearchValue.toLowerCase())) return false;
+      return true;
+    });
+  }, [approvalApiKeys, apiDetails.name, decodedApiName, approvalStatusFilter, approvalTiersFilter, approvalClientFilter, approvalSearchValue]);
+
+  const paginatedApprovalApiKeys = React.useMemo(() => {
+    const start = (approvalPage - 1) * approvalPerPage;
+    return filteredApprovalApiKeys.slice(start, start + approvalPerPage);
+  }, [filteredApprovalApiKeys, approvalPage, approvalPerPage]);
+  
   // Check if Tiers field should show error (when user tried to select tier but API is not selected)
   // In API details page, API is always selected, so this will always be false
   const isTierFieldError = hasAttemptedTierSelection && !apiDetails.name;
 
-  // Sample API keys data for this API - all keys are associated with the current API
-  const apiKeys: APIKey[] = [
+  // Sample API keys data - based on API Access page relationships
+  // MyAPIkey_1 -> Flights API
+  // MyAPIkey_2 -> Booking API
+  // MyAPIkey_3 -> Create Booking API
+  // MyAPIkey_4 -> Airport API
+  // MyAPIkey_5 -> Payment API
+  // MyAPIkey_6 -> Aircraft API
+  const allApiKeys: APIKey[] = [
     { 
       name: 'MyAPIkey_1', 
       status: 'Active', 
       tiers: 'Gold', 
-      api: apiDetails.name,
+      api: 'Flights API',
       activeTime: 'Jan 20, 2026',
       useCase: 'Work for my personal flight application production. This API key is used for accessing flight booking services.'
     },
@@ -409,48 +445,51 @@ const APIDetailsPage: React.FunctionComponent = () => {
       name: 'MyAPIkey_2', 
       status: 'Active', 
       tiers: 'Gold', 
-      api: apiDetails.name,
+      api: 'Booking API',
       activeTime: 'Jan 20, 2026',
-      useCase: 'Integration with flight management system for inventory tracking.'
+      useCase: 'Integration with booking management system for inventory tracking.'
     },
     { 
       name: 'MyAPIkey_3', 
       status: 'Active', 
       tiers: 'Gold', 
-      api: apiDetails.name,
+      api: 'Create Booking API',
       activeTime: 'Sep 05, 2025',
-      useCase: 'Flight service integration for booking and management.'
+      useCase: 'Booking service integration for booking and management.'
     },
     { 
       name: 'MyAPIkey_4', 
       status: 'Pending', 
       tiers: 'Silver', 
-      api: apiDetails.name,
+      api: 'Airport API',
       activeTime: 'Sep 05, 2025',
-      useCase: 'Pending approval for flight inventory management system.'
+      useCase: 'Pending approval for airport information management system.'
     },
     { 
       name: 'MyAPIkey_5', 
       status: 'Pending', 
       tiers: 'Bronze', 
-      api: apiDetails.name,
+      api: 'Payment API',
       activeTime: 'Sep 05, 2025',
-      useCase: 'Flight storage service integration for file management.'
+      useCase: 'Payment processing service integration for file management.'
     },
     { 
       name: 'MyAPIkey_6', 
       status: 'Rejected', 
       tiers: 'Bronze', 
-      api: apiDetails.name,
+      api: 'Aircraft API',
       activeTime: 'Sep 05, 2025',
       useCase: 'Work for my personal flight application test. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium est a porttitor vehicula. Quisque vel commodo urna. Morbi mattis rutrum ante, ipsum dolor sit amet,',
       rejectionReason: 'Rejection reason: ion test. Lorem ipsum dolor sit amururururtur at.'
     },
   ];
+  
+  // Filter to only show API keys for the current API
+  const apiKeys = allApiKeys.filter(key => key.api === apiDetails.name);
 
   // Filter API keys based on search and filters
   const filteredApiKeys = React.useMemo(() => {
-    let filtered = apiKeys;
+    let filtered = apiKeys.filter(key => key.api === apiDetails.name);
     
     if (apiKeysSearchValue.trim()) {
       const searchLower = apiKeysSearchValue.toLowerCase();
@@ -469,19 +508,20 @@ const APIDetailsPage: React.FunctionComponent = () => {
     }
     
     return filtered;
-  }, [apiKeysSearchValue, statusFilter, tiersFilter]);
+  }, [apiKeys, apiDetails.name, apiKeysSearchValue, statusFilter, tiersFilter]);
 
-  // Calculate status counts
+  // Calculate status counts (only for keys matching current API)
   const statusCounts = React.useMemo(() => {
+    const apiKeysForCurrentApi = apiKeys.filter(k => k.api === apiDetails.name);
     return {
-      All: apiKeys.length,
-      Active: apiKeys.filter(k => k.status === 'Active').length,
-      Pending: apiKeys.filter(k => k.status === 'Pending').length,
-      Rejected: apiKeys.filter(k => k.status === 'Rejected').length,
+      All: apiKeysForCurrentApi.length,
+      Active: apiKeysForCurrentApi.filter(k => k.status === 'Active').length,
+      Pending: apiKeysForCurrentApi.filter(k => k.status === 'Pending').length,
+      Rejected: apiKeysForCurrentApi.filter(k => k.status === 'Rejected').length,
     };
-  }, []);
+  }, [apiKeys, apiDetails.name]);
 
-  const uniqueTiers = Array.from(new Set(apiKeys.map(k => k.tiers)));
+  const uniqueTiers = Array.from(new Set(apiKeys.filter(k => k.api === apiDetails.name).map(k => k.tiers)));
 
   const toggleApiKeyRowExpanded = (index: number) => {
     setExpandedApiKeyRows(prev => {

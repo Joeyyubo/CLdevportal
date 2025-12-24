@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Button,
   Masthead,
@@ -69,6 +69,7 @@ import {
   CodeBranchIcon,
   CheckCircleIcon,
   TimesCircleIcon,
+  ClockIcon,
 } from '@patternfly/react-icons';
 import './DeveloperPortal.css';
 
@@ -204,11 +205,134 @@ const apiKeyDetailsData: Record<string, any> = {
     lastUsed: 'MAY 20,2025 AT 10:30AM',
     apiUrl: 'https://api.example.com/v1/get flight tickets/post',
   },
+  // API Keys from APIKeys.tsx
+  'MyAPIkey_1': {
+    name: 'MyAPIkey_1',
+    status: 'Active',
+    description: 'Work for my personal flight application production. This API key is used for accessing flight booking services.',
+    apiKey: 'cbjNd-nvMqT-1aBcD',
+    apiName: 'Flights API',
+    plan: 'Gold plan: 500 reqs/day; 2500 reqs/week; 15000 reqs/month;',
+    lastUsed: 'JAN 20,2026 AT 10:00AM',
+    apiUrl: 'https://api.example.com/v1/flights',
+  },
+  'MyAPIkey_2': {
+    name: 'MyAPIkey_2',
+    status: 'Active',
+    description: 'Integration with booking management system for inventory tracking.',
+    apiKey: 'rGeZL-RKIT5-2eFgH',
+    apiName: 'Booking API',
+    plan: 'Gold plan: 500 reqs/day; 2500 reqs/week; 15000 reqs/month;',
+    lastUsed: 'JAN 20,2026 AT 11:30AM',
+    apiUrl: 'https://api.example.com/v1/bookings',
+  },
+  'MyAPIkey_3': {
+    name: 'MyAPIkey_3',
+    status: 'Active',
+    description: 'Booking service integration for booking and management.',
+    apiKey: 'vt9Dz-taKWW-3iJkL',
+    apiName: 'Create Booking API',
+    plan: 'Gold plan: 500 reqs/day; 2500 reqs/week; 15000 reqs/month;',
+    lastUsed: 'SEP 05,2025 AT 02:15PM',
+    apiUrl: 'https://api.example.com/v1/create-booking',
+  },
+  'MyAPIkey_4': {
+    name: 'MyAPIkey_4',
+    status: 'Pending',
+    description: 'Pending approval for airport information management system.',
+    apiKey: '',
+    apiName: 'Airport API',
+    plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
+    lastUsed: 'SEP 05,2025 AT 09:00AM',
+    apiUrl: 'https://api.example.com/v1/airports',
+  },
+  'MyAPIkey_5': {
+    name: 'MyAPIkey_5',
+    status: 'Pending',
+    description: 'Payment processing service integration for file management.',
+    apiKey: '',
+    apiName: 'Payment API',
+    plan: 'Bronze plan: 50 reqs/day; 250 reqs/week; 1500 reqs/month;',
+    lastUsed: 'SEP 05,2025 AT 08:30AM',
+    apiUrl: 'https://api.example.com/v1/payments',
+  },
+  'MyAPIkey_6': {
+    name: 'MyAPIkey_6',
+    status: 'Rejected',
+    description: 'Work for my personal flight application test.',
+    apiKey: '',
+    apiName: 'Aircraft API',
+    plan: 'Bronze plan: 50 reqs/day; 250 reqs/week; 1500 reqs/month;',
+    lastUsed: 'SEP 05,2025 AT 07:00AM',
+    apiUrl: 'https://api.example.com/v1/aircraft',
+  },
+  // API Keys approval tab
+  'IssuedAPIkey_1': {
+    name: 'IssuedAPIkey_1',
+    status: 'Active',
+    description: 'Work for my personal flight application production.',
+    apiKey: 'KwJzA-9mNpR-1xYzA',
+    apiName: 'Toystore',
+    plan: 'Gold plan: 500 reqs/day; 2500 reqs/week; 15000 reqs/month;',
+    lastUsed: 'JAN 20,2026 AT 10:00AM',
+    apiUrl: 'https://api.example.com/v1/toystore',
+  },
+  'IssuedAPIkey_2': {
+    name: 'IssuedAPIkey_2',
+    status: 'Active',
+    description: 'Integration with booking management system.',
+    apiKey: 'XyVwB-8qLsT-2bCdE',
+    apiName: 'Petstore',
+    plan: 'Gold plan: 500 reqs/day; 2500 reqs/week; 15000 reqs/month;',
+    lastUsed: 'JAN 20,2026 AT 11:00AM',
+    apiUrl: 'https://api.example.com/v1/petstore',
+  },
+  'IssuedAPIkey_3': {
+    name: 'IssuedAPIkey_3',
+    status: 'Active',
+    description: 'Booking service integration.',
+    apiKey: 'UfTQm-2eeLx-3fGhI',
+    apiName: 'Carstore',
+    plan: 'Gold plan: 500 reqs/day; 2500 reqs/week; 15000 reqs/month;',
+    lastUsed: 'SEP 05,2025 AT 01:00PM',
+    apiUrl: 'https://api.example.com/v1/carstore',
+  },
+  'Pendingkeyreq_1': {
+    name: 'Pendingkeyreq_1',
+    status: 'Pending',
+    description: 'Pending approval for airport information management system.',
+    apiKey: '',
+    apiName: 'Birdstore',
+    plan: 'Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;',
+    lastUsed: 'SEP 05,2025 AT 09:00AM',
+    apiUrl: 'https://api.example.com/v1/birdstore',
+  },
+  'Pendingkeyreq_2': {
+    name: 'Pendingkeyreq_2',
+    status: 'Pending',
+    description: 'Payment processing service integration.',
+    apiKey: '',
+    apiName: 'Cloudstore',
+    plan: 'Bronze plan: 50 reqs/day; 250 reqs/week; 1500 reqs/month;',
+    lastUsed: 'SEP 05,2025 AT 08:00AM',
+    apiUrl: 'https://api.example.com/v1/cloudstore',
+  },
+  'RejectedAPIkey': {
+    name: 'RejectedAPIkey',
+    status: 'Rejected',
+    description: 'Work for my personal flight application test.',
+    apiKey: '',
+    apiName: 'Bikestore',
+    plan: 'Bronze plan: 50 reqs/day; 250 reqs/week; 1500 reqs/month;',
+    lastUsed: 'SEP 05,2025 AT 06:00AM',
+    apiUrl: 'https://api.example.com/v1/bikestore',
+  },
 };
 
 const APIKeyDetails: React.FunctionComponent = () => {
   const { keyName } = useParams<{ keyName: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = React.useState(0);
   const [copiedCode, setCopiedCode] = React.useState(false);
   const [copiedApiKey, setCopiedApiKey] = React.useState(false);
@@ -225,6 +349,13 @@ const APIKeyDetails: React.FunctionComponent = () => {
   const [reapplyDescriptionText, setReapplyDescriptionText] = React.useState('');
   const [selectedReapplyPlan, setSelectedReapplyPlan] = React.useState('Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;');
   const [isReapplyPlanDropdownOpen, setIsReapplyPlanDropdownOpen] = React.useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
+  const userToggleRef = React.useRef<HTMLButtonElement>(null);
+  const [isKebabMenuOpen, setIsKebabMenuOpen] = React.useState(false);
+  const [isOwnerKebabMenuOpen, setIsOwnerKebabMenuOpen] = React.useState(false);
+  const kebabMenuRef = React.useRef<HTMLButtonElement>(null);
+  const [isRejectModalOpen, setIsRejectModalOpen] = React.useState(false);
+  const [rejectionReason, setRejectionReason] = React.useState('');
 
   // Get current role from localStorage or use default
   const getCurrentRole = (): string => {
@@ -237,6 +368,23 @@ const APIKeyDetails: React.FunctionComponent = () => {
   };
   
   const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
+
+  // Listen to storage changes for role updates
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const role = localStorage.getItem('currentRole');
+        if (role) {
+          setCurrentRole(role);
+        }
+      } catch {
+        // Ignore errors
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Decode the key name from URL
   const decodedKeyName = keyName ? decodeURIComponent(keyName) : null;
@@ -257,6 +405,26 @@ const APIKeyDetails: React.FunctionComponent = () => {
     setActiveTab(tabKey);
   };
 
+  const handleUserDropdownToggle = () => {
+    setIsUserDropdownOpen(!isUserDropdownOpen);
+  };
+
+  const handleUserDropdownSelect = (_event?: React.MouseEvent | undefined, role?: string | number | undefined) => {
+    const newRole = String(role);
+    setCurrentRole(newRole);
+    // Save to localStorage
+    try {
+      localStorage.setItem('currentRole', newRole);
+      // Trigger storage event
+      window.dispatchEvent(new Event('storage'));
+    } catch (e) {
+      console.error('Failed to save role to localStorage:', e);
+    }
+    setIsUserDropdownOpen(false);
+    // Focus will be returned to the toggle button
+    userToggleRef.current?.focus();
+  };
+
   const handleNavClick = (itemId: string) => {
     if (itemId === 'home') {
       navigate('/home');
@@ -272,6 +440,8 @@ const APIKeyDetails: React.FunctionComponent = () => {
       navigate('/self-service');
     } else if (itemId === 'dev-portal') {
       navigate('/developer-portal');
+    } else if (itemId === 'api-keys') {
+      navigate('/developer-portal/api-keys');
     } else if (itemId === 'policies') {
       navigate('/policies');
     } else if (itemId === 'observability') {
@@ -336,16 +506,39 @@ const APIKeyDetails: React.FunctionComponent = () => {
         </MastheadBrand>
       </MastheadMain>
       <MastheadContent>
-        <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'flex-end' }}>
-          <Button variant="plain" aria-label="Help" style={{ color: '#151515' }}>
-            <HelpIcon />
-          </Button>
-          <Button variant="plain" aria-label="Notifications" style={{ color: '#151515' }}>
+        <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'flex-end', gap: '16px' }}>
+          <Button
+            variant="plain"
+            aria-label="Notifications"
+            style={{ color: '#151515' }}
+          >
             <BellIcon />
           </Button>
-          <Button variant="plain" aria-label="User" style={{ color: '#151515' }}>
-            <UserIcon />
-          </Button>
+          <Dropdown
+            isOpen={isUserDropdownOpen}
+            onSelect={handleUserDropdownSelect}
+            onOpenChange={(isOpen) => setIsUserDropdownOpen(isOpen)}
+            toggle={(toggleRef) => (
+              <MenuToggle
+                ref={toggleRef}
+                onClick={handleUserDropdownToggle}
+                aria-expanded={isUserDropdownOpen}
+                aria-label="User account menu"
+                variant="plainText"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <UserIcon />
+                  <span>{currentRole}</span>
+                </div>
+              </MenuToggle>
+            )}
+            popperProps={{ appendTo: () => document.body }}
+          >
+            <DropdownList>
+              <DropdownItem value="API consumer">API consumer</DropdownItem>
+              <DropdownItem value="API owner">API owner</DropdownItem>
+            </DropdownList>
+          </Dropdown>
         </div>
       </MastheadContent>
     </Masthead>
@@ -390,8 +583,13 @@ const APIKeyDetails: React.FunctionComponent = () => {
               isExpanded={connectivityLinkExpanded}
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
-              <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
-                API products
+              {currentRole !== 'API consumer' && (
+                <NavItem itemId="dev-portal" isActive={location.pathname === '/developer-portal' && !location.pathname.includes('/api-keys')} icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                  API products
+                </NavItem>
+              )}
+              <NavItem itemId="api-keys" isActive={location.pathname.includes('/api-keys') || location.pathname.includes('/api-key-details')} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
+                API Access
               </NavItem>
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
@@ -416,14 +614,12 @@ const APIKeyDetails: React.FunctionComponent = () => {
         <PageSection>
           <Breadcrumb style={{ marginBottom: '16px' }}>
             <BreadcrumbItem>
-              <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
-                API products
+              <Button variant="link" isInline onClick={() => navigate('/developer-portal/api-keys')}>
+                API Access
               </Button>
             </BreadcrumbItem>
             <BreadcrumbItem>
-              <Button variant="link" isInline onClick={() => navigate('/developer-portal#api-keys')}>
-                API keys
-              </Button>
+              {keyDetails.name}
             </BreadcrumbItem>
           </Breadcrumb>
 
@@ -434,24 +630,119 @@ const APIKeyDetails: React.FunctionComponent = () => {
             </Title>
             <Label
               variant="outline"
-              icon={keyDetails.status === 'Active' ? <CheckCircleIcon /> : <TimesCircleIcon />}
-              color={keyDetails.status === 'Active' ? 'green' : 'red'}
+              icon={
+                keyDetails.status === 'Active' ? <CheckCircleIcon /> : 
+                keyDetails.status === 'Pending' ? <ClockIcon /> : 
+                <TimesCircleIcon />
+              }
+              color={
+                keyDetails.status === 'Active' ? 'green' : 
+                keyDetails.status === 'Pending' ? 'blue' : 
+                'red'
+              }
                 style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}
             >
               {keyDetails.status}
             </Label>
             </div>
-            {keyDetails.status === 'Disabled' && (
-              <Button variant="primary" onClick={() => setIsReapplyModalOpen(true)}>
-                Reapply
-              </Button>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {keyDetails.status === 'Disabled' && (
+                <Button variant="primary" onClick={() => setIsReapplyModalOpen(true)}>
+                  Reapply
+                </Button>
+              )}
+              {/* Kebab menu for API consumer and API owner (my API keys) - only show for Active or Pending status, but not for API owner with Pending status */}
+              {((currentRole === 'API consumer') || (currentRole === 'API owner' && keyDetails.status !== 'Pending')) && keyDetails.status !== 'Rejected' && keyDetails.status !== 'Disabled' && (
+                <Dropdown
+                  isOpen={isKebabMenuOpen}
+                  onSelect={() => setIsKebabMenuOpen(false)}
+                  onOpenChange={(isOpen) => setIsKebabMenuOpen(isOpen)}
+                  toggle={(toggleRef) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      variant="plain"
+                      onClick={() => setIsKebabMenuOpen(!isKebabMenuOpen)}
+                      isExpanded={isKebabMenuOpen}
+                      aria-label="API key actions"
+                    >
+                      <EllipsisVIcon />
+                    </MenuToggle>
+                  )}
+                  popperProps={{ appendTo: () => document.body }}
+                >
+                  <DropdownList>
+                    <DropdownItem
+                      key="edit"
+                      onClick={() => {
+                        // TODO: Implement edit functionality
+                        setIsKebabMenuOpen(false);
+                      }}
+                    >
+                      Edit {keyDetails.name}
+                    </DropdownItem>
+                    <DropdownItem
+                      key="delete"
+                      onClick={() => {
+                        setIsDeleteModalOpen(true);
+                        setIsKebabMenuOpen(false);
+                      }}
+                    >
+                      Delete {keyDetails.name}
+                    </DropdownItem>
+                  </DropdownList>
+                </Dropdown>
+              )}
+              {/* Kebab menu for API owner - only show for Pending status in API key details page */}
+              {currentRole === 'API owner' && keyDetails.status === 'Pending' && (
+                <Dropdown
+                  isOpen={isOwnerKebabMenuOpen}
+                  onSelect={() => setIsOwnerKebabMenuOpen(false)}
+                  onOpenChange={(isOpen) => setIsOwnerKebabMenuOpen(isOpen)}
+                  toggle={(toggleRef) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      variant="plain"
+                      onClick={() => setIsOwnerKebabMenuOpen(!isOwnerKebabMenuOpen)}
+                      isExpanded={isOwnerKebabMenuOpen}
+                      aria-label="API key approval actions"
+                    >
+                      <EllipsisVIcon />
+                    </MenuToggle>
+                  )}
+                  popperProps={{ appendTo: () => document.body }}
+                >
+                  <DropdownList>
+                    <DropdownItem
+                      key="approve"
+                      onClick={() => {
+                        // Approve the API key - update status and navigate back
+                        // In a real app, this would make an API call
+                        setIsOwnerKebabMenuOpen(false);
+                        // Navigate back to API keys approval page
+                        navigate('/developer-portal/api-keys?tab=approval');
+                      }}
+                    >
+                      Approve
+                    </DropdownItem>
+                    <DropdownItem
+                      key="reject"
+                      onClick={() => {
+                        setIsRejectModalOpen(true);
+                        setRejectionReason('');
+                        setIsOwnerKebabMenuOpen(false);
+                      }}
+                    >
+                      Reject
+                    </DropdownItem>
+                  </DropdownList>
+                </Dropdown>
+              )}
+            </div>
           </div>
 
           <Tabs activeKey={activeTab} onSelect={handleTabClick} style={{ marginBottom: '24px' }}>
             <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>} />
             <Tab eventKey={1} title={<TabTitleText>Metrics</TabTitleText>} />
-            <Tab eventKey={2} title={<TabTitleText>Setting</TabTitleText>} />
           </Tabs>
 
           {activeTab === 0 && (
@@ -729,110 +1020,6 @@ const APIKeyDetails: React.FunctionComponent = () => {
                 </CardBody>
               </Card>
             </>
-          )}
-
-          {activeTab === 2 && (
-            <div style={{ position: 'relative' }}>
-              {/* Success Alert */}
-              {showUpdateSuccess && (
-                <div style={{ 
-                  position: 'fixed',
-                  top: '100px',
-                  right: '24px',
-                  zIndex: 200,
-                  maxWidth: '500px',
-                  animation: 'fadeIn 0.3s ease-in'
-                }}>
-                  <Alert 
-                    variant="success"
-                    title="API key update successfully"
-                    className="no-shadow-alert"
-                    isLiveRegion
-                  >
-                    <div style={{ marginBottom: '8px' }}>
-                      <strong>{keyDetails.name}</strong> request to {lastSelectedPlan.split(' ')[0].toLowerCase()} plan has been approved by API owner.
-                    </div>
-                    <Button 
-                      variant="link" 
-                      isInline
-                      onClick={() => {
-                        setShowUpdateSuccess(false);
-                        setActiveTab(0);
-                        // Scroll to top if needed
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                    >
-                      View API key
-                    </Button>
-                  </Alert>
-                </div>
-              )}
-
-              {/* API key update/reapply section */}
-              <Card style={{ border: '1px solid #67b350', marginBottom: '24px' }}>
-                <CardBody>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                    <div style={{ 
-                      width: '24px', 
-                      height: '24px', 
-                      borderRadius: '50%', 
-                      backgroundColor: '#67b350',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <ArrowUpIcon style={{ color: 'white', fontSize: '16px' }} />
-                    </div>
-                    <Title headingLevel="h3" size="lg">
-                      {keyDetails.status === 'Active' ? 'API key update' : 'API key reapply'}
-                    </Title>
-                  </div>
-                  <p style={{ marginBottom: '16px', color: '#151515' }}>
-                    {keyDetails.status === 'Active' 
-                      ? 'Update this API key to have more quota of API usage limit.'
-                      : 'Reapply for this API key to have more quota of API usage limit.'}
-                  </p>
-                  <Button 
-                    variant="primary" 
-                    onClick={() => {
-                      if (keyDetails.status === 'Active') {
-                      setIsUpdateModalOpen(true);
-                      setSelectedPlan('Gold plan (1000 reqs/day, 5000 reqs/week; 30000 reqs/month)');
-                      setIsPlanDropdownOpen(false);
-                      } else {
-                        setIsReapplyModalOpen(true);
-                      }
-                    }}
-                  >
-                    {keyDetails.status === 'Active' ? 'Update' : 'Reapply'}
-                  </Button>
-                </CardBody>
-              </Card>
-
-              {/* Danger zone section */}
-              <Card style={{ border: '1px solid #c9190b' }}>
-                <CardBody>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                    <div style={{ 
-                      width: '24px', 
-                      height: '24px', 
-                      borderRadius: '50%', 
-                      backgroundColor: '#f0ab00',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <ExclamationTriangleIcon style={{ color: 'white', fontSize: '16px' }} />
-                    </div>
-                    <Title headingLevel="h3" size="lg">Danger zone</Title>
-                  </div>
-                  <p style={{ marginBottom: '16px', color: '#151515' }}>
-                    Permanently delete this API key. This action cannot be undone and will immediately revoke access for any applications using this key.
-                  </p>
-                  <Button variant="danger" onClick={() => setIsDeleteModalOpen(true)}>Delete API key</Button>
-                </CardBody>
-              </Card>
-            </div>
           )}
 
           {/* Update Modal */}
@@ -1120,6 +1307,93 @@ const APIKeyDetails: React.FunctionComponent = () => {
               </Button>
             </ModalFooter>
           </Modal>
+
+          {/* Reject API key modal - for API owner */}
+          {currentRole === 'API owner' && (
+            <Modal
+              isOpen={isRejectModalOpen}
+              onClose={() => {
+                setIsRejectModalOpen(false);
+                setRejectionReason('');
+              }}
+              variant="small"
+              style={{ maxWidth: '500px' }}
+            >
+              <ModalHeader>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <ExclamationTriangleIcon style={{ color: '#F0AB00', fontSize: '24px' }} />
+                  <Title headingLevel="h2">Reject API key</Title>
+                </div>
+              </ModalHeader>
+              <ModalBody style={{ padding: '24px' }}>
+                <p style={{ marginBottom: '24px', fontSize: '14px', color: '#151515' }}>
+                  This will deny this API key request. The applicant will be notified of the reason and can submit a new request.
+                </p>
+
+                <FormGroup label="API key name" style={{ marginBottom: '16px' }}>
+                  <TextInput
+                    value={keyDetails.name}
+                    readOnly
+                    style={{ backgroundColor: '#f5f5f5' }}
+                  />
+                </FormGroup>
+
+                <FormGroup label="Use case" style={{ marginBottom: '16px' }}>
+                  <TextInput
+                    value={keyDetails.description}
+                    readOnly
+                    style={{ backgroundColor: '#f5f5f5' }}
+                  />
+                </FormGroup>
+
+                <FormGroup 
+                  label={
+                    <span>
+                      Provide a reason for the rejection <span style={{ color: '#C9190B' }}>*</span>
+                    </span>
+                  }
+                  isRequired
+                  style={{ marginBottom: '16px' }}
+                >
+                  <TextArea
+                    value={rejectionReason}
+                    onChange={(_, value) => setRejectionReason(value)}
+                    placeholder="Give the requester some reasons why you reject this API key request"
+                    rows={4}
+                    aria-label="Rejection reason input"
+                  />
+                </FormGroup>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  key="reject"
+                  variant="danger"
+                  onClick={() => {
+                    if (rejectionReason.trim()) {
+                      // In a real app, this would make an API call to reject the key
+                      setIsRejectModalOpen(false);
+                      setRejectionReason('');
+                      // Navigate back to API keys approval page
+                      navigate('/developer-portal/api-keys?tab=approval');
+                    }
+                  }}
+                  isDisabled={!rejectionReason.trim()}
+                >
+                  Reject
+                </Button>
+                <Button
+                  key="cancel"
+                  variant="link"
+                  onClick={() => {
+                    setIsRejectModalOpen(false);
+                    setRejectionReason('');
+                  }}
+                >
+                  Cancel
+                </Button>
+              </ModalFooter>
+            </Modal>
+          )}
         </PageSection>
       </Page>
     </>
