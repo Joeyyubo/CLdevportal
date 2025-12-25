@@ -43,18 +43,6 @@ import {
   Badge,
   ClipboardCopy,
   Checkbox,
-  NotificationDrawer,
-  NotificationDrawerHeader,
-  NotificationDrawerBody,
-  NotificationDrawerList,
-  NotificationDrawerListItem,
-  NotificationDrawerGroup,
-  NotificationDrawerGroupList,
-  Drawer,
-  DrawerContent,
-  DrawerContentBody,
-  DrawerPanelContent,
-  DrawerPanelBody,
   Pagination,
 } from '@patternfly/react-core';
 import {
@@ -77,10 +65,9 @@ import {
   TrashIcon,
   InfoCircleIcon,
   ClockIcon,
+  CaretDownIcon,
   AngleRightIcon,
   AngleDownIcon,
-  CaretDownIcon,
-  BellIcon,
   CheckIcon,
   EllipsisVIcon,
 } from '@patternfly/react-icons';
@@ -100,64 +87,6 @@ interface APIKey {
 
 import { availableApis, apisRequiringApproval } from '../shared/apiData';
 
-  // Sample notification data
-const notificationGroups = [
-  {
-    id: 'first-group',
-    title: 'First notification group',
-    isExpanded: false,
-    notifications: [
-      {
-        id: 'notification-1',
-        title: 'Unread info notification title',
-        description: 'This is an info notification description.',
-        timestamp: '5 minutes ago',
-        variant: 'info',
-        isRead: false
-      },
-      {
-        id: 'notification-2',
-        title: 'Unread success notification title',
-        description: 'This is a success notification description.',
-        timestamp: '10 minutes ago',
-        variant: 'success',
-        isRead: false
-      }
-    ]
-  },
-  {
-    id: 'second-group',
-    title: 'Second notification group',
-    isExpanded: true,
-    notifications: [
-      {
-        id: 'notification-3',
-        title: 'Unread info notification title',
-        description: 'This is an info notification description.',
-        timestamp: '5 minutes ago',
-        variant: 'info',
-        isRead: false
-      },
-      {
-        id: 'notification-4',
-        title: 'Unread recommendation notification title. This is a long title to show how the title will wrap if it is long and wraps to multiple lines.',
-        description: 'This is a recommendation notification description. This is a long description to show how the title will wrap if it is long and wraps to multiple lines.',
-        timestamp: '10 minutes ago',
-        variant: 'warning',
-        isRead: false
-      },
-      {
-        id: 'notification-5',
-        title: 'Unread recommendation notification title. This is a long title to show how the title will wrap if it is long and wraps to multiple lines.',
-        description: 'This is a recommendation notification description. This is a long description to show how the title will wrap if it is long and wraps to multiple lines.',
-        timestamp: '15 minutes ago',
-        variant: 'warning',
-        isRead: false
-      }
-    ]
-  }
-];
-
 const APIKeys: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -165,11 +94,6 @@ const APIKeys: React.FunctionComponent = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
   const userToggleRef = React.useRef<HTMLButtonElement>(null);
   const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
-  const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = React.useState(false);
-  const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({
-    'second-group': true
-  });
-  const [expandedNotifications, setExpandedNotifications] = React.useState<Record<string, boolean>>({});
   const [isInfoPopoverOpen, setIsInfoPopoverOpen] = React.useState(false);
   const infoPopoverRef = React.useRef<HTMLButtonElement>(null);
   const tooltipContentRef = React.useRef<HTMLDivElement>(null);
@@ -266,6 +190,7 @@ const APIKeys: React.FunctionComponent = () => {
   const [modalStep, setModalStep] = React.useState<'form' | 'success'>('form');
   const [selectedApi, setSelectedApi] = React.useState('');
   const [isModalApiDropdownOpen, setIsModalApiDropdownOpen] = React.useState(false);
+  const [apiSearchValue, setApiSearchValue] = React.useState('');
   const [apiKeyName, setApiKeyName] = React.useState('');
   const [selectedTier, setSelectedTier] = React.useState('');
   const [isTierDropdownOpen, setIsTierDropdownOpen] = React.useState(false);
@@ -293,20 +218,67 @@ const APIKeys: React.FunctionComponent = () => {
   const [rejectingApiKey, setRejectingApiKey] = React.useState<APIKey | null>(null);
   const [rejectionReason, setRejectionReason] = React.useState('');
   
-  // Available tiers
-  const availableTiers = ['Gold', 'Silver', 'Bronze'];
+  // Available tiers with display text
+  const availableTiers = ['Gold(100/day)', 'Silver(50/day)', 'Bronze(10/day)'];
   
   // Get tier background color
   const getTierBackgroundColor = (tier: string): string => {
-    const tierLower = tier.toLowerCase();
-    if (tierLower === 'gold') {
-      return '#FDF7E7';
-    } else if (tierLower === 'silver') {
-      return '#F5F5F5';
-    } else if (tierLower === 'bronze') {
-      return '#F2F9F9';
+    // Extract tier name from formats like "Gold(100/day)" or just "Gold"
+    const tierName = tier.split('(')[0].trim().toLowerCase();
+    if (tierName === 'gold') {
+      return '#fef5e7';
+    } else if (tierName === 'silver') {
+      return '#f5f5f5';
+    } else if (tierName === 'bronze') {
+      return '#e6f1fa';
     }
-    return '#F2F9F9'; // default to bronze color
+    return '#e6f1fa'; // default to bronze color
+  };
+
+  // Get tier text color
+  const getTierTextColor = (tier: string): string => {
+    // Extract tier name from formats like "Gold(100/day)" or just "Gold"
+    const tierName = tier.split('(')[0].trim().toLowerCase();
+    if (tierName === 'gold') {
+      return '#795600';
+    } else if (tierName === 'silver') {
+      return '#6a6e73';
+    } else if (tierName === 'bronze') {
+      return '#004d99';
+    }
+    return '#004d99'; // default to bronze color
+  };
+
+  // Format tier display text: "Gold(100/day)" -> "Gold: 100/day" or "Gold" -> "Gold: 100/day"
+  const formatTierDisplay = (tier: string): string => {
+    // If tier already contains parentheses, extract and format
+    if (tier.includes('(') && tier.includes(')')) {
+      const match = tier.match(/^([^(]+)\(([^)]+)\)/);
+      if (match) {
+        const tierName = match[1].trim();
+        const limit = match[2].trim();
+        return `${tierName}: ${limit}`;
+      }
+    }
+    // If tier is just the name, add default limits
+    const tierName = tier.split('(')[0].trim();
+    const tierLower = tierName.toLowerCase();
+    if (tierLower === 'gold') {
+      return 'Gold: 100/day';
+    } else if (tierLower === 'silver') {
+      return 'Silver: 50/day';
+    } else if (tierLower === 'bronze') {
+      return 'Bronze: 10/day';
+    }
+    return tier; // fallback
+  };
+
+  // Format tier display for table: "Gold(100/day)" -> "Gold" or "Gold" -> "Gold" (only tier name)
+  const formatTierDisplayForTable = (tier: string): string => {
+    // Extract tier name from formats like "Gold(100/day)" or just "Gold"
+    const tierName = tier.split('(')[0].trim();
+    // Capitalize first letter
+    return tierName.charAt(0).toUpperCase() + tierName.slice(1);
   };
   
   // Check if Tiers field should show error (when user tried to select tier but API is not selected)
@@ -490,28 +462,6 @@ const APIKeys: React.FunctionComponent = () => {
     Rejected: approvalApiKeys.filter(k => k.status === 'Rejected').length,
   };
 
-  // Calculate unread notification count
-  const unreadCount = notificationGroups.reduce((count, group) => {
-    return count + group.notifications.filter(n => !n.isRead).length;
-  }, 0);
-
-  const handleNotificationDrawerToggle = () => {
-    setIsNotificationDrawerOpen(!isNotificationDrawerOpen);
-  };
-
-  const handleGroupToggle = (groupId: string) => {
-    setExpandedGroups(prev => ({
-      ...prev,
-      [groupId]: !prev[groupId]
-    }));
-  };
-
-  const handleNotificationToggle = (notificationId: string) => {
-    setExpandedNotifications(prev => ({
-      ...prev,
-      [notificationId]: !prev[notificationId]
-    }));
-  };
 
   const toggleRowExpanded = (index: number) => {
     const newExpanded = new Set(expandedRows);
@@ -671,32 +621,6 @@ const APIKeys: React.FunctionComponent = () => {
       </MastheadMain>
       <MastheadContent>
         <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'flex-end', gap: '16px' }}>
-          <div style={{ position: 'relative' }}>
-            <Button
-              variant="plain"
-              aria-label="Notifications"
-              onClick={handleNotificationDrawerToggle}
-              style={{ color: '#151515' }}
-            >
-              <BellIcon />
-            </Button>
-            {unreadCount > 0 && (
-              <Badge
-                isRead={false}
-                style={{
-                  position: 'absolute',
-                  top: '-4px',
-                  right: '-4px',
-                  minWidth: '18px',
-                  height: '18px',
-                  fontSize: '11px',
-                  padding: '0 4px'
-                }}
-              >
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </Badge>
-            )}
-          </div>
           <Dropdown
             isOpen={isUserDropdownOpen}
             onSelect={handleUserDropdownSelect}
@@ -791,31 +715,6 @@ const APIKeys: React.FunctionComponent = () => {
     </PageSidebar>
   );
 
-  const getNotificationIcon = (variant: string) => {
-    switch (variant) {
-      case 'info':
-        return <InfoCircleIcon />;
-      case 'success':
-        return <CheckCircleIcon />;
-      case 'warning':
-        return <ExclamationTriangleIcon />;
-      default:
-        return <InfoCircleIcon />;
-    }
-  };
-
-  const getNotificationVariant = (variant: string): 'info' | 'success' | 'danger' | 'warning' | undefined => {
-    switch (variant) {
-      case 'info':
-        return 'info';
-      case 'success':
-        return 'success';
-      case 'warning':
-        return 'warning';
-      default:
-        return undefined;
-    }
-  };
 
   // Filter API keys based on status
   const filteredApiKeys = apiKeys.filter(key => {
@@ -929,81 +828,6 @@ const APIKeys: React.FunctionComponent = () => {
 
   return (
     <Page masthead={masthead} sidebar={sidebar}>
-      <Drawer isExpanded={isNotificationDrawerOpen} position="right">
-        <DrawerContent
-          panelContent={
-            <DrawerPanelContent>
-              <DrawerPanelBody>
-                <NotificationDrawer>
-                  <NotificationDrawerHeader
-                    count={unreadCount}
-                    onClose={handleNotificationDrawerToggle}
-                    title="Notifications"
-                  />
-                  <NotificationDrawerBody>
-                    <NotificationDrawerList>
-                      {notificationGroups.map((group) => (
-                        <NotificationDrawerGroup
-                          key={group.id}
-                          title={group.title}
-                          isExpanded={expandedGroups[group.id] || false}
-                          count={group.notifications.filter(n => !n.isRead).length}
-                          onExpand={() => handleGroupToggle(group.id)}
-                        >
-                          <NotificationDrawerGroupList>
-                            {group.notifications.map((notification) => {
-                              const isExpanded = expandedNotifications[notification.id] || false;
-                              return (
-                                <div key={notification.id} style={{ borderBottom: '1px solid #d0d0d0' }}>
-                                  <NotificationDrawerListItem
-                                    variant={getNotificationVariant(notification.variant)}
-                                    isRead={notification.isRead}
-                                    title={notification.title}
-                                    onClick={() => handleNotificationToggle(notification.id)}
-                                    style={{ cursor: 'pointer' }}
-                                  >
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', flex: 1 }}>
-                                        <div style={{ marginTop: '4px' }}>
-                                          {getNotificationIcon(notification.variant)}
-                                        </div>
-                                        <div style={{ flex: 1 }}>
-                                          {!isExpanded && (
-                                            <>
-                                              <div style={{ fontSize: '14px', color: '#6a6e73', marginTop: '4px' }}>{notification.timestamp}</div>
-                                            </>
-                                          )}
-                                        </div>
-                                      </div>
-                                      <div style={{ marginLeft: '8px' }}>
-                                        {isExpanded ? (
-                                          <AngleDownIcon style={{ color: '#151515', fontSize: '16px' }} />
-                                        ) : (
-                                          <AngleRightIcon style={{ color: '#151515', fontSize: '16px' }} />
-                                        )}
-                                      </div>
-                                    </div>
-                                  </NotificationDrawerListItem>
-                                  {isExpanded && (
-                                    <div style={{ padding: '12px 16px 16px 48px', backgroundColor: '#fafafa' }}>
-                                      <div style={{ marginBottom: '8px' }}>{notification.description}</div>
-                                      <div style={{ fontSize: '12px', color: '#6a6e73' }}>{notification.timestamp}</div>
-                                    </div>
-                              )}
-                                </div>
-                              );
-                            })}
-                          </NotificationDrawerGroupList>
-                        </NotificationDrawerGroup>
-                      ))}
-                    </NotificationDrawerList>
-                  </NotificationDrawerBody>
-                </NotificationDrawer>
-              </DrawerPanelBody>
-            </DrawerPanelContent>
-          }
-        >
-          <DrawerContentBody>
       <PageSection>
         <div style={{ marginBottom: '24px' }}>
           <Title headingLevel="h1" size="2xl" style={{ marginBottom: '16px' }}>
@@ -1311,7 +1135,7 @@ const APIKeys: React.FunctionComponent = () => {
                     </MenuToggle>
                   )}
                 >
-                  <DropdownList>
+                  <DropdownList style={{ maxHeight: '120px', overflowY: 'auto' }}>
                     {availableTiers.map(tier => (
                       <DropdownItem
                         key={tier}
@@ -1377,7 +1201,7 @@ const APIKeys: React.FunctionComponent = () => {
                     </MenuToggle>
                   )}
                 >
-                  <DropdownList>
+                  <DropdownList style={{ maxHeight: '120px', overflowY: 'auto' }}>
                 {uniqueApis.map(api => (
                       <DropdownItem
                         key={api}
@@ -1516,17 +1340,19 @@ const APIKeys: React.FunctionComponent = () => {
                             </Label>
                           </td>
                           <td style={{ padding: '12px' }}>
-                            <Label
+                            <Badge
+                              isRead
                               style={{
                                 backgroundColor: getTierBackgroundColor(key.tiers),
-                                color: '#151515',
-                                border: 'none',
+                                color: getTierTextColor(key.tiers),
+                                border: `1px solid ${getTierTextColor(key.tiers)}`,
                                 padding: '4px 8px',
-                                fontSize: '14px'
+                                borderRadius: '12px',
+                                fontSize: '12px'
                               }}
                             >
-                              {key.tiers}
-                            </Label>
+                              {formatTierDisplayForTable(key.tiers)}
+                            </Badge>
                           </td>
                           <td style={{ padding: '12px' }}>
                             <Button 
@@ -1766,7 +1592,7 @@ const APIKeys: React.FunctionComponent = () => {
                     </MenuToggle>
                   )}
                 >
-                  <DropdownList>
+                  <DropdownList style={{ maxHeight: '120px', overflowY: 'auto' }}>
                     {availableTiers.map(tier => (
                       <DropdownItem
                         key={tier}
@@ -1832,7 +1658,7 @@ const APIKeys: React.FunctionComponent = () => {
                     </MenuToggle>
                   )}
                 >
-                  <DropdownList>
+                  <DropdownList style={{ maxHeight: '120px', overflowY: 'auto' }}>
                 {uniqueApprovalApis.map(api => (
                       <DropdownItem
                         key={api}
@@ -1898,7 +1724,7 @@ const APIKeys: React.FunctionComponent = () => {
                     </MenuToggle>
                   )}
                 >
-                  <DropdownList>
+                  <DropdownList style={{ maxHeight: '120px', overflowY: 'auto' }}>
                 {uniqueApprovalClients.map(client => (
                       <DropdownItem
                         key={client}
@@ -2037,17 +1863,19 @@ const APIKeys: React.FunctionComponent = () => {
                               </Label>
                             </td>
                             <td style={{ padding: '12px' }}>
-                              <Label
+                              <Badge
+                                isRead
                                 style={{
                                   backgroundColor: getTierBackgroundColor(key.tiers),
-                                  color: '#151515',
-                                  border: 'none',
+                                  color: getTierTextColor(key.tiers),
+                                  border: `1px solid ${getTierTextColor(key.tiers)}`,
                                   padding: '4px 8px',
-                                  fontSize: '14px'
+                                  borderRadius: '12px',
+                                  fontSize: '12px'
                                 }}
                               >
-                                {key.tiers}
-                              </Label>
+                                {formatTierDisplayForTable(key.tiers)}
+                              </Badge>
                             </td>
                             <td style={{ padding: '12px' }}>
                               <Button 
@@ -2160,6 +1988,7 @@ const APIKeys: React.FunctionComponent = () => {
           setIsRequestModalOpen(false);
           setModalStep('form');
           setSelectedApi('');
+          setApiSearchValue('');
           setApiKeyName('');
           setSelectedTier('');
           setUseCase('');
@@ -2190,7 +2019,12 @@ const APIKeys: React.FunctionComponent = () => {
           >
             <Dropdown
               isOpen={isModalApiDropdownOpen}
-              onOpenChange={(isOpen) => setIsModalApiDropdownOpen(isOpen)}
+              onOpenChange={(isOpen) => {
+                setIsModalApiDropdownOpen(isOpen);
+                if (!isOpen) {
+                  setApiSearchValue('');
+                }
+              }}
               toggle={(toggleRef) => (
                 <MenuToggle 
                   ref={toggleRef} 
@@ -2203,19 +2037,35 @@ const APIKeys: React.FunctionComponent = () => {
               )}
             >
               <DropdownList>
-                {availableApis.map((api) => (
-                  <DropdownItem
-                    key={api}
-                    onClick={() => {
-                      setSelectedApi(api);
-                      setIsModalApiDropdownOpen(false);
-                      // Clear tier error state when API is selected
-                      setHasAttemptedTierSelection(false);
-                    }}
-                  >
-                    {api}
-                  </DropdownItem>
-                ))}
+                <div style={{ padding: '8px', borderBottom: '1px solid #d0d0d0' }}>
+                  <SearchInput
+                    value={apiSearchValue}
+                    onChange={(_, value) => setApiSearchValue(value)}
+                    onClear={() => setApiSearchValue('')}
+                    placeholder="Search"
+                    style={{ width: '100%' }}
+                  />
+                </div>
+                <div style={{ maxHeight: '140px', overflowY: 'auto' }}>
+                  {availableApis
+                    .filter((api) => 
+                      !apiSearchValue || api.toLowerCase().includes(apiSearchValue.toLowerCase())
+                    )
+                    .map((api) => (
+                      <DropdownItem
+                        key={api}
+                        onClick={() => {
+                          setSelectedApi(api);
+                          setIsModalApiDropdownOpen(false);
+                          setApiSearchValue('');
+                          // Clear tier error state when API is selected
+                          setHasAttemptedTierSelection(false);
+                        }}
+                      >
+                        {api}
+                      </DropdownItem>
+                    ))}
+                </div>
               </DropdownList>
             </Dropdown>
             {!selectedApi && (
@@ -2643,7 +2493,7 @@ const APIKeys: React.FunctionComponent = () => {
                   isExpanded={isEditTierDropdownOpen}
                   style={{ width: '100%' }}
                 >
-                  {editSelectedTier ? `${editSelectedTier} (Limits: 1 daily)` : ''}
+                  {editSelectedTier || ''}
                 </MenuToggle>
               )}
             >
@@ -2656,7 +2506,7 @@ const APIKeys: React.FunctionComponent = () => {
                       setIsEditTierDropdownOpen(false);
                     }}
                   >
-                    {tier} (Limits: 1 daily)
+                    {tier}
                   </DropdownItem>
                 ))}
               </DropdownList>
@@ -2872,9 +2722,6 @@ const APIKeys: React.FunctionComponent = () => {
         </ModalFooter>
       </Modal>
       </PageSection>
-          </DrawerContentBody>
-        </DrawerContent>
-      </Drawer>
     </Page>
   );
 };

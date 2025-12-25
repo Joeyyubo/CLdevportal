@@ -29,6 +29,7 @@ import {
   Tooltip,
   Label,
   Pagination,
+  Checkbox,
   Modal,
   ModalHeader,
   ModalBody,
@@ -47,7 +48,6 @@ import {
 } from '@patternfly/react-core';
 import {
   StarIcon,
-  BellIcon,
   UserIcon,
   CaretDownIcon,
   HomeIcon,
@@ -65,6 +65,7 @@ import {
   PlusIcon,
   InfoCircleIcon,
   CheckIcon,
+  TimesIcon,
 } from '@patternfly/react-icons';
 import './DeveloperPortal.css';
 
@@ -113,10 +114,14 @@ const DeveloperPortal: React.FunctionComponent = () => {
   // API Product states
   const [apiProducts, setApiProducts] = React.useState<APIProduct[]>(initialApiProducts);
   const [statusFilter, setStatusFilter] = React.useState('All'); // 'All', 'Draft', 'Published'
-  const [policyFilter, setPolicyFilter] = React.useState('All');
-  const [routeFilter, setRouteFilter] = React.useState('All');
-  const [namespaceFilter, setNamespaceFilter] = React.useState('All');
-  const [tagsFilter, setTagsFilter] = React.useState('All');
+  const [policyFilter, setPolicyFilter] = React.useState<string[]>([]);
+  const [routeFilter, setRouteFilter] = React.useState<string[]>([]);
+  const [namespaceFilter, setNamespaceFilter] = React.useState<string[]>([]);
+  const [tagsFilter, setTagsFilter] = React.useState<string[]>([]);
+  const [isPolicyDropdownOpen, setIsPolicyDropdownOpen] = React.useState(false);
+  const [isRouteDropdownOpen, setIsRouteDropdownOpen] = React.useState(false);
+  const [isNamespaceDropdownOpen, setIsNamespaceDropdownOpen] = React.useState(false);
+  const [isTagsDropdownOpen, setIsTagsDropdownOpen] = React.useState(false);
   const [productSearchValue, setProductSearchValue] = React.useState('');
   const [productPage, setProductPage] = React.useState(1);
   const [productPerPage, setProductPerPage] = React.useState(10);
@@ -252,6 +257,47 @@ const DeveloperPortal: React.FunctionComponent = () => {
     setIsUserDropdownOpen(false);
     // Focus will be returned to the toggle button
     userToggleRef.current?.focus();
+  };
+
+  // Toggle functions for multiple select filters
+  const handlePolicyToggle = (policy: string) => {
+    setPolicyFilter(prev => {
+      if (prev.includes(policy)) {
+        return prev.filter(p => p !== policy);
+      } else {
+        return [...prev, policy];
+      }
+    });
+  };
+
+  const handleRouteToggle = (route: string) => {
+    setRouteFilter(prev => {
+      if (prev.includes(route)) {
+        return prev.filter(r => r !== route);
+      } else {
+        return [...prev, route];
+      }
+    });
+  };
+
+  const handleNamespaceToggle = (namespace: string) => {
+    setNamespaceFilter(prev => {
+      if (prev.includes(namespace)) {
+        return prev.filter(n => n !== namespace);
+      } else {
+        return [...prev, namespace];
+      }
+    });
+  };
+
+  const handleTagsToggle = (tag: string) => {
+    setTagsFilter(prev => {
+      if (prev.includes(tag)) {
+        return prev.filter(t => t !== tag);
+      } else {
+        return [...prev, tag];
+      }
+    });
   };
 
   const handleNavClick = (itemId: string) => {
@@ -604,58 +650,274 @@ const DeveloperPortal: React.FunctionComponent = () => {
               </div>
 
                   <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Policy</Title>
-                  <select 
-                    style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}
-                    value={policyFilter}
-                    onChange={(e) => setPolicyFilter(e.target.value)}
-                  >
-                    <option value="All">All</option>
-                    {Array.from(new Set(apiProducts.map(p => p.policy))).map(policy => (
-                      <option key={policy} value={policy}>{policy}</option>
-                    ))}
-              </select>
+                  <div style={{ marginBottom: '16px' }}>
+                    <Dropdown
+                      isOpen={isPolicyDropdownOpen}
+                      onOpenChange={(isOpen) => setIsPolicyDropdownOpen(isOpen)}
+                      toggle={(toggleRef) => (
+                        <MenuToggle
+                          ref={toggleRef}
+                          onClick={() => setIsPolicyDropdownOpen(!isPolicyDropdownOpen)}
+                          isExpanded={isPolicyDropdownOpen}
+                          style={{ width: '100%', minHeight: '36px', padding: '4px 8px' }}
+                        >
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center', width: '100%', minHeight: '28px' }}>
+                            {policyFilter.length === 0 ? (
+                              <span style={{ color: '#6a6e73', fontSize: '14px' }}>All</span>
+                            ) : (
+                              <>
+                                {policyFilter.map(policy => (
+                                  <Label
+                                    key={policy}
+                                    onClose={() => handlePolicyToggle(policy)}
+                                    style={{ margin: 0 }}
+                                  >
+                                    {policy}
+                                  </Label>
+                                ))}
+                                <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <Button
+                                    variant="plain"
+                                    aria-label="Clear all"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setPolicyFilter([]);
+                                    }}
+                                    style={{ padding: '2px', minWidth: 'auto' }}
+                                  >
+                                    <TimesIcon style={{ fontSize: '12px' }} />
+                                  </Button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </MenuToggle>
+                      )}
+                    >
+                      <DropdownList style={{ maxHeight: '120px', overflowY: 'auto' }}>
+                        {Array.from(new Set(apiProducts.map(p => p.policy))).map(policy => (
+                          <DropdownItem
+                            key={policy}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePolicyToggle(policy);
+                            }}
+                          >
+                            <Checkbox
+                              isChecked={policyFilter.includes(policy)}
+                              id={`policy-${policy}`}
+                              label={policy}
+                              onChange={() => handlePolicyToggle(policy)}
+                            />
+                          </DropdownItem>
+                        ))}
+                      </DropdownList>
+                    </Dropdown>
+                  </div>
 
                   <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Route</Title>
-                  <select 
-                    style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}
-                    value={routeFilter}
-                    onChange={(e) => setRouteFilter(e.target.value)}
-                  >
-                    <option value="All">All</option>
-                    {Array.from(new Set(apiProducts.map(p => p.route))).map(route => (
-                      <option key={route} value={route}>{route}</option>
-                    ))}
-                  </select>
+                  <div style={{ marginBottom: '16px' }}>
+                    <Dropdown
+                      isOpen={isRouteDropdownOpen}
+                      onOpenChange={(isOpen) => setIsRouteDropdownOpen(isOpen)}
+                      toggle={(toggleRef) => (
+                        <MenuToggle
+                          ref={toggleRef}
+                          onClick={() => setIsRouteDropdownOpen(!isRouteDropdownOpen)}
+                          isExpanded={isRouteDropdownOpen}
+                          style={{ width: '100%', minHeight: '36px', padding: '4px 8px' }}
+                        >
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center', width: '100%', minHeight: '28px' }}>
+                            {routeFilter.length === 0 ? (
+                              <span style={{ color: '#6a6e73', fontSize: '14px' }}>All</span>
+                            ) : (
+                              <>
+                                {routeFilter.map(route => (
+                                  <Label
+                                    key={route}
+                                    onClose={() => handleRouteToggle(route)}
+                                    style={{ margin: 0 }}
+                                  >
+                                    {route}
+                                  </Label>
+                                ))}
+                                <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <Button
+                                    variant="plain"
+                                    aria-label="Clear all"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setRouteFilter([]);
+                                    }}
+                                    style={{ padding: '2px', minWidth: 'auto' }}
+                                  >
+                                    <TimesIcon style={{ fontSize: '12px' }} />
+                                  </Button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </MenuToggle>
+                      )}
+                    >
+                      <DropdownList style={{ maxHeight: '120px', overflowY: 'auto' }}>
+                        {Array.from(new Set(apiProducts.map(p => p.route))).map(route => (
+                          <DropdownItem
+                            key={route}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRouteToggle(route);
+                            }}
+                          >
+                            <Checkbox
+                              isChecked={routeFilter.includes(route)}
+                              id={`route-${route}`}
+                              label={route}
+                              onChange={() => handleRouteToggle(route)}
+                            />
+                          </DropdownItem>
+                        ))}
+                      </DropdownList>
+                    </Dropdown>
+                  </div>
 
                   <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Namespace</Title>
-                  <select 
-                    style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}
-                    value={namespaceFilter}
-                    onChange={(e) => setNamespaceFilter(e.target.value)}
-                  >
-                    <option value="All">All</option>
-                    {Array.from(new Set(apiProducts.map(p => p.namespace))).map(namespace => (
-                      <option key={namespace} value={namespace}>{namespace}</option>
-                    ))}
-                  </select>
+                  <div style={{ marginBottom: '16px' }}>
+                    <Dropdown
+                      isOpen={isNamespaceDropdownOpen}
+                      onOpenChange={(isOpen) => setIsNamespaceDropdownOpen(isOpen)}
+                      toggle={(toggleRef) => (
+                        <MenuToggle
+                          ref={toggleRef}
+                          onClick={() => setIsNamespaceDropdownOpen(!isNamespaceDropdownOpen)}
+                          isExpanded={isNamespaceDropdownOpen}
+                          style={{ width: '100%', minHeight: '36px', padding: '4px 8px' }}
+                        >
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center', width: '100%', minHeight: '28px' }}>
+                            {namespaceFilter.length === 0 ? (
+                              <span style={{ color: '#6a6e73', fontSize: '14px' }}>All</span>
+                            ) : (
+                              <>
+                                {namespaceFilter.map(namespace => (
+                                  <Label
+                                    key={namespace}
+                                    onClose={() => handleNamespaceToggle(namespace)}
+                                    style={{ margin: 0 }}
+                                  >
+                                    {namespace}
+                                  </Label>
+                                ))}
+                                <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <Button
+                                    variant="plain"
+                                    aria-label="Clear all"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setNamespaceFilter([]);
+                                    }}
+                                    style={{ padding: '2px', minWidth: 'auto' }}
+                                  >
+                                    <TimesIcon style={{ fontSize: '12px' }} />
+                                  </Button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </MenuToggle>
+                      )}
+                    >
+                      <DropdownList style={{ maxHeight: '120px', overflowY: 'auto' }}>
+                        {Array.from(new Set(apiProducts.map(p => p.namespace))).map(namespace => (
+                          <DropdownItem
+                            key={namespace}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleNamespaceToggle(namespace);
+                            }}
+                          >
+                            <Checkbox
+                              isChecked={namespaceFilter.includes(namespace)}
+                              id={`namespace-${namespace}`}
+                              label={namespace}
+                              onChange={() => handleNamespaceToggle(namespace)}
+                            />
+                          </DropdownItem>
+                        ))}
+                      </DropdownList>
+                    </Dropdown>
+                  </div>
 
                   <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Tags</Title>
-                  <select 
-                    style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px' }}
-                    value={tagsFilter}
-                    onChange={(e) => setTagsFilter(e.target.value)}
-                  >
-                        <option value="All">All</option>
-                    {Array.from(new Set(apiProducts.flatMap(p => p.tags))).map(tag => (
-                      <option key={tag} value={tag}>{tag}</option>
-                    ))}
-                  </select>
+                  <div style={{ marginBottom: '16px' }}>
+                    <Dropdown
+                      isOpen={isTagsDropdownOpen}
+                      onOpenChange={(isOpen) => setIsTagsDropdownOpen(isOpen)}
+                      toggle={(toggleRef) => (
+                        <MenuToggle
+                          ref={toggleRef}
+                          onClick={() => setIsTagsDropdownOpen(!isTagsDropdownOpen)}
+                          isExpanded={isTagsDropdownOpen}
+                          style={{ width: '100%', minHeight: '36px', padding: '4px 8px' }}
+                        >
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center', width: '100%', minHeight: '28px' }}>
+                            {tagsFilter.length === 0 ? (
+                              <span style={{ color: '#6a6e73', fontSize: '14px' }}>All</span>
+                            ) : (
+                              <>
+                                {tagsFilter.map(tag => (
+                                  <Label
+                                    key={tag}
+                                    onClose={() => handleTagsToggle(tag)}
+                                    style={{ margin: 0 }}
+                                  >
+                                    {tag}
+                                  </Label>
+                                ))}
+                                <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <Button
+                                    variant="plain"
+                                    aria-label="Clear all"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setTagsFilter([]);
+                                    }}
+                                    style={{ padding: '2px', minWidth: 'auto' }}
+                                  >
+                                    <TimesIcon style={{ fontSize: '12px' }} />
+                                  </Button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </MenuToggle>
+                      )}
+                    >
+                      <DropdownList style={{ maxHeight: '120px', overflowY: 'auto' }}>
+                        {Array.from(new Set(apiProducts.flatMap(p => p.tags))).map(tag => (
+                          <DropdownItem
+                            key={tag}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTagsToggle(tag);
+                            }}
+                          >
+                            <Checkbox
+                              isChecked={tagsFilter.includes(tag)}
+                              id={`tag-${tag}`}
+                              label={tag}
+                              onChange={() => handleTagsToggle(tag)}
+                            />
+                          </DropdownItem>
+                        ))}
+                      </DropdownList>
+                    </Dropdown>
+                  </div>
                 </div>
               </GridItem>
 
               <GridItem span={9}>
                   <Card>
-                    <CardBody>
+                    <CardBody style={{ overflow: 'hidden' }}>
                       <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Title headingLevel="h2" size="lg">
                           API product
@@ -668,28 +930,27 @@ const DeveloperPortal: React.FunctionComponent = () => {
                           style={{ width: '100%', maxWidth: '300px' }}
                         />
                       </div>
-                    <div style={{ overflowX: 'auto', width: '100%' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: '800px' }}>
+                    <div style={{ width: '100%', overflowX: 'hidden' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                         <thead>
                           <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Name</th>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '18%' }}>Name</th>
                           <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}>Version</th>
                           <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Route</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Policy</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Tags</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Status</th>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '17%' }}>Policy</th>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '11%' }}>Status</th>
                           <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Namespace</th>
-                          <th style={{ textAlign: 'left', padding: '12px', paddingRight: '60px', fontSize: '14px', fontWeight: 'bold', width: '7%' }}>Actions</th>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                         {apiProducts
                           .filter(product => {
                             if (statusFilter !== 'All' && product.status !== statusFilter) return false;
-                            if (policyFilter !== 'All' && product.policy !== policyFilter) return false;
-                            if (routeFilter !== 'All' && product.route !== routeFilter) return false;
-                            if (namespaceFilter !== 'All' && product.namespace !== namespaceFilter) return false;
-                            if (tagsFilter !== 'All' && !product.tags.includes(tagsFilter)) return false;
+                            if (policyFilter.length > 0 && !policyFilter.includes(product.policy)) return false;
+                            if (routeFilter.length > 0 && !routeFilter.includes(product.route)) return false;
+                            if (namespaceFilter.length > 0 && !namespaceFilter.includes(product.namespace)) return false;
+                            if (tagsFilter.length > 0 && !tagsFilter.some(tag => product.tags.includes(tag))) return false;
                             if (productSearchValue && !product.name.toLowerCase().includes(productSearchValue.toLowerCase())) return false;
                             return true;
                           })
@@ -709,11 +970,6 @@ const DeveloperPortal: React.FunctionComponent = () => {
                             <td style={{ padding: '12px' }}>{product.route}</td>
                             <td style={{ padding: '12px' }}>{product.policy}</td>
                               <td style={{ padding: '12px' }}>
-                              {product.tags.map(tag => (
-                                <Badge key={tag} isRead style={{ marginRight: '4px' }}>{tag}</Badge>
-                              ))}
-                              </td>
-                              <td style={{ padding: '12px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   {product.status === 'Draft' ? (
                                     <>
@@ -729,14 +985,14 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                 </div>
                               </td>
                             <td style={{ padding: '12px' }}>{product.namespace}</td>
-                            <td style={{ padding: '12px', paddingRight: '60px' }}>
-                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'flex-start' }}>
+                            <td style={{ padding: '12px' }}>
+                              <div style={{ display: 'flex', gap: '8px' }}>
                                 {product.status === 'Draft' ? (
                                   <Button variant="link" isInline onClick={() => {
                                     setApiProducts(prev => prev.map(p => 
                                       p.name === product.name ? { ...p, status: 'Published' as const } : p
                                     ));
-                                  }}>
+                                  }} style={{ padding: '0 4px', whiteSpace: 'nowrap' }}>
                                     Publish
                                   </Button>
                                 ) : (
@@ -744,16 +1000,16 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                     setApiProducts(prev => prev.map(p => 
                                       p.name === product.name ? { ...p, status: 'Draft' as const } : p
                                     ));
-                                  }}>
+                                  }} style={{ padding: '0 4px', whiteSpace: 'nowrap' }}>
                                     Unpublish
                                   </Button>
                                 )}
-                                <Button variant="plain" aria-label="Edit" onClick={() => {}} style={{ marginLeft: '0' }}>
+                                <Button variant="plain" aria-label="Edit" onClick={() => {}} style={{ padding: '4px', minWidth: 'auto' }}>
                                   <PencilAltIcon />
                                 </Button>
                                 <Button variant="plain" aria-label="Delete" onClick={() => {
                                   setApiProducts(prev => prev.filter(p => p.name !== product.name));
-                                }} style={{ marginLeft: '0' }}>
+                                }} style={{ padding: '4px', minWidth: 'auto' }}>
                                   <TrashIcon />
                                 </Button>
                               </div>
@@ -767,10 +1023,10 @@ const DeveloperPortal: React.FunctionComponent = () => {
                       <Pagination
                         itemCount={apiProducts.filter(product => {
                           if (statusFilter !== 'All' && product.status !== statusFilter) return false;
-                          if (policyFilter !== 'All' && product.policy !== policyFilter) return false;
-                          if (routeFilter !== 'All' && product.route !== routeFilter) return false;
-                          if (namespaceFilter !== 'All' && product.namespace !== namespaceFilter) return false;
-                          if (tagsFilter !== 'All' && !product.tags.includes(tagsFilter)) return false;
+                          if (policyFilter.length > 0 && !policyFilter.includes(product.policy)) return false;
+                          if (routeFilter.length > 0 && !routeFilter.includes(product.route)) return false;
+                          if (namespaceFilter.length > 0 && !namespaceFilter.includes(product.namespace)) return false;
+                          if (tagsFilter.length > 0 && !tagsFilter.some(tag => product.tags.includes(tag))) return false;
                           if (productSearchValue && !product.name.toLowerCase().includes(productSearchValue.toLowerCase())) return false;
                           return true;
                         }).length}
@@ -840,7 +1096,6 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 <TextInput
                   value={apiProductName}
                   onChange={(_, value) => setApiProductName(value)}
-                  placeholder="Air flight API"
                 />
                 <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
                   Give a unique name for your API product.

@@ -329,21 +329,9 @@ const APIs: React.FunctionComponent = () => {
           }} />
         </div>
 
-        {/* Search and Actions Row */}
-        <Grid hasGutter style={{ marginBottom: '24px' }}>
-          <GridItem span={3} style={{ display: 'flex', alignItems: 'flex-end' }}>
-            <SearchInput
-              placeholder="Search"
-              value={searchValue}
-              onChange={(_, value) => setSearchValue(value)}
-              onClear={() => setSearchValue('')}
-              style={{ width: '100%' }}
-            />
-          </GridItem>
-          <GridItem span={9} style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
-            <Button variant="primary" onClick={() => navigate('/register-component?source=apis')}>Register Existing API</Button>
-          </GridItem>
-        </Grid>
+        <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'flex-end' }}>
+          <Button variant="primary" onClick={() => navigate('/register-component?source=apis')}>Register Existing API</Button>
+        </div>
 
         <Grid hasGutter>
           {/* Left Sidebar - Filters */}
@@ -471,9 +459,18 @@ const APIs: React.FunctionComponent = () => {
           <GridItem span={9}>
             <Card>
               <CardBody>
-                <Title headingLevel="h2" size="lg" style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                  <Title headingLevel="h2" size="lg" style={{ marginBottom: 0 }}>
                     APIs
                   </Title>
+                  <SearchInput
+                    placeholder="Search"
+                    value={searchValue}
+                    onChange={(_, value) => setSearchValue(value)}
+                    onClear={() => setSearchValue('')}
+                    style={{ width: '100%', maxWidth: '300px' }}
+                  />
+                </div>
 
                 <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <thead>
@@ -500,7 +497,7 @@ const APIs: React.FunctionComponent = () => {
                           </Button>
                         </td>
                         <td style={{ padding: '12px' }}>{api.type}</td>
-                        <td style={{ padding: '12px' }}>{currentRole === 'API owner' ? 'API owner' : api.owner}</td>
+                        <td style={{ padding: '12px' }}>API owner</td>
                         <td style={{ padding: '12px' }}>{api.lifecycle}</td>
                         <td style={{ padding: '12px', fontSize: '14px', color: '#6a6e73', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {api.description}

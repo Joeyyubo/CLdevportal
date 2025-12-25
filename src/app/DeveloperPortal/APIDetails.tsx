@@ -112,6 +112,20 @@ const apiDetailsData: Record<string, any> = {
     lifecycle: 'production',
     updated: '15 MIN AGO',
     apiKeyRequest: 'Need approval',
+    // API Product fields
+    productDescription: 'Description of the API product.',
+    status: 'Draft',
+    version: 'V1',
+    namespace: 'namespace-1',
+    apiKeyApproval: 'Need manual approval',
+    api: 'Booking-api',
+    route: 'Booking-1',
+    policies: 'Booking-plans',
+    policiesTiers: [
+      { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
+      { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
+      { name: 'Bronze', value: '10/day', color: '#004d99', bgColor: '#e6f1fa' },
+    ],
   },
   'Create Booking API': {
     name: 'Create Booking API',
@@ -122,6 +136,20 @@ const apiDetailsData: Record<string, any> = {
     lifecycle: 'production',
     updated: '1 HOUR AGO',
     apiKeyRequest: 'Need approval',
+    // API Product fields
+    productDescription: 'Description of the API product.',
+    status: 'Draft',
+    version: 'V1',
+    namespace: 'namespace-1',
+    apiKeyApproval: 'Need manual approval',
+    api: 'Create-Booking-api',
+    route: 'Create-Booking-1',
+    policies: 'Create-Booking-plans',
+    policiesTiers: [
+      { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
+      { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
+      { name: 'Bronze', value: '10/day', color: '#004d99', bgColor: '#e6f1fa' },
+    ],
   },
   'Get Aircraft Details': {
     name: 'Get Aircraft Details',
@@ -202,6 +230,20 @@ const apiDetailsData: Record<string, any> = {
     lifecycle: 'production',
     updated: '2 MIN AGO',
     apiKeyRequest: 'No approval needed',
+    // API Product fields
+    productDescription: 'Description of the API product.',
+    status: 'Draft',
+    version: 'V1',
+    namespace: 'namespace-1',
+    apiKeyApproval: 'Need manual approval',
+    api: 'Airport-api',
+    route: 'Airport-1',
+    policies: 'Airport-plans',
+    policiesTiers: [
+      { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
+      { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
+      { name: 'Bronze', value: '10/day', color: '#004d99', bgColor: '#e6f1fa' },
+    ],
   },
   'Payment API': {
     name: 'Payment API',
@@ -212,6 +254,20 @@ const apiDetailsData: Record<string, any> = {
     lifecycle: 'production',
     updated: '15 MIN AGO',
     apiKeyRequest: 'Need approval',
+    // API Product fields
+    productDescription: 'Description of the API product.',
+    status: 'Draft',
+    version: 'V1',
+    namespace: 'namespace-1',
+    apiKeyApproval: 'Need manual approval',
+    api: 'Payment-api',
+    route: 'Payment-1',
+    policies: 'Payment-plans',
+    policiesTiers: [
+      { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
+      { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
+      { name: 'Bronze', value: '10/day', color: '#004d99', bgColor: '#e6f1fa' },
+    ],
   },
   'Aircraft API': {
     name: 'Aircraft API',
@@ -222,6 +278,20 @@ const apiDetailsData: Record<string, any> = {
     lifecycle: 'production',
     updated: '3 HOURS AGO',
     apiKeyRequest: 'No approval needed',
+    // API Product fields
+    productDescription: 'Description of the API product.',
+    status: 'Draft',
+    version: 'V1',
+    namespace: 'namespace-1',
+    apiKeyApproval: 'Need manual approval',
+    api: 'Aircraft-api',
+    route: 'Aircraft-1',
+    policies: 'Aircraft-plans',
+    policiesTiers: [
+      { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
+      { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
+      { name: 'Bronze', value: '10/day', color: '#004d99', bgColor: '#e6f1fa' },
+    ],
   },
   'Client API': {
     name: 'Client API',
@@ -232,6 +302,20 @@ const apiDetailsData: Record<string, any> = {
     lifecycle: 'production',
     updated: '2 MIN AGO',
     apiKeyRequest: 'No approval needed',
+    // API Product fields
+    productDescription: 'Description of the API product.',
+    status: 'Draft',
+    version: 'V1',
+    namespace: 'namespace-1',
+    apiKeyApproval: 'Need manual approval',
+    api: 'Client-api',
+    route: 'Client-1',
+    policies: 'Client-plans',
+    policiesTiers: [
+      { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
+      { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
+      { name: 'Bronze', value: '10/day', color: '#004d99', bgColor: '#e6f1fa' },
+    ],
   },
   'Aircraft Region API': {
     name: 'Aircraft Region API',
@@ -353,8 +437,12 @@ const APIDetails: React.FunctionComponent = () => {
         apiKeyApproval: 'Need manual approval',
         api: decodedApiName.toLowerCase().replace(/\s+/g, '-'),
         route: 'route-1',
-        policies: 'N/A',
-        policiesTiers: [],
+        policies: 'Default-plans',
+        policiesTiers: [
+          { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
+          { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
+          { name: 'Bronze', value: '10/day', color: '#004d99', bgColor: '#e6f1fa' },
+        ],
       } : apiDetailsData['Flights API']);
 
   // Initialize status from apiDetails

@@ -509,7 +509,67 @@ const APIDetailsPage: React.FunctionComponent = () => {
   };
   
   // Available tiers
-  const availableTiers = ['Gold', 'Silver', 'Bronze'];
+  const availableTiers = ['Gold(100/day)', 'Silver(50/day)', 'Bronze(10/day)'];
+
+  // Get tier background color
+  const getTierBackgroundColor = (tier: string): string => {
+    // Extract tier name from formats like "Gold(100/day)" or just "Gold"
+    const tierName = tier.split('(')[0].trim().toLowerCase();
+    if (tierName === 'gold') {
+      return '#fef5e7';
+    } else if (tierName === 'silver') {
+      return '#f5f5f5';
+    } else if (tierName === 'bronze') {
+      return '#e6f1fa';
+    }
+    return '#e6f1fa'; // default to bronze color
+  };
+
+  // Get tier text color
+  const getTierTextColor = (tier: string): string => {
+    // Extract tier name from formats like "Gold(100/day)" or just "Gold"
+    const tierName = tier.split('(')[0].trim().toLowerCase();
+    if (tierName === 'gold') {
+      return '#795600';
+    } else if (tierName === 'silver') {
+      return '#6a6e73';
+    } else if (tierName === 'bronze') {
+      return '#004d99';
+    }
+    return '#004d99'; // default to bronze color
+  };
+
+  // Format tier display text: "Gold(100/day)" -> "Gold: 100/day" or "Gold" -> "Gold: 100/day"
+  const formatTierDisplay = (tier: string): string => {
+    // If tier already contains parentheses, extract and format
+    if (tier.includes('(') && tier.includes(')')) {
+      const match = tier.match(/^([^(]+)\(([^)]+)\)/);
+      if (match) {
+        const tierName = match[1].trim();
+        const limit = match[2].trim();
+        return `${tierName}: ${limit}`;
+      }
+    }
+    // If tier is just the name, add default limits
+    const tierName = tier.split('(')[0].trim();
+    const tierLower = tierName.toLowerCase();
+    if (tierLower === 'gold') {
+      return 'Gold: 100/day';
+    } else if (tierLower === 'silver') {
+      return 'Silver: 50/day';
+    } else if (tierLower === 'bronze') {
+      return 'Bronze: 10/day';
+    }
+    return tier; // fallback
+  };
+
+  // Format tier display for table: "Gold(100/day)" -> "Gold" or "Gold" -> "Gold" (only tier name)
+  const formatTierDisplayForTable = (tier: string): string => {
+    // Extract tier name from formats like "Gold(100/day)" or just "Gold"
+    const tierName = tier.split('(')[0].trim();
+    // Capitalize first letter
+    return tierName.charAt(0).toUpperCase() + tierName.slice(1);
+  };
   
   const getCurrentRole = (): string => {
     try {
@@ -1431,7 +1491,21 @@ const APIDetailsPage: React.FunctionComponent = () => {
                                     {key.status}
                                   </Label>
                                 </td>
-                                <td style={{ padding: '12px' }}>{key.tiers}</td>
+                                <td style={{ padding: '12px' }}>
+                                  <Badge
+                                    isRead
+                                    style={{
+                                      backgroundColor: getTierBackgroundColor(key.tiers),
+                                      color: getTierTextColor(key.tiers),
+                                      border: `1px solid ${getTierTextColor(key.tiers)}`,
+                                      padding: '4px 8px',
+                                      borderRadius: '12px',
+                                      fontSize: '12px'
+                                    }}
+                                  >
+                                    {formatTierDisplayForTable(key.tiers)}
+                                  </Badge>
+                                </td>
                                 <td style={{ padding: '12px', color: '#6a6e73' }}>{key.activeTime}</td>
                                 <td style={{ padding: '12px' }}>
                                   <div style={{ display: 'flex', gap: '8px' }}>
@@ -1739,9 +1813,19 @@ const APIDetailsPage: React.FunctionComponent = () => {
                                   </Label>
                                 </td>
                                 <td style={{ padding: '12px' }}>
-                                  <Label color={key.tiers === 'Gold' ? 'yellow' : key.tiers === 'Silver' ? 'grey' : 'blue'}>
-                                    {key.tiers}
-                                  </Label>
+                                  <Badge
+                                    isRead
+                                    style={{
+                                      backgroundColor: getTierBackgroundColor(key.tiers),
+                                      color: getTierTextColor(key.tiers),
+                                      border: `1px solid ${getTierTextColor(key.tiers)}`,
+                                      padding: '4px 8px',
+                                      borderRadius: '12px',
+                                      fontSize: '12px'
+                                    }}
+                                  >
+                                    {formatTierDisplayForTable(key.tiers)}
+                                  </Badge>
                                 </td>
                                 <td style={{ padding: '12px' }}>
                                   <Button 
@@ -1924,16 +2008,11 @@ const APIDetailsPage: React.FunctionComponent = () => {
                   icon={null}
                   className="custom-tier-toggle"
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
                     <span style={{ flex: 1 }}>
                       {selectedTier || ''}
                     </span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto', paddingRight: '8px' }}>
-                      <CaretDownIcon style={{ 
-                        color: isTierFieldError ? '#C7C7C7' : '#151515',
-                        fontSize: '14px',
-                        flexShrink: 0
-                      }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px' }}>
                       {isTierFieldError && (
                         <div style={{ 
                           width: '16px', 
@@ -1948,6 +2027,12 @@ const APIDetailsPage: React.FunctionComponent = () => {
                           <ExclamationCircleIcon style={{ color: 'white', fontSize: '10px' }} />
                         </div>
                       )}
+                      <CaretDownIcon style={{ 
+                        color: isTierFieldError ? '#C7C7C7' : '#151515',
+                        fontSize: '14px',
+                        flexShrink: 0,
+                        marginRight: '8px'
+                      }} />
                     </div>
                   </div>
                 </MenuToggle>

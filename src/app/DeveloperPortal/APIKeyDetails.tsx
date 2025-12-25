@@ -62,7 +62,6 @@ import {
   StarIcon,
   UserIcon,
   HelpIcon,
-  BellIcon,
   EllipsisVIcon,
   CopyIcon,
   ArrowUpIcon,
@@ -341,7 +340,6 @@ const APIKeyDetails: React.FunctionComponent = () => {
   const apiNameFromQuery = searchParams.get('apiName');
   const source = searchParams.get('source');
   const [activeTab, setActiveTab] = React.useState(0);
-  const [copiedCode, setCopiedCode] = React.useState(false);
   const [copiedApiKey, setCopiedApiKey] = React.useState(false);
   const [connectivityLinkExpanded, setConnectivityLinkExpanded] = React.useState(true);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = React.useState(false);
@@ -486,24 +484,10 @@ const APIKeyDetails: React.FunctionComponent = () => {
     }
   };
 
-  const handleCopyCode = () => {
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2000);
-  };
-
   const handleCopyApiKey = () => {
     setCopiedApiKey(true);
     setTimeout(() => setCopiedApiKey(false), 2000);
   };
-
-  const copyText = `curl -X POST ${keyDetails.apiUrl} \\
--H "Content-Type: application/json" \\
--H "Authorization: Bearer ${keyDetails.apiKey}" \\
--d'{
-"API": "${keyDetails.apiName}",
-],
-"max_rate limits": 150
-}'`;
 
   const masthead = (
     <Masthead>
@@ -542,13 +526,6 @@ const APIKeyDetails: React.FunctionComponent = () => {
       </MastheadMain>
       <MastheadContent>
         <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'flex-end', gap: '16px' }}>
-          <Button
-            variant="plain"
-            aria-label="Notifications"
-            style={{ color: '#151515' }}
-          >
-            <BellIcon />
-          </Button>
           <Dropdown
             isOpen={isUserDropdownOpen}
             onSelect={handleUserDropdownSelect}
@@ -847,7 +824,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
 
           {activeTab === 0 && (
             <Grid hasGutter>
-              <GridItem span={5}>
+              <GridItem span={12}>
                 <Card style={{ height: '100%' }}>
                   <CardBody>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
@@ -950,38 +927,6 @@ const APIKeyDetails: React.FunctionComponent = () => {
                   </CardBody>
                 </Card>
               </GridItem>
-
-              {keyDetails.status === 'Active' && (
-                <GridItem span={7}>
-                  <Card style={{ height: '100%' }}>
-                    <CardBody>
-                      <Title headingLevel="h3" size="lg" style={{ marginBottom: '16px' }}>
-                        Usage example
-                      </Title>
-                      <p style={{ marginBottom: '16px', color: '#151515' }}>
-                        Use this API key to authenticate requests to the "{keyDetails.apiName}" endpoint:
-                      </p>
-                      <div style={{ position: 'relative', backgroundColor: '#f8f8f8', borderRadius: '4px', padding: '16px' }}>
-                        <Tooltip content={copiedCode ? "Copied!" : "Copy to clipboard"}>
-                          <Button
-                            variant="plain"
-                            onClick={() => {
-                              navigator.clipboard.writeText(copyText);
-                              handleCopyCode();
-                            }}
-                            style={{ position: 'absolute', top: '8px', right: '8px' }}
-                          >
-                            <CopyIcon />
-                          </Button>
-                        </Tooltip>
-                        <pre style={{ margin: 0, fontFamily: 'monospace', fontSize: '14px', color: '#151515', whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-                          {copyText}
-                        </pre>
-                      </div>
-                    </CardBody>
-                  </Card>
-                </GridItem>
-              )}
             </Grid>
           )}
 

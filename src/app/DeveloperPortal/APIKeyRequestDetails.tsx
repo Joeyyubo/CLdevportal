@@ -58,7 +58,6 @@ import {
   CodeIcon,
   UserIcon,
   HelpIcon,
-  BellIcon,
   CodeBranchIcon,
   UsersIcon,
   ClockIcon,
