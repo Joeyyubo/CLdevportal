@@ -856,7 +856,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
                       </DescriptionListGroup>
                       
                       <DescriptionListGroup>
-                        <DescriptionListTerm>Name</DescriptionListTerm>
+                        <DescriptionListTerm>API key name</DescriptionListTerm>
                         <DescriptionListDescription>
                           <Button 
                             variant="link" 
@@ -865,29 +865,6 @@ const APIKeyDetails: React.FunctionComponent = () => {
                           >
                             {keyDetails.name}
                           </Button>
-                        </DescriptionListDescription>
-                      </DescriptionListGroup>
-
-                      <DescriptionListGroup>
-                        <DescriptionListTerm>API key</DescriptionListTerm>
-                        <DescriptionListDescription>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontFamily: 'monospace', fontSize: '14px', color: '#6a6e73' }}>
-                              {keyDetails.apiKey}*****************
-                            </span>
-                            <Tooltip content={copiedApiKey ? "Copied!" : "Copy to clipboard"}>
-                              <Button
-                                variant="plain"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(keyDetails.apiKey);
-                                  handleCopyApiKey();
-                                }}
-                                style={{ padding: '4px' }}
-                              >
-                                <CopyIcon style={{ fontSize: '16px' }} />
-                              </Button>
-                            </Tooltip>
-                          </div>
                         </DescriptionListDescription>
                       </DescriptionListGroup>
 
