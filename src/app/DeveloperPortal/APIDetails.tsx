@@ -415,6 +415,23 @@ const APIDetails: React.FunctionComponent = () => {
   // Publish notification state
   const [showPublishNotification, setShowPublishNotification] = React.useState(false);
   const [apiProductStatus, setApiProductStatus] = React.useState<string>('Draft');
+  
+  // Create success notification state - check URL parameter
+  const searchParams = new URLSearchParams(location.search);
+  const isCreated = searchParams.get('created') === 'true';
+  const [showCreateNotification, setShowCreateNotification] = React.useState(isCreated);
+  
+  // Auto-hide create notification after 10 seconds
+  React.useEffect(() => {
+    if (isCreated && showCreateNotification) {
+      const timer = setTimeout(() => {
+        setShowCreateNotification(false);
+        // Remove the query parameter from URL
+        navigate(location.pathname, { replace: true });
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [isCreated, showCreateNotification, navigate, location.pathname]);
 
   // Decode API name from URL and get details
   const decodedApiName = apiName ? decodeURIComponent(apiName) : '';
@@ -701,11 +718,40 @@ const APIDetails: React.FunctionComponent = () => {
 
   return (
     <>
+      {/* Create Success Notification */}
+      {showCreateNotification && (
+        <div style={{
+          position: 'fixed',
+          top: '80px',
+          right: '24px',
+          zIndex: 1000,
+          maxWidth: '500px',
+          width: '100%'
+        }}>
+          <Alert
+            variant="success"
+            isLiveRegion
+            title="API product has been successfully created"
+            actionClose={
+              <AlertActionCloseButton onClose={() => {
+                setShowCreateNotification(false);
+                // Remove the query parameter from URL
+                navigate(location.pathname, { replace: true });
+              }} />
+            }
+          >
+            <div style={{ marginTop: '8px', fontSize: '14px' }}>
+              API product: {apiDetails.name}
+            </div>
+          </Alert>
+        </div>
+      )}
+      
       {/* Publish Notification */}
       {showPublishNotification && (
         <div style={{
           position: 'fixed',
-          top: '80px',
+          top: showCreateNotification ? '180px' : '80px',
           right: '24px',
           zIndex: 1000,
           maxWidth: '500px',

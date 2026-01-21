@@ -138,10 +138,6 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const [openApiSpecUrlError, setOpenApiSpecUrlError] = React.useState<string>('');
   const [isOpenApiSpecMenuOpen, setIsOpenApiSpecMenuOpen] = React.useState(false);
   
-  // Success notification state
-  const [showSuccessNotification, setShowSuccessNotification] = React.useState(false);
-  const [createdApiProductName, setCreatedApiProductName] = React.useState('');
-  
   // Publish notification state
   const [showPublishNotification, setShowPublishNotification] = React.useState(false);
   const [publishedApiProductName, setPublishedApiProductName] = React.useState('');
@@ -477,45 +473,12 @@ const DeveloperPortal: React.FunctionComponent = () => {
 
   return (
     <>
-      {/* Success Notification */}
-      {showSuccessNotification && (
-        <div style={{
-          position: 'fixed',
-          top: '80px',
-          right: '24px',
-          zIndex: 1000,
-          maxWidth: '500px',
-          width: '100%'
-        }}>
-          <Alert
-            variant="success"
-            isLiveRegion
-            title="API product has been successfully created"
-            actionLinks={
-              <AlertActionLink onClick={() => {
-                // Navigate to API product details page
-                navigate(`/developer-portal/api-details/${encodeURIComponent(createdApiProductName)}`);
-                setShowSuccessNotification(false);
-              }}>
-                View details
-              </AlertActionLink>
-            }
-            actionClose={
-              <AlertActionCloseButton onClose={() => setShowSuccessNotification(false)} />
-            }
-          >
-            <div style={{ marginTop: '8px', fontSize: '14px' }}>
-              API product: {createdApiProductName}
-            </div>
-          </Alert>
-        </div>
-      )}
 
       {/* Publish Notification */}
       {showPublishNotification && (
         <div style={{
           position: 'fixed',
-          top: showSuccessNotification ? '180px' : '80px',
+          top: '80px',
           right: '24px',
           zIndex: 1000,
           maxWidth: '500px',
@@ -1473,14 +1436,8 @@ const DeveloperPortal: React.FunctionComponent = () => {
               setHttpRoutePolicies('');
               setApiKeyApproval('manual');
               
-              // Show success notification
-              setCreatedApiProductName(productName);
-              setShowSuccessNotification(true);
-              
-              // Auto-hide notification after 10 seconds
-              setTimeout(() => {
-                setShowSuccessNotification(false);
-              }, 10000);
+              // Navigate to API product details page with created parameter
+              navigate(`/developer-portal/api-details/${encodeURIComponent(productName)}?created=true`);
             }}
             isDisabled={!apiProductName || !resourceName || !version || !openApiSpecUrl || !selectedHttpRoute}
           >
