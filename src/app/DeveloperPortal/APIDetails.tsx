@@ -432,6 +432,7 @@ const APIDetails: React.FunctionComponent = () => {
       }, 10000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [isCreated, showCreateNotification, navigate, location.pathname]);
 
   // Decode API name from URL and get details
