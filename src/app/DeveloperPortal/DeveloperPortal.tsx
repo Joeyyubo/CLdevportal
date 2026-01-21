@@ -882,9 +882,16 @@ const DeveloperPortal: React.FunctionComponent = () => {
                   <Card>
                     <CardBody style={{ overflow: 'hidden' }}>
                       <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Title headingLevel="h2" size="lg">
-                          API product
-                        </Title>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Title headingLevel="h2" size="lg">
+                            API product
+                          </Title>
+                          <Tooltip content="A basic unit consisting of API resources, HTTPRoute rules, and policies for subscription.">
+                            <Button variant="plain" aria-label="Info" style={{ padding: '4px' }}>
+                              <InfoCircleIcon style={{ fontSize: '16px', color: '#151515' }} />
+                            </Button>
+                          </Tooltip>
+                        </div>
                         <SearchInput
                           placeholder="Search"
                           value={productSearchValue}
@@ -1300,7 +1307,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
             <Title headingLevel="h3" size="md" style={{ marginBottom: 0 }}>
               HTTPRoute policies
             </Title>
-            <Tooltip content="Information about HTTPRoute policies">
+            <Tooltip content="Policies attach to a certain HTTPRoute">
               <Button variant="plain" aria-label="Info" style={{ padding: '4px' }}>
                 <InfoCircleIcon style={{ fontSize: '16px', color: '#151515' }} />
               </Button>
