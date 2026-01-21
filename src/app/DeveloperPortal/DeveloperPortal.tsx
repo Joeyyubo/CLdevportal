@@ -1295,21 +1295,19 @@ const DeveloperPortal: React.FunctionComponent = () => {
 
           <Divider style={{ marginBottom: '24px' }} />
 
-          {/* HTTPRoute policies - only show when a route is selected */}
-          {selectedHttpRoute && (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <Title headingLevel="h3" size="md" style={{ marginBottom: 0 }}>
-                  HTTPRoute policies
-                </Title>
-                <Tooltip content="Information about HTTPRoute policies">
-                  <Button variant="plain" aria-label="Info" style={{ padding: '4px' }}>
-                    <InfoCircleIcon style={{ fontSize: '16px', color: '#151515' }} />
-                  </Button>
-                </Tooltip>
-              </div>
+          {/* HTTPRoute policies - always show */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+            <Title headingLevel="h3" size="md" style={{ marginBottom: 0 }}>
+              HTTPRoute policies
+            </Title>
+            <Tooltip content="Information about HTTPRoute policies">
+              <Button variant="plain" aria-label="Info" style={{ padding: '4px' }}>
+                <InfoCircleIcon style={{ fontSize: '16px', color: '#151515' }} />
+              </Button>
+            </Tooltip>
+          </div>
 
-              {selectedRouteObject && selectedRouteObject.planPolicy && selectedRouteObject.planPolicy !== 'N/A' && selectedRouteObject.planDetails ? (
+          {selectedHttpRoute && selectedRouteObject && selectedRouteObject.planPolicy && selectedRouteObject.planPolicy !== 'N/A' && selectedRouteObject.planDetails ? (
             <Card style={{ marginBottom: '24px', border: '1px solid #d0d0d0' }}>
               <CardBody>
                 <div style={{ marginBottom: '12px' }}>
@@ -1353,7 +1351,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 </div>
               </CardBody>
             </Card>
-          ) : selectedRouteObject && selectedRouteObject.planPolicy === 'N/A' ? (
+          ) : selectedHttpRoute && selectedRouteObject && selectedRouteObject.planPolicy === 'N/A' ? (
             <Alert
               variant="warning"
               title="PlanPolicy association Failed: PlanPolicy does not have the right auth policy"
@@ -1368,7 +1366,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 PlanPolicy configuration
               </Button>
             </Alert>
-          ) : (
+          ) : selectedHttpRoute ? (
             <FormGroup style={{ marginBottom: '24px' }}>
               <TextArea
                 value={httpRoutePolicies}
@@ -1377,8 +1375,11 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 placeholder=""
               />
             </FormGroup>
-          )}
-            </>
+          ) : (
+            <Card style={{ marginBottom: '24px', border: '1px solid #d0d0d0', backgroundColor: '#fafafa' }}>
+              <CardBody>
+              </CardBody>
+            </Card>
           )}
 
           <Divider style={{ marginBottom: '24px' }} />
@@ -1424,6 +1425,26 @@ const DeveloperPortal: React.FunctionComponent = () => {
             onClick={() => {
               // Handle create logic here
               const productName = apiProductName;
+              
+              // Get the selected route object to extract policy
+              const routeObject = selectedRouteObject;
+              const policy = httpRoutePolicies || routeObject?.planPolicy || 'N/A';
+              
+              // Create new API product object
+              const newProduct: APIProduct = {
+                name: productName,
+                version: version,
+                route: selectedHttpRoute,
+                policy: policy,
+                tags: [selectedTag],
+                status: 'Draft',
+                namespace: 'namespace-1' // Default namespace, can be enhanced later
+              };
+              
+              // Add the new product to the list
+              setApiProducts(prev => [...prev, newProduct]);
+              
+              // Reset form
               setIsCreateModalOpen(false);
               setApiProductName('');
               setResourceName('');

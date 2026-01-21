@@ -29,6 +29,7 @@ import {
   Card,
   CardBody,
   Badge,
+  Label,
   Breadcrumb,
   BreadcrumbItem,
   DescriptionList,
@@ -792,6 +793,18 @@ const APIDetails: React.FunctionComponent = () => {
             <Button variant="plain" aria-label="Star" onClick={handleStarClick}>
               <StarIcon style={{ fill: isStarred ? '#0066CC' : 'inherit' }} />
             </Button>
+            <Label
+              variant="outline"
+              icon={
+                apiProductStatus === 'Published' ? <CheckCircleIcon /> : null
+              }
+              color={
+                apiProductStatus === 'Published' ? 'green' : 'grey'
+              }
+              style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}
+            >
+              {apiProductStatus}
+            </Label>
           </div>
 
           <Tabs activeKey={activeTab} onSelect={handleTabClick} style={{ marginBottom: '24px' }}>
@@ -839,9 +852,18 @@ const APIDetails: React.FunctionComponent = () => {
                     <DescriptionListGroup>
                       <DescriptionListTerm>STATUS</DescriptionListTerm>
                       <DescriptionListDescription>
-                        <Badge isRead style={{ backgroundColor: '#f5f5f5', color: '#151515' }}>
+                        <Label
+                          variant="outline"
+                          icon={
+                            apiProductStatus === 'Published' ? <CheckCircleIcon /> : null
+                          }
+                          color={
+                            apiProductStatus === 'Published' ? 'green' : 'grey'
+                          }
+                          style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}
+                        >
                           {apiProductStatus}
-                        </Badge>
+                        </Label>
                       </DescriptionListDescription>
                     </DescriptionListGroup>
 
