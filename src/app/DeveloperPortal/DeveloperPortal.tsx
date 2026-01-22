@@ -507,7 +507,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
               API Product
           </Title>
             <p style={{ fontSize: '14px', color: '#6a6e73', marginBottom: '16px' }}>
-              Manage your API product before publishing.
+              Make your API discoverable and usable within an enterprise.
             </p>
             
             {/* Divider line */}
@@ -886,7 +886,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                           <Title headingLevel="h2" size="lg">
                             API product
                           </Title>
-                          <Tooltip content="A basic unit consisting of API resources, HTTPRoute rules, and policies for subscription.">
+                          <Tooltip content="A basic unit consisting of API resources, HTTPRoute route, and its associated policies.">
                             <Button variant="plain" aria-label="Info" style={{ padding: '4px' }}>
                               <InfoCircleIcon style={{ fontSize: '16px', color: '#151515' }} />
                             </Button>
