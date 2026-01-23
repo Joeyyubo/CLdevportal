@@ -9,6 +9,7 @@ import { Observability } from '@app/DeveloperPortal/Observability';
 import { APIKeyDetails } from '@app/DeveloperPortal/APIKeyDetails';
 import { APIKeyRequestDetails } from '@app/DeveloperPortal/APIKeyRequestDetails';
 import CreateAPIProduct from '@app/DeveloperPortal/CreateAPIProduct';
+import EditAPIProduct from '@app/DeveloperPortal/EditAPIProduct';
 import APIs from '@app/APIs/APIs';
 import APIDetailsPage from '@app/APIs/APIDetailsPage';
 import SelfService from '@app/SelfService/SelfService';
@@ -83,6 +84,9 @@ const App: React.FunctionComponent = () => {
         
         {/* Create API Product page */}
         <Route path="/developer-portal/create-api-product" element={<CreateAPIProduct />} />
+        
+        {/* Edit API Product page */}
+        <Route path="/developer-portal/edit-api-product/:apiName" element={<EditAPIProduct />} />
         
         {/* API Keys page */}
         <Route path="/developer-portal/api-keys" element={<APIKeys />} />

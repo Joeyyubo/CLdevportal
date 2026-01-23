@@ -96,8 +96,10 @@ const apiDetailsData: Record<string, any> = {
     namespace: 'namespace-1',
     apiKeyApproval: 'Need manual approval',
     api: 'Air-flight-api',
+    resourceName: 'air-flight-api',
     route: 'Airflight-1',
     policies: 'Airflight-plans',
+    openApiSpecUrl: 'https://github.com/backstage/flights-api/blob/main/openapi.yaml',
     policiesTiers: [
       { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
       { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
@@ -120,8 +122,10 @@ const apiDetailsData: Record<string, any> = {
     namespace: 'namespace-1',
     apiKeyApproval: 'Need manual approval',
     api: 'Booking-api',
+    resourceName: 'booking-api',
     route: 'Booking-1',
     policies: 'Booking-plans',
+    openApiSpecUrl: 'https://github.com/backstage/booking-api/blob/main/openapi.yaml',
     policiesTiers: [
       { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
       { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
@@ -144,8 +148,10 @@ const apiDetailsData: Record<string, any> = {
     namespace: 'namespace-1',
     apiKeyApproval: 'Need manual approval',
     api: 'Create-Booking-api',
+    resourceName: 'create-booking-api',
     route: 'Create-Booking-1',
     policies: 'Create-Booking-plans',
+    openApiSpecUrl: 'https://github.com/backstage/create-booking-api/blob/main/openapi.yaml',
     policiesTiers: [
       { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
       { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
@@ -238,8 +244,10 @@ const apiDetailsData: Record<string, any> = {
     namespace: 'namespace-1',
     apiKeyApproval: 'Need manual approval',
     api: 'Airport-api',
+    resourceName: 'airport-api',
     route: 'Airport-1',
     policies: 'Airport-plans',
+    openApiSpecUrl: 'https://github.com/backstage/airport-api/blob/main/openapi.yaml',
     policiesTiers: [
       { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
       { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
@@ -262,8 +270,10 @@ const apiDetailsData: Record<string, any> = {
     namespace: 'namespace-1',
     apiKeyApproval: 'Need manual approval',
     api: 'Payment-api',
+    resourceName: 'payment-api',
     route: 'Payment-1',
     policies: 'Payment-plans',
+    openApiSpecUrl: 'https://github.com/backstage/payment-api/blob/main/openapi.yaml',
     policiesTiers: [
       { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
       { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
@@ -286,8 +296,10 @@ const apiDetailsData: Record<string, any> = {
     namespace: 'namespace-1',
     apiKeyApproval: 'Need manual approval',
     api: 'Aircraft-api',
+    resourceName: 'aircraft-api',
     route: 'Aircraft-1',
     policies: 'Aircraft-plans',
+    openApiSpecUrl: 'https://github.com/backstage/aircraft-api/blob/main/openapi.yaml',
     policiesTiers: [
       { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
       { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
@@ -310,8 +322,10 @@ const apiDetailsData: Record<string, any> = {
     namespace: 'namespace-1',
     apiKeyApproval: 'Need manual approval',
     api: 'Client-api',
+    resourceName: 'client-api',
     route: 'Client-1',
     policies: 'Client-plans',
+    openApiSpecUrl: 'https://github.com/backstage/client-api/blob/main/openapi.yaml',
     policiesTiers: [
       { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
       { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
@@ -437,32 +451,53 @@ const APIDetails: React.FunctionComponent = () => {
 
   // Decode API name from URL and get details
   const decodedApiName = apiName ? decodeURIComponent(apiName) : '';
-  const apiDetails = decodedApiName && apiDetailsData[decodedApiName] 
-    ? apiDetailsData[decodedApiName] 
-    : (decodedApiName ? {
-        name: decodedApiName,
-        tag: 'Unknown',
-        contact: 'Unknown',
-        owner: 'Unknown',
-        description: 'API details not available',
-        lifecycle: 'staging',
-        updated: 'Unknown',
-        apiKeyRequest: 'Need approval',
-        // Default API Product fields
-        productDescription: 'Description of the API product.',
-        status: 'Draft',
-        version: 'V1',
-        namespace: 'namespace-1',
-        apiKeyApproval: 'Need manual approval',
-        api: decodedApiName.toLowerCase().replace(/\s+/g, '-'),
-        route: 'route-1',
-        policies: 'Default-plans',
-        policiesTiers: [
-          { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
-          { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
-          { name: 'Bronze', value: '10/day', color: '#004d99', bgColor: '#e6f1fa' },
-        ],
-      } : apiDetailsData['Flights API']);
+  
+  // Try to get product details from localStorage first (for newly created products)
+  const getStoredProductDetails = (): any => {
+    try {
+      const storedProducts = localStorage.getItem('apiProductDetails');
+      if (storedProducts) {
+        const productsMap = JSON.parse(storedProducts);
+        return productsMap[decodedApiName] || null;
+      }
+    } catch (e) {
+      console.error('Failed to read product details from localStorage:', e);
+    }
+    return null;
+  };
+  
+  const storedProductDetails = getStoredProductDetails();
+  
+  const apiDetails = storedProductDetails 
+    ? { ...apiDetailsData[decodedApiName] || {}, ...storedProductDetails }
+    : (decodedApiName && apiDetailsData[decodedApiName] 
+      ? apiDetailsData[decodedApiName] 
+      : (decodedApiName ? {
+          name: decodedApiName,
+          tag: 'Unknown',
+          contact: 'Unknown',
+          owner: 'Unknown',
+          description: 'API details not available',
+          lifecycle: 'staging',
+          updated: 'Unknown',
+          apiKeyRequest: 'Need approval',
+          // Default API Product fields
+          productDescription: 'Description of the API product.',
+          status: 'Draft',
+          version: 'V1',
+          namespace: 'namespace-1',
+          apiKeyApproval: 'Need manual approval',
+          api: decodedApiName.toLowerCase().replace(/\s+/g, '-'),
+          resourceName: decodedApiName.toLowerCase().replace(/\s+/g, '-'),
+          route: 'route-1',
+          policies: 'Default-plans',
+          openApiSpecUrl: `https://github.com/backstage/${decodedApiName.toLowerCase().replace(/\s+/g, '-')}/blob/main/openapi.yaml`,
+          policiesTiers: [
+            { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
+            { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
+            { name: 'Bronze', value: '10/day', color: '#004d99', bgColor: '#e6f1fa' },
+          ],
+        } : apiDetailsData['Flights API']));
 
   // Initialize status from apiDetails
   React.useEffect(() => {
@@ -830,7 +865,11 @@ const APIDetails: React.FunctionComponent = () => {
                           Unpublish API product
                         </Button>
                       )}
-                      <Button variant="plain" aria-label="Edit">
+                      <Button 
+                        variant="plain" 
+                        aria-label="Edit"
+                        onClick={() => navigate(`/developer-portal/edit-api-product/${encodeURIComponent(decodedApiName)}`)}
+                      >
                         <PencilAltIcon />
                       </Button>
                       <Button variant="plain" aria-label="Delete">
@@ -893,6 +932,24 @@ const APIDetails: React.FunctionComponent = () => {
                     <DescriptionListGroup>
                       <DescriptionListTerm>API</DescriptionListTerm>
                       <DescriptionListDescription>{apiDetails.api || apiDetails.name.toLowerCase().replace(/\s+/g, '-')}</DescriptionListDescription>
+                    </DescriptionListGroup>
+
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>RESOURCE NAME</DescriptionListTerm>
+                      <DescriptionListDescription>{apiDetails.api || apiDetails.resourceName || apiDetails.name.toLowerCase().replace(/\s+/g, '-')}</DescriptionListDescription>
+                    </DescriptionListGroup>
+
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>OPEN API SPEC URL</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        {apiDetails.openApiSpecUrl ? (
+                          <a href={apiDetails.openApiSpecUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#0066cc', textDecoration: 'underline' }}>
+                            {apiDetails.openApiSpecUrl}
+                          </a>
+                        ) : (
+                          <span style={{ color: '#6a6e73' }}>Not specified</span>
+                        )}
+                      </DescriptionListDescription>
                     </DescriptionListGroup>
 
                     <DescriptionListGroup>

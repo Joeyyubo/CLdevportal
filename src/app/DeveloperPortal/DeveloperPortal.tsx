@@ -95,6 +95,10 @@ interface APIProduct {
   tags: string[];
   status: 'Draft' | 'Published';
   namespace: string;
+  resourceName?: string;
+  openApiSpecUrl?: string;
+  description?: string;
+  apiKeyApproval?: 'manual' | 'automatic';
 }
 
 // Initial API products data
@@ -1445,11 +1449,38 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 policy: policy,
                 tags: [selectedTag],
                 status: 'Draft',
-                namespace: 'namespace-1' // Default namespace, can be enhanced later
+                namespace: 'namespace-1', // Default namespace, can be enhanced later
+                resourceName: resourceName,
+                openApiSpecUrl: openApiSpecUrl,
+                description: description,
+                apiKeyApproval: apiKeyApproval
               };
               
               // Add the new product to the list
               setApiProducts(prev => [...prev, newProduct]);
+              
+              // Save product details to localStorage for APIDetails and EditAPIProduct to access
+              try {
+                const productDetails = {
+                  name: productName,
+                  tag: selectedTag,
+                  productDescription: description,
+                  status: 'Draft',
+                  version: version,
+                  namespace: 'namespace-1',
+                  apiKeyApproval: apiKeyApproval === 'manual' ? 'Need manual approval' : 'Automatic',
+                  api: resourceName,
+                  route: selectedHttpRoute,
+                  policies: policy,
+                  openApiSpecUrl: openApiSpecUrl
+                };
+                const storedProducts = localStorage.getItem('apiProductDetails');
+                const productsMap = storedProducts ? JSON.parse(storedProducts) : {};
+                productsMap[productName] = productDetails;
+                localStorage.setItem('apiProductDetails', JSON.stringify(productsMap));
+              } catch (e) {
+                console.error('Failed to save product details to localStorage:', e);
+              }
               
               // Reset form
               setIsCreateModalOpen(false);
