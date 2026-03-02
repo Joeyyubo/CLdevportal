@@ -41,6 +41,8 @@ import {
   DrawerPanelContent,
   DrawerPanelBody,
 } from '@patternfly/react-core';
+import { ApiProductsNavIcon } from '../DeveloperPortal/ApiProductsNavIcon';
+import { InfoIconOutline } from '../DeveloperPortal/InfoIconOutline';
 import {
   HomeIcon,
   ArchiveIcon,
@@ -61,7 +63,6 @@ import {
   CheckCircleIcon,
   TimesCircleIcon,
   BellIcon,
-  InfoCircleIcon,
   AngleRightIcon,
   AngleDownIcon,
 } from '@patternfly/react-icons';
@@ -299,14 +300,14 @@ const Policies: React.FunctionComponent = () => {
   
   const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
 
-  // Keep Connectivity Link expanded for API owner
+  // Keep Kuadrant nav expanded for API owner
   React.useEffect(() => {
     if (currentRole === 'API owner') {
       setConnectivityLinkExpanded(true);
     }
   }, [currentRole]);
 
-  // Ensure Connectivity Link stays expanded for API owner even if state changes
+  // Ensure Kuadrant nav stays expanded for API owner even if state changes
   React.useEffect(() => {
     if (currentRole === 'API owner' && !connectivityLinkExpanded) {
       setConnectivityLinkExpanded(true);
@@ -351,7 +352,7 @@ const Policies: React.FunctionComponent = () => {
     } else {
       navigate('/developer-portal');
     }
-    // Ensure Connectivity Link stays expanded for API owner after navigation
+    // Ensure Kuadrant nav stays expanded for API owner after navigation
     if (currentRole === 'API owner') {
       setConnectivityLinkExpanded(true);
     }
@@ -573,11 +574,11 @@ const Policies: React.FunctionComponent = () => {
               title={
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                    <rect width="16" height="16" rx="3" fill="black"/>
-                    <path d="M 5 6 L 8 4 L 11 6 L 11 10 L 8 12 L 5 10 Z" stroke="white" strokeWidth="1" fill="none" strokeLinejoin="round"/>
-                    <path d="M 6 7 L 9 5 L 12 7 L 12 11 L 9 13 L 6 11 Z" stroke="#CC0000" strokeWidth="1.5" fill="none" strokeLinejoin="round" opacity="0.8"/>
+                    <rect x="2" y="2" width="2" height="12" rx="1" fill="black"/>
+                    <path d="M 6 4 L 6 12 L 14 8 L 6 4 Z" fill="black"/>
+                    <path d="M 8 8 L 14 4 L 14 12 L 8 8 Z" fill="black" opacity="0.85"/>
                   </svg>
-                  Connectivity Link
+                  Kuadrant
                 </span>
               }
               id="connectivity-link-group"
@@ -589,7 +590,7 @@ const Policies: React.FunctionComponent = () => {
                 }
               }}
             >
-              <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+              <NavItem itemId="dev-portal" icon={<ApiProductsNavIcon />} onClick={() => handleNavClick('dev-portal')}>
                 My APIs
               </NavItem>
               {currentRole === 'API owner' && (
@@ -617,13 +618,13 @@ const Policies: React.FunctionComponent = () => {
   const getNotificationIcon = (variant: string) => {
     switch (variant) {
       case 'info':
-        return <InfoCircleIcon />;
+        return <InfoIconOutline size={16} />;
       case 'success':
         return <CheckCircleIcon />;
       case 'warning':
         return <ExclamationTriangleIcon />;
       default:
-        return <InfoCircleIcon />;
+        return <InfoIconOutline size={16} />;
     }
   };
 

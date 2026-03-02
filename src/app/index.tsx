@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AppLayout } from '@app/AppLayout/AppLayout';
 import { DeveloperPortal } from '@app/DeveloperPortal/DeveloperPortal';
 import { APIDetails } from '@app/DeveloperPortal/APIDetails';
+import { EditAPIProductModalProvider } from '@app/DeveloperPortal/EditAPIProductModalContext';
 import { APIKeys } from '@app/DeveloperPortal/APIKeys';
 import { Observability } from '@app/DeveloperPortal/Observability';
 import { APIKeyDetails } from '@app/DeveloperPortal/APIKeyDetails';
@@ -39,6 +40,7 @@ const App: React.FunctionComponent = () => {
 
   return (
     <Router>
+      <EditAPIProductModalProvider>
       <Routes>
         {/* Root redirects to home */}
         <Route path="/" element={<Navigate to="/home" replace />} />
@@ -88,8 +90,11 @@ const App: React.FunctionComponent = () => {
         {/* Edit API Product page */}
         <Route path="/developer-portal/edit-api-product/:apiName" element={<EditAPIProduct />} />
         
-        {/* API Keys page */}
+        {/* API Keys page (My API keys) */}
         <Route path="/developer-portal/api-keys" element={<APIKeys />} />
+        
+        {/* API Keys approval page */}
+        <Route path="/developer-portal/api-keys-approval" element={<APIKeys />} />
         
         {/* API Details page with dynamic API name */}
         <Route path="/developer-portal/api-details/:apiName" element={<APIDetails />} />
@@ -113,6 +118,7 @@ const App: React.FunctionComponent = () => {
           }
         />
       </Routes>
+      </EditAPIProductModalProvider>
     </Router>
   );
 };

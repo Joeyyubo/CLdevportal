@@ -49,11 +49,15 @@ import {
   TextArea,
   FormGroup,
 } from '@patternfly/react-core';
+import { ApiProductsNavIcon } from './ApiProductsNavIcon';
+import { useEditAPIProductModal, type SavePayload } from './EditAPIProductModalContext';
 import {
   UserIcon,
   HomeIcon,
   ArchiveIcon,
   CogIcon,
+  KeyIcon,
+  ClipboardCheckIcon,
   FileAltIcon,
   GraduationCapIcon,
   PlusCircleIcon,
@@ -104,6 +108,10 @@ const apiDetailsData: Record<string, any> = {
       { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
       { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
       { name: 'Bronze', value: '10/day', color: '#004d99', bgColor: '#e6f1fa' },
+    ],
+    availableTiers: [
+      { tier: 'enterprise', rateLimits: '100000 per daily' },
+      { tier: 'team', rateLimits: '10000 per daily' },
     ],
   },
   'Booking API': {
@@ -227,6 +235,35 @@ const apiDetailsData: Record<string, any> = {
     lifecycle: 'production',
     updated: '5 DAYS AGO',
     apiKeyRequest: 'Need approval',
+  },
+  'Flight ticket API': {
+    name: 'Flight ticket API',
+    tag: 'Aircraft',
+    contact: 'Ticket Team',
+    owner: 'Ticket team',
+    description: 'Flight ticket information API for users to get flight details',
+    lifecycle: 'production',
+    updated: '2 MIN AGO',
+    apiKeyRequest: 'No approval needed',
+    productDescription: 'Description of the API product.',
+    status: 'Draft',
+    version: 'V1',
+    namespace: 'namespace-1',
+    apiKeyApproval: 'Need manual approval',
+    api: 'flight-ticket-api',
+    resourceName: 'flight-ticket-api',
+    route: 'route-1',
+    policies: 'Default-plans',
+    openApiSpecUrl: 'https://github.com/backstage/flight-api/blob/main/openapi.yaml',
+    policiesTiers: [
+      { name: 'Gold', value: '100/day', color: '#795600', bgColor: '#fef5e7' },
+      { name: 'Silver', value: '50/day', color: '#6a6e73', bgColor: '#f5f5f5' },
+      { name: 'Bronze', value: '10/day', color: '#004d99', bgColor: '#e6f1fa' },
+    ],
+    availableTiers: [
+      { tier: 'enterprise', rateLimits: '100000 per daily' },
+      { tier: 'team', rateLimits: '10000 per daily' },
+    ],
   },
   'Airport API': {
     name: 'Airport API',
@@ -398,6 +435,7 @@ const APIDetails: React.FunctionComponent = () => {
   const { apiName } = useParams<{ apiName: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { openEditModal, registerOnSave } = useEditAPIProductModal();
   const [activeTab, setActiveTab] = React.useState(0);
   const [searchValue, setSearchValue] = React.useState('');
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
@@ -506,6 +544,16 @@ const APIDetails: React.FunctionComponent = () => {
     }
   }, [apiDetails.status]);
 
+  // When user saves from edit modal: stay on details page (navigate to new product URL only if name changed)
+  React.useEffect(() => {
+    const unregister = registerOnSave((data: SavePayload) => {
+      if (data.mode === 'edit' && data.productName && data.productName !== decodedApiName) {
+        navigate(`/developer-portal/api-details/${encodeURIComponent(data.productName)}`, { replace: true });
+      }
+    });
+    return unregister;
+  }, [registerOnSave, decodedApiName, navigate]);
+
   // Load starred status from localStorage
   const getStarredAPIs = (): string[] => {
     try {
@@ -576,6 +624,8 @@ const APIDetails: React.FunctionComponent = () => {
       navigate('/developer-portal');
     } else if (itemId === 'api-keys') {
       navigate('/developer-portal/api-keys');
+    } else if (itemId === 'api-keys-approval') {
+      navigate('/developer-portal/api-keys-approval');
     } else if (itemId === 'observability') {
       navigate('/observability');
     } else if (itemId === 'policies') {
@@ -708,11 +758,11 @@ const APIDetails: React.FunctionComponent = () => {
               title={
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                    <rect width="16" height="16" rx="3" fill="black"/>
-                    <path d="M 5 6 L 8 4 L 11 6 L 11 10 L 8 12 L 5 10 Z" stroke="white" strokeWidth="1" fill="none" strokeLinejoin="round"/>
-                    <path d="M 6 7 L 9 5 L 12 7 L 12 11 L 9 13 L 6 11 Z" stroke="#CC0000" strokeWidth="1.5" fill="none" strokeLinejoin="round" opacity="0.8"/>
+                    <rect x="2" y="2" width="2" height="12" rx="1" fill="black"/>
+                    <path d="M 6 4 L 6 12 L 14 8 L 6 4 Z" fill="black"/>
+                    <path d="M 8 8 L 14 4 L 14 12 L 8 8 Z" fill="black" opacity="0.85"/>
                   </svg>
-                  Connectivity Link
+                  Kuadrant
                 </span>
               }
               id="connectivity-link-group"
@@ -720,13 +770,18 @@ const APIDetails: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               {currentRole !== 'API consumer' && (
-                <NavItem itemId="dev-portal" isActive={location.pathname.includes('/api-details')} icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                <NavItem itemId="dev-portal" isActive={location.pathname.includes('/api-details')} icon={<ApiProductsNavIcon />} onClick={() => handleNavClick('dev-portal')}>
                   API products
                 </NavItem>
               )}
-              <NavItem itemId="api-keys" isActive={location.pathname.includes('/api-keys')} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
-                API Access
+              <NavItem itemId="api-keys" isActive={location.pathname === '/developer-portal/api-keys'} icon={<KeyIcon />} onClick={() => handleNavClick('api-keys')}>
+                My API keys
               </NavItem>
+              {currentRole === 'API owner' && (
+                <NavItem itemId="api-keys-approval" isActive={location.pathname === '/developer-portal/api-keys-approval'} icon={<ClipboardCheckIcon />} onClick={() => handleNavClick('api-keys-approval')}>
+                  API keys approval
+                </NavItem>
+              )}
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
               </NavItem>
@@ -810,7 +865,7 @@ const APIDetails: React.FunctionComponent = () => {
       )}
       
       <Page masthead={masthead} sidebar={sidebar}>
-        <PageSection>
+        <PageSection className="developer-portal-main-content">
           <Breadcrumb style={{ marginBottom: '16px' }}>
             <BreadcrumbItem>
               <Button variant="link" isInline onClick={() => navigate('/developer-portal')}>
@@ -822,7 +877,7 @@ const APIDetails: React.FunctionComponent = () => {
             </BreadcrumbItem>
           </Breadcrumb>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
             <Title headingLevel="h1" size="2xl">
               {apiDetails.name}
             </Title>
@@ -841,11 +896,34 @@ const APIDetails: React.FunctionComponent = () => {
             >
               {apiProductStatus}
             </Label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
+              {apiProductStatus === 'Draft' ? (
+                <Button variant="primary" onClick={handlePublish}>
+                  Publish API product
+                </Button>
+              ) : (
+                <Button variant="secondary" onClick={() => setApiProductStatus('Draft')}>
+                  Unpublish API product
+                </Button>
+              )}
+              <Button
+                type="button"
+                variant="plain"
+                aria-label="Edit"
+                onClick={() => openEditModal(decodedApiName)}
+              >
+                <PencilAltIcon />
+              </Button>
+              <Button variant="plain" aria-label="Delete">
+                <TrashIcon />
+              </Button>
+            </div>
           </div>
 
           <Tabs activeKey={activeTab} onSelect={handleTabClick} style={{ marginBottom: '24px' }}>
             <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>} />
-            <Tab eventKey={1} title={<TabTitleText>Definition</TabTitleText>} />
+            <Tab eventKey={1} title={<TabTitleText>Policies</TabTitleText>} />
+            <Tab eventKey={2} title={<TabTitleText>Definition</TabTitleText>} />
           </Tabs>
 
           {activeTab === 0 && (
@@ -853,192 +931,192 @@ const APIDetails: React.FunctionComponent = () => {
               {/* API Product Card */}
               <Card style={{ marginBottom: '24px' }}>
                 <CardBody>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-                    <Title headingLevel="h3" size="lg">API Product</Title>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {apiProductStatus === 'Draft' ? (
-                        <Button variant="primary" onClick={handlePublish}>
-                          Publish API product
-                        </Button>
-                      ) : (
-                        <Button variant="secondary" onClick={() => setApiProductStatus('Draft')}>
-                          Unpublish API product
-                        </Button>
-                      )}
-                      <Button 
-                        variant="plain" 
-                        aria-label="Edit"
-                        onClick={() => navigate(`/developer-portal/edit-api-product/${encodeURIComponent(decodedApiName)}`)}
-                      >
-                        <PencilAltIcon />
-                      </Button>
-                      <Button variant="plain" aria-label="Delete">
-                        <TrashIcon />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ fontSize: '16px', fontWeight: 500, marginBottom: '8px' }}>Product Name</div>
-                    <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.name}</div>
-                  </div>
-
+                  {/* Product Name - full width, own line */}
                   <div style={{ marginBottom: '24px' }}>
-                    <div style={{ fontSize: '16px', fontWeight: 500, marginBottom: '8px' }}>Description</div>
-                    <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.productDescription || 'Description of the API product.'}</div>
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '6px', textTransform: 'uppercase' }}>PRODUCT NAME</div>
+                    <div style={{ fontSize: '18px', fontWeight: 600, color: '#151515' }}>{apiDetails.name}</div>
+                  </div>
+                  {/* Description - full width, own line */}
+                  <div style={{ marginBottom: '24px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '6px', textTransform: 'uppercase' }}>DESCRIPTION</div>
+                    <div style={{ fontSize: '14px', color: '#151515', lineHeight: 1.5 }}>{apiDetails.productDescription || 'Description of the API product.'}</div>
                   </div>
 
-                  <DescriptionList columnModifier={{ default: '1Col', md: '2Col' }}>
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>STATUS</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        <Label
-                          variant="outline"
-                          icon={
-                            apiProductStatus === 'Published' ? <CheckCircleIcon /> : null
-                          }
-                          color={
-                            apiProductStatus === 'Published' ? 'green' : 'grey'
-                          }
-                          style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}
-                        >
-                          {apiProductStatus}
-                        </Label>
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
+                  <Grid hasGutter>
+                    {/* Row 1: 6 fields */}
+                    <GridItem span={12} md={2}>
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>PUBLISH STATUS</div>
+                        <div>
+                          <Label
+                            variant="outline"
+                            icon={apiProductStatus === 'Published' ? <CheckCircleIcon /> : null}
+                            color={apiProductStatus === 'Published' ? 'green' : 'grey'}
+                            style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}
+                          >
+                            {apiProductStatus}
+                          </Label>
+                        </div>
+                      </div>
+                    </GridItem>
+                    <GridItem span={12} md={2}>
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>VERSION</div>
+                        <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.version || 'V1'}</div>
+                      </div>
+                    </GridItem>
+                    <GridItem span={12} md={2}>
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>TAGS</div>
+                        <div><Badge isRead>{apiDetails.tag}</Badge></div>
+                      </div>
+                    </GridItem>
+                    <GridItem span={12} md={2}>
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>NAMESPACE</div>
+                        <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.namespace || 'namespace-1'}</div>
+                      </div>
+                    </GridItem>
+                    {/* Row 2: 6 fields */}
+                    <GridItem span={12} md={2}>
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>API KEY APPROVAL</div>
+                        <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.apiKeyApproval || 'Need manual approval'}</div>
+                      </div>
+                    </GridItem>
+                    <GridItem span={12} md={2}>
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>RESOURCE NAME</div>
+                        <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.api || apiDetails.resourceName || apiDetails.name.toLowerCase().replace(/\s+/g, '-')}</div>
+                      </div>
+                    </GridItem>
+                    <GridItem span={12} md={2} style={{ minWidth: 0 }}>
+                      <div style={{ marginBottom: '16px', paddingRight: '16px', minWidth: 0 }}>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>OPEN API SPEC URL</div>
+                        <div style={{ fontSize: '14px', wordBreak: 'break-all', overflowWrap: 'break-word' }}>
+                          {apiDetails.openApiSpecUrl ? (
+                            <a href={apiDetails.openApiSpecUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#0066cc', textDecoration: 'underline' }}>
+                              {apiDetails.openApiSpecUrl}
+                            </a>
+                          ) : (
+                            <span style={{ color: '#6a6e73' }}>Not specified</span>
+                          )}
+                        </div>
+                      </div>
+                    </GridItem>
+                    <GridItem span={12} md={2}>
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>ROUTE</div>
+                        <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.route || 'route-1'}</div>
+                      </div>
+                    </GridItem>
+                    <GridItem span={12} md={2}>
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>POLICIES</div>
+                        <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.policies || 'N/A'}</div>
+                      </div>
+                    </GridItem>
+                  </Grid>
 
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>VERSION</DescriptionListTerm>
-                      <DescriptionListDescription>{apiDetails.version || 'V1'}</DescriptionListDescription>
-                    </DescriptionListGroup>
-
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>TAGS</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        <Badge isRead>{apiDetails.tag}</Badge>
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>NAMESPACE</DescriptionListTerm>
-                      <DescriptionListDescription>{apiDetails.namespace || 'namespace-1'}</DescriptionListDescription>
-                    </DescriptionListGroup>
-
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>API KEY APPROVAL</DescriptionListTerm>
-                      <DescriptionListDescription>{apiDetails.apiKeyApproval || 'Need manual approval'}</DescriptionListDescription>
-                    </DescriptionListGroup>
-
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>API</DescriptionListTerm>
-                      <DescriptionListDescription>{apiDetails.api || apiDetails.name.toLowerCase().replace(/\s+/g, '-')}</DescriptionListDescription>
-                    </DescriptionListGroup>
-
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>RESOURCE NAME</DescriptionListTerm>
-                      <DescriptionListDescription>{apiDetails.api || apiDetails.resourceName || apiDetails.name.toLowerCase().replace(/\s+/g, '-')}</DescriptionListDescription>
-                    </DescriptionListGroup>
-
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>OPEN API SPEC URL</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        {apiDetails.openApiSpecUrl ? (
-                          <a href={apiDetails.openApiSpecUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#0066cc', textDecoration: 'underline' }}>
-                            {apiDetails.openApiSpecUrl}
-                          </a>
-                        ) : (
-                          <span style={{ color: '#6a6e73' }}>Not specified</span>
-                        )}
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>ROUTE</DescriptionListTerm>
-                      <DescriptionListDescription>{apiDetails.route || 'route-1'}</DescriptionListDescription>
-                    </DescriptionListGroup>
-
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>POLICIES</DescriptionListTerm>
-                      <DescriptionListDescription>{apiDetails.policies || 'N/A'}</DescriptionListDescription>
-                    </DescriptionListGroup>
-
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>POLICIES TIERS</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        {apiDetails.policiesTiers && apiDetails.policiesTiers.length > 0 ? (
-                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                            {apiDetails.policiesTiers.map((tier: any, index: number) => (
-                              <Badge
-                                key={index}
-                                isRead
-                                style={{
-                                  backgroundColor: tier.bgColor || '#f5f5f5',
-                                  color: tier.color || '#151515',
-                                  border: `1px solid ${tier.color || '#151515'}`,
-                                  padding: '4px 8px',
-                                  borderRadius: '12px',
-                                  fontSize: '12px'
-                                }}
-                              >
-                                {tier.name}: {tier.value}
-                              </Badge>
+                  {/* Available Tiers - table (always show; use default tiers when none set) */}
+                  {(() => {
+                    const tiersRows = apiDetails.availableTiers && apiDetails.availableTiers.length > 0
+                      ? apiDetails.availableTiers
+                      : (apiDetails.policiesTiers && apiDetails.policiesTiers.length > 0)
+                        ? (apiDetails.policiesTiers as any[]).map((t: any) => ({ tier: t.name, rateLimits: (t.value || '').replace(/\/day/i, ' per daily') }))
+                        : [
+                            { tier: 'enterprise', rateLimits: '100000 per daily' },
+                            { tier: 'team', rateLimits: '10000 per daily' },
+                          ];
+                    return (
+                      <div style={{ marginTop: '24px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '12px', textTransform: 'uppercase' }}>AVAILABLE TIERS</div>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #d0d0d0', borderRadius: '4px', overflow: 'hidden' }}>
+                          <thead>
+                            <tr style={{ backgroundColor: '#f5f5f5', borderBottom: '1px solid #d0d0d0' }}>
+                              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6a6e73', textTransform: 'uppercase' }}>Tier</th>
+                              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6a6e73', textTransform: 'uppercase' }}>Rate Limits</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {tiersRows.map((row: any, index: number) => (
+                              <tr key={index} style={{ borderBottom: index < tiersRows.length - 1 ? '1px solid #d0d0d0' : 'none' }}>
+                                <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>
+                                  <Badge isRead style={{ backgroundColor: '#f5f5f5', color: '#151515', border: '1px solid #d0d0d0', padding: '4px 10px', borderRadius: '16px', fontSize: '12px' }}>
+                                    {(row.tier || row.name || '').toLowerCase()}
+                                  </Badge>
+                                </td>
+                                <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>{row.rateLimits || row.value || '—'}</td>
+                              </tr>
                             ))}
-                          </div>
-                        ) : (
-                          <span style={{ color: '#6a6e73' }}>N/A</span>
-                        )}
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                  </DescriptionList>
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  })()}
                 </CardBody>
               </Card>
 
-              {/* API Card */}
-              <Card>
-                <CardBody>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-                    <Title headingLevel="h3" size="lg">API</Title>
-                  </div>
-
-                  <ActionGroup style={{ marginBottom: '24px' }}>
-                    <Button variant="link">
-                      <FileAltIcon style={{ marginRight: '6px' }} />
-                      VIEW TECHDOCS
-                    </Button>
-                    <Button variant="link">
-                      <CodeBranchIcon style={{ marginRight: '6px' }} />
-                      VIEW SOURCE
-                    </Button>
-                    <Button variant="link">
-                      <UsersIcon style={{ marginRight: '6px' }} />
-                      CONTACT OWNER
-                    </Button>
-                  </ActionGroup>
-
-                  <div style={{ marginBottom: '24px' }}>
-                    <div style={{ fontSize: '16px', fontWeight: 500, marginBottom: '8px' }}>Description</div>
-                    <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.description}</div>
-                  </div>
-
-                  <DescriptionList columnModifier={{ default: '1Col', md: '2Col' }}>
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>TYPE</DescriptionListTerm>
-                      <DescriptionListDescription>openapi</DescriptionListDescription>
-                    </DescriptionListGroup>
-
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>LIFECYCLE</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        <Badge isRead>{apiDetails.lifecycle}</Badge>
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                  </DescriptionList>
-                </CardBody>
-              </Card>
             </>
           )}
 
         {activeTab === 1 && (
+          <>
+            {/* Discovered Policies */}
+            <Card style={{ marginBottom: '24px', border: '1px solid #d0d0d0', borderRadius: '4px' }}>
+              <CardBody>
+                <Title headingLevel="h3" size="lg" style={{ marginBottom: '16px', fontWeight: 600 }}>Discovered Policies</Title>
+                <Grid hasGutter>
+                  <GridItem span={12} md={6}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px' }}>Plan Policy</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>No plan policy information</div>
+                    </div>
+                  </GridItem>
+                  <GridItem span={12} md={6}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px' }}>Auth Policy</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>No auth policy information</div>
+                    </div>
+                  </GridItem>
+                </Grid>
+              </CardBody>
+            </Card>
+            {/* Effective Plan Tiers */}
+            <Card style={{ border: '1px solid #d0d0d0', borderRadius: '4px' }}>
+              <CardBody>
+                <Title headingLevel="h3" size="lg" style={{ marginBottom: '8px', fontWeight: 600 }}>Effective Plan Tiers</Title>
+                <p style={{ fontSize: '14px', color: '#6a6e73', marginBottom: '16px' }}>
+                  These tiers are computed from all attached PlanPolicies (including gateway-level policies).
+                </p>
+                <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #d0d0d0', borderRadius: '4px', overflow: 'hidden' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f5f5f5', borderBottom: '1px solid #d0d0d0' }}>
+                      <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6a6e73', textTransform: 'uppercase' }}>Tier</th>
+                      <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6a6e73', textTransform: 'uppercase' }}>Rate Limits</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
+                      <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>
+                        <Badge isRead style={{ backgroundColor: '#0066CC', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '16px', fontSize: '12px' }}>enterprise</Badge>
+                      </td>
+                      <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>100000/day</td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>
+                        <Badge isRead style={{ backgroundColor: '#0066CC', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '16px', fontSize: '12px' }}>team</Badge>
+                      </td>
+                      <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>10000/day</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </CardBody>
+            </Card>
+          </>
+        )}
+
+        {activeTab === 2 && (
           <div style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #d0d0d0' }}>
             {/* Swagger Header */}
             <div style={{ backgroundColor: '#3b4151', padding: '20px', color: 'white', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}>

@@ -1,5 +1,11 @@
 /* Developer portal Specific Styles */
 
+/* Fixed height for main white content area - consistent across all Developer Portal pages (reference: API products) */
+.developer-portal-main-content {
+  min-height: calc(100vh - 80px);
+  background-color: #ffffff;
+}
+
 /* Keep the minimum necessary styles */
 .pf-c-nav__item.pf-m-current .pf-c-nav__link::before {
   width: auto !important;

@@ -31,6 +31,8 @@ import {
   Breadcrumb,
   BreadcrumbItem,
 } from '@patternfly/react-core';
+import { ApiProductsNavIcon } from './ApiProductsNavIcon';
+import './DeveloperPortal.css';
 import {
   HomeIcon,
   ArchiveIcon,
@@ -217,18 +219,18 @@ const CreateAPIProduct: React.FunctionComponent = () => {
               title={
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                    <rect width="16" height="16" rx="3" fill="black"/>
-                    <path d="M 5 6 L 8 4 L 11 6 L 11 10 L 8 12 L 5 10 Z" stroke="white" strokeWidth="1" fill="none" strokeLinejoin="round"/>
-                    <path d="M 6 7 L 9 5 L 12 7 L 12 11 L 9 13 L 6 11 Z" stroke="#CC0000" strokeWidth="1.5" fill="none" strokeLinejoin="round" opacity="0.8"/>
+                    <rect x="2" y="2" width="2" height="12" rx="1" fill="black"/>
+                    <path d="M 6 4 L 6 12 L 14 8 L 6 4 Z" fill="black"/>
+                    <path d="M 8 8 L 14 4 L 14 12 L 8 8 Z" fill="black" opacity="0.85"/>
                   </svg>
-                  Connectivity Link
+                  Kuadrant
                 </span>
               }
               id="connectivity-link-group"
               isExpanded={connectivityLinkExpanded}
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
-              <NavItem itemId="dev-portal" isActive icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+              <NavItem itemId="dev-portal" isActive icon={<ApiProductsNavIcon />} onClick={() => handleNavClick('dev-portal')}>
                 API products
               </NavItem>
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
@@ -250,7 +252,7 @@ const CreateAPIProduct: React.FunctionComponent = () => {
 
   return (
     <Page masthead={masthead} sidebar={sidebar}>
-      <PageSection>
+      <PageSection className="developer-portal-main-content">
         {/* Breadcrumb */}
         <Breadcrumb style={{ marginBottom: '16px' }}>
           <BreadcrumbItem>

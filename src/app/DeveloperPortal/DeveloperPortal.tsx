@@ -28,7 +28,6 @@ import {
   CardBody,
   Tooltip,
   Label,
-  Pagination,
   Checkbox,
   Modal,
   ModalHeader,
@@ -53,20 +52,22 @@ import {
   HomeIcon,
   ArchiveIcon,
   CogIcon,
+  KeyIcon,
+  ClipboardCheckIcon,
   FileAltIcon,
   GraduationCapIcon,
   PlusCircleIcon,
   ShieldAltIcon,
   ExclamationCircleIcon,
-  CodeIcon,
   ExclamationTriangleIcon,
   PencilAltIcon,
   TrashIcon,
   PlusIcon,
-  InfoCircleIcon,
   CheckIcon,
   TimesIcon,
 } from '@patternfly/react-icons';
+import { ApiProductsNavIcon } from './ApiProductsNavIcon';
+import { InfoIconOutline } from './InfoIconOutline';
 import './DeveloperPortal.css';
 
 // Clipboard icon components
@@ -94,19 +95,23 @@ interface APIProduct {
   policy: string;
   tags: string[];
   status: 'Draft' | 'Published';
+  lifecycle?: string;
+  authentication?: string;
   namespace: string;
   resourceName?: string;
   openApiSpecUrl?: string;
+  documentationUrl?: string;
   description?: string;
   apiKeyApproval?: 'manual' | 'automatic';
 }
 
 // Initial API products data
 const initialApiProducts: APIProduct[] = [
-  { name: 'Flight ticket API', version: 'V1', route: 'petstore-1', policy: 'toystore-plans', tags: ['Ticket'], status: 'Draft', namespace: 'namespace-1' },
-  { name: 'Flight API', version: 'V2', route: 'petstore-2', policy: 'N/A', tags: ['Payment'], status: 'Published', namespace: 'namespace-1' },
-  { name: 'Ticket API', version: 'V1', route: 'petstore-3', policy: 'toystore-plans', tags: ['Aircraft'], status: 'Published', namespace: 'namespace-2' },
-  { name: 'Flight API', version: 'V2', route: 'petstore-4', policy: 'N/A', tags: ['Payment'], status: 'Draft', namespace: 'namespace-3' },
+  { name: 'Flight ticket API', version: 'V1', route: 'petstore-1', policy: 'toystore-plans', tags: ['analytics', 'metrics'], status: 'Draft', lifecycle: 'Production', namespace: 'namespace-1' },
+  { name: 'Flight API', version: 'V2', route: 'petstore-2', policy: 'N/A', tags: [], status: 'Published', lifecycle: 'Production', namespace: 'namespace-1' },
+  { name: 'Ticket API', version: 'V1', route: 'petstore-3', policy: 'toystore-plans', tags: ['payments', 'billing'], status: 'Published', lifecycle: 'Production', namespace: 'namespace-2' },
+  { name: 'Flight API', version: 'V2', route: 'petstore-4', policy: 'N/A', tags: ['ecommerce', 'retail'], status: 'Published', lifecycle: 'Production', namespace: 'namespace-3' },
+  { name: 'Payment API', version: 'V1', route: 'petstore-5', policy: 'toystore-plans', tags: ['identity', 'auth'], status: 'Published', lifecycle: 'Production', namespace: 'namespace-1' },
 ];
 
 const DeveloperPortal: React.FunctionComponent = () => {
@@ -127,8 +132,6 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const [isNamespaceDropdownOpen, setIsNamespaceDropdownOpen] = React.useState(false);
   const [isTagsDropdownOpen, setIsTagsDropdownOpen] = React.useState(false);
   const [productSearchValue, setProductSearchValue] = React.useState('');
-  const [productPage, setProductPage] = React.useState(1);
-  const [productPerPage, setProductPerPage] = React.useState(10);
   
   // Create API Product modal states
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
@@ -141,6 +144,8 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const [openApiSpecUrl, setOpenApiSpecUrl] = React.useState('');
   const [openApiSpecUrlError, setOpenApiSpecUrlError] = React.useState<string>('');
   const [isOpenApiSpecMenuOpen, setIsOpenApiSpecMenuOpen] = React.useState(false);
+  const [documentationUrl, setDocumentationUrl] = React.useState('');
+  const [documentationUrlFocused, setDocumentationUrlFocused] = React.useState(false);
   
   // Publish notification state
   const [showPublishNotification, setShowPublishNotification] = React.useState(false);
@@ -167,8 +172,16 @@ const DeveloperPortal: React.FunctionComponent = () => {
   };
   const [selectedHttpRoute, setSelectedHttpRoute] = React.useState('');
   const [isHttpRouteDropdownOpen, setIsHttpRouteDropdownOpen] = React.useState(false);
+  const [httpRouteSearchValue, setHttpRouteSearchValue] = React.useState('');
+  const [httpRouteSortBy, setHttpRouteSortBy] = React.useState<string>('Name');
   const [httpRoutePolicies, setHttpRoutePolicies] = React.useState('');
   const [apiKeyApproval, setApiKeyApproval] = React.useState<'manual' | 'automatic'>('manual');
+  const [creationLifecycle, setCreationLifecycle] = React.useState<string>('Production');
+  const [isCreationLifecycleDropdownOpen, setIsCreationLifecycleDropdownOpen] = React.useState(false);
+  const [creationPublishStatus, setCreationPublishStatus] = React.useState<'Draft' | 'Published'>('Draft');
+  const [editingProductName, setEditingProductName] = React.useState<string | null>(null);
+  
+  const lifecycleOptions = ['Experimental', 'Production', 'Deprecated', 'Retired'] as const;
   
   // HTTPRoute interface with PlanPolicy information
   interface HTTPRoute {
@@ -209,11 +222,53 @@ const DeveloperPortal: React.FunctionComponent = () => {
     }
   ];
   
+  // Filter HTTPRoutes by search (for the select menu)
+  const filteredHttpRoutes = React.useMemo(() => {
+    const term = httpRouteSearchValue.trim().toLowerCase();
+    if (!term) return availableHttpRoutes;
+    return availableHttpRoutes.filter(r => r.name.toLowerCase().includes(term));
+  }, [httpRouteSearchValue]);
+
   // Get selected HTTPRoute object
   const selectedRouteObject = React.useMemo(() => {
     if (!selectedHttpRoute) return null;
     return availableHttpRoutes.find(route => route.name === selectedHttpRoute);
   }, [selectedHttpRoute]);
+
+  // Open edit modal when navigating with ?edit=ProductName (e.g. from APIDetails pen icon)
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const editName = params.get('edit');
+    if (editName) {
+      setEditingProductName(decodeURIComponent(editName));
+      setIsCreateModalOpen(true);
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.search, location.pathname, navigate]);
+
+  // Load form when modal opens for edit
+  React.useEffect(() => {
+    if (!isCreateModalOpen || !editingProductName) return;
+    const product = apiProducts.find(p => p.name === editingProductName);
+    let stored: any = null;
+    try {
+      const raw = localStorage.getItem('apiProductDetails');
+      if (raw) stored = JSON.parse(raw)[editingProductName] || null;
+    } catch (_) {}
+    setApiProductName(product?.name || stored?.name || editingProductName);
+    setResourceName(product?.resourceName ?? stored?.api ?? stored?.resourceName ?? '');
+    setVersion(product?.version || stored?.version || 'V1');
+    setSelectedTag(product?.tags?.[0] || stored?.tag || 'Aircraft');
+    setDescription(product?.description ?? stored?.productDescription ?? '');
+    setOpenApiSpecUrl(product?.openApiSpecUrl ?? stored?.openApiSpecUrl ?? '');
+    setOpenApiSpecUrlError('');
+    setDocumentationUrl(product?.documentationUrl ?? stored?.documentationUrl ?? '');
+    setSelectedHttpRoute(product?.route || stored?.route || '');
+    setHttpRoutePolicies(product?.policy ?? stored?.policies ?? '');
+    setCreationLifecycle(product?.lifecycle || stored?.lifecycle || 'Production');
+    setCreationPublishStatus((product?.status || stored?.status) === 'Published' ? 'Published' : 'Draft');
+    setApiKeyApproval(stored?.apiKeyApproval === 'Automatic' ? 'automatic' : 'manual');
+  }, [isCreateModalOpen, editingProductName]);
   
   // Parse plan details to extract tier information
   const parsePlanDetails = (planDetails?: string) => {
@@ -317,6 +372,8 @@ const DeveloperPortal: React.FunctionComponent = () => {
       navigate('/developer-portal');
     } else if (itemId === 'api-keys') {
       navigate('/developer-portal/api-keys');
+    } else if (itemId === 'api-keys-approval') {
+      navigate('/developer-portal/api-keys-approval');
     } else if (itemId === 'policies') {
       navigate('/policies');
     } else if (itemId === 'observability') {
@@ -439,11 +496,11 @@ const DeveloperPortal: React.FunctionComponent = () => {
               title={
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                    <rect width="16" height="16" rx="3" fill="black"/>
-                    <path d="M 5 6 L 8 4 L 11 6 L 11 10 L 8 12 L 5 10 Z" stroke="white" strokeWidth="1" fill="none" strokeLinejoin="round"/>
-                    <path d="M 6 7 L 9 5 L 12 7 L 12 11 L 9 13 L 6 11 Z" stroke="#CC0000" strokeWidth="1.5" fill="none" strokeLinejoin="round" opacity="0.8"/>
+                    <rect x="2" y="2" width="2" height="12" rx="1" fill="black"/>
+                    <path d="M 6 4 L 6 12 L 14 8 L 6 4 Z" fill="black"/>
+                    <path d="M 8 8 L 14 4 L 14 12 L 8 8 Z" fill="black" opacity="0.85"/>
                   </svg>
-                  Connectivity Link
+                  Kuadrant
                 </span>
               }
               id="connectivity-link-group"
@@ -451,13 +508,18 @@ const DeveloperPortal: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               {currentRole !== 'API consumer' && (
-                <NavItem itemId="dev-portal" isActive={location.pathname === '/developer-portal' && !location.pathname.includes('/api-keys')} icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                <NavItem itemId="dev-portal" isActive={location.pathname === '/developer-portal' && !location.pathname.includes('/api-keys')} icon={<ApiProductsNavIcon />} onClick={() => handleNavClick('dev-portal')}>
                   API products
                 </NavItem>
               )}
-              <NavItem itemId="api-keys" isActive={location.pathname.includes('/api-keys')} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
-                API Access
+              <NavItem itemId="api-keys" isActive={location.pathname === '/developer-portal/api-keys'} icon={<KeyIcon />} onClick={() => handleNavClick('api-keys')}>
+                My API keys
               </NavItem>
+              {currentRole === 'API owner' && (
+                <NavItem itemId="api-keys-approval" isActive={location.pathname === '/developer-portal/api-keys-approval'} icon={<ClipboardCheckIcon />} onClick={() => handleNavClick('api-keys-approval')}>
+                  API keys approval
+                </NavItem>
+              )}
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
               </NavItem>
@@ -504,7 +566,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
       )}
       
       <Page masthead={masthead} sidebar={sidebar}>
-      <PageSection>
+      <PageSection className="developer-portal-main-content">
         <div style={{ marginBottom: '24px' }}>
           <div style={{ marginBottom: '16px' }}>
             <Title headingLevel="h1" size="2xl" style={{ marginBottom: '8px' }}>
@@ -888,11 +950,11 @@ const DeveloperPortal: React.FunctionComponent = () => {
                       <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <Title headingLevel="h2" size="lg">
-                            API product
+                            All API products
                           </Title>
-                          <Tooltip content="A basic unit consisting of API resources, HTTPRoute route, and its associated policies.">
+                          <Tooltip content="API product is a basic unit consisting of API resource, HTTPRoutes, and its associated policies.">
                             <Button variant="plain" aria-label="Info" style={{ padding: '4px' }}>
-                              <InfoCircleIcon style={{ fontSize: '16px', color: '#151515' }} />
+                              <InfoIconOutline size={16} />
                             </Button>
                           </Tooltip>
                         </div>
@@ -904,17 +966,20 @@ const DeveloperPortal: React.FunctionComponent = () => {
                           style={{ width: '100%', maxWidth: '300px' }}
                         />
                       </div>
-                    <div style={{ width: '100%', overflowX: 'hidden' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                    <div style={{ width: '100%', overflowX: 'auto', overflowY: 'visible', WebkitOverflowScrolling: 'touch' }}>
+                      <table style={{ minWidth: '1100px', width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                         <thead>
                           <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '18%' }}>Name</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '10%' }}>Version</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Route</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '17%' }}>Policy</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '11%' }}>Status</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Namespace</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Actions</th>
+                          <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: '14px', fontWeight: 'bold', width: '12%', minWidth: '100px' }}>Name</th>
+                          <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: '14px', fontWeight: 'bold', width: '6%', minWidth: '64px' }}>Version</th>
+                          <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: '14px', fontWeight: 'bold', width: '9%', minWidth: '90px' }}>Route</th>
+                          <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: '14px', fontWeight: 'bold', width: '10%', minWidth: '100px' }}>Policy</th>
+                          <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: '14px', fontWeight: 'bold', width: '10%', minWidth: '90px' }}>Tags</th>
+                          <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: '14px', fontWeight: 'bold', width: '8%', minWidth: '80px' }}>Status</th>
+                          <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: '14px', fontWeight: 'bold', width: '10%', minWidth: '95px' }}>Lifecycle</th>
+                          <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: '14px', fontWeight: 'bold', width: '11%', minWidth: '110px' }}>Authentication</th>
+                          <th style={{ textAlign: 'left', padding: '16px 8px 16px 20px', fontSize: '14px', fontWeight: 'bold', width: '10%', minWidth: '105px' }}>Namespace</th>
+                          <th style={{ textAlign: 'left', padding: '16px 20px 16px 8px', fontSize: '14px', fontWeight: 'bold', width: '14%', minWidth: '140px' }}>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -928,10 +993,9 @@ const DeveloperPortal: React.FunctionComponent = () => {
                             if (productSearchValue && !product.name.toLowerCase().includes(productSearchValue.toLowerCase())) return false;
                             return true;
                           })
-                          .slice((productPage - 1) * productPerPage, productPage * productPerPage)
                           .map((product, idx) => (
                           <tr key={idx} style={{ borderBottom: '1px solid #d0d0d0' }}>
-                              <td style={{ padding: '12px' }}>
+                              <td style={{ padding: '16px 20px' }}>
                                 <Button 
                                   variant="link" 
                                   isInline
@@ -940,83 +1004,79 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                 {product.name}
                                 </Button>
                               </td>
-                            <td style={{ padding: '12px' }}>{product.version}</td>
-                            <td style={{ padding: '12px' }}>{product.route}</td>
-                            <td style={{ padding: '12px' }}>{product.policy}</td>
-                              <td style={{ padding: '12px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  {product.status === 'Draft' ? (
-                                    <>
-                                      <DraftClipboardIcon size={16} />
-                                      <span style={{ color: '#6a6e73' }}>Draft</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <PublishedClipboardIcon size={16} />
-                                      <span style={{ color: '#3e8635' }}>Published</span>
-                                    </>
-                                  )}
+                            <td style={{ padding: '16px 20px' }}>{product.version}</td>
+                            <td style={{ padding: '16px 20px' }}>{product.route}</td>
+                            <td style={{ padding: '16px 20px' }}>{product.policy}</td>
+                              <td style={{ padding: '16px 20px' }}>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                                  {product.tags && product.tags.length > 0
+                                    ? product.tags.map((tag, i) => (
+                                        <Label key={i} variant="outline" color="grey" style={{ margin: 0 }}>
+                                          {tag}
+                                        </Label>
+                                      ))
+                                    : <span style={{ color: '#6a6e73' }}>-</span>}
                                 </div>
                               </td>
-                            <td style={{ padding: '12px' }}>{product.namespace}</td>
-                            <td style={{ padding: '12px' }}>
-                              <div style={{ display: 'flex', gap: '8px' }}>
+                              <td style={{ padding: '16px 20px' }}>
                                 {product.status === 'Draft' ? (
-                                  <Button variant="link" isInline onClick={() => {
-                                    setApiProducts(prev => prev.map(p => 
-                                      p.name === product.name ? { ...p, status: 'Published' as const } : p
-                                    ));
-                                  }} style={{ padding: '0 4px', whiteSpace: 'nowrap' }}>
-                                    Publish
-                                  </Button>
+                                  <span style={{ display: 'inline-block', padding: '2px 8px', fontSize: '12px', borderRadius: '16px', border: '1px solid #8a8d90', color: '#151515', backgroundColor: 'transparent' }}>Draft</span>
                                 ) : (
-                                  <Button variant="link" isInline onClick={() => {
-                                    setApiProducts(prev => prev.map(p => 
-                                      p.name === product.name ? { ...p, status: 'Draft' as const } : p
-                                    ));
-                                  }} style={{ padding: '0 4px', whiteSpace: 'nowrap' }}>
-                                    Unpublish
-                                  </Button>
+                                  <span style={{ display: 'inline-block', padding: '2px 8px', fontSize: '12px', borderRadius: '16px', border: 'none', color: '#fff', backgroundColor: '#0066cc' }}>Published</span>
                                 )}
-                                <Button variant="plain" aria-label="Edit" onClick={() => {}} style={{ padding: '4px', minWidth: 'auto' }}>
-                                  <PencilAltIcon />
-                                </Button>
-                                <Button variant="plain" aria-label="Delete" onClick={() => {
-                                  setApiProducts(prev => prev.filter(p => p.name !== product.name));
-                                }} style={{ padding: '4px', minWidth: 'auto' }}>
-                                  <TrashIcon />
-                                </Button>
+                              </td>
+                              <td style={{ padding: '16px 20px' }}>
+                                <span style={{ display: 'inline-block', padding: '2px 8px', fontSize: '12px', borderRadius: '16px', border: 'none', color: '#fff', backgroundColor: '#0066cc' }}>{product.lifecycle || 'Production'}</span>
+                              </td>
+                              <td style={{ padding: '16px 20px' }}>
+                                <span style={{ fontStyle: 'italic', color: '#151515' }}>{product.authentication ?? 'unknown'}</span>
+                              </td>
+                            <td style={{ padding: '16px 8px 16px 20px' }}>{product.namespace}</td>
+                            <td style={{ padding: '16px 20px 16px 8px', textAlign: 'left' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                  {product.status === 'Draft' ? (
+                                    <Button variant="link" isInline onClick={() => {
+                                      setApiProducts(prev => prev.map(p => 
+                                        p.name === product.name ? { ...p, status: 'Published' as const } : p
+                                      ));
+                                    }} style={{ padding: '0 4px', whiteSpace: 'nowrap' }}>
+                                      Publish
+                                    </Button>
+                                  ) : (
+                                    <Button variant="link" isInline onClick={() => {
+                                      setApiProducts(prev => prev.map(p => 
+                                        p.name === product.name ? { ...p, status: 'Draft' as const } : p
+                                      ));
+                                    }} style={{ padding: '0 4px', whiteSpace: 'nowrap' }}>
+                                      Unpublish
+                                    </Button>
+                                  )}
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginLeft: 'auto' }}>
+                                  <Button
+                                    variant="plain"
+                                    aria-label="Edit"
+                                    onClick={() => {
+                                      setEditingProductName(product.name);
+                                      setIsCreateModalOpen(true);
+                                    }}
+                                    style={{ padding: '4px', minWidth: 'auto' }}
+                                  >
+                                    <PencilAltIcon />
+                                  </Button>
+                                  <Button variant="plain" aria-label="Delete" onClick={() => {
+                                    setApiProducts(prev => prev.filter(p => p.name !== product.name));
+                                  }} style={{ padding: '4px', minWidth: 'auto' }}>
+                                    <TrashIcon />
+                                  </Button>
+                                </div>
                               </div>
                             </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
-                    </div>
-                    <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
-                      <Pagination
-                        itemCount={apiProducts.filter(product => {
-                          if (statusFilter !== 'All' && product.status !== statusFilter) return false;
-                          if (policyFilter.length > 0 && !policyFilter.includes(product.policy)) return false;
-                          if (routeFilter.length > 0 && !routeFilter.includes(product.route)) return false;
-                          if (namespaceFilter.length > 0 && !namespaceFilter.includes(product.namespace)) return false;
-                          if (tagsFilter.length > 0 && !tagsFilter.some(tag => product.tags.includes(tag))) return false;
-                          if (productSearchValue && !product.name.toLowerCase().includes(productSearchValue.toLowerCase())) return false;
-                          return true;
-                        }).length}
-                        page={productPage}
-                        perPage={productPerPage}
-                        onSetPage={(_, page) => setProductPage(page)}
-                        onPerPageSelect={(_, perPage) => {
-                          setProductPerPage(perPage);
-                          setProductPage(1);
-                        }}
-                        perPageOptions={[
-                          { title: '10', value: 10 },
-                          { title: '20', value: 20 },
-                          { title: '50', value: 50 },
-                        ]}
-                      />
                     </div>
                     </CardBody>
                   </Card>
@@ -1030,23 +1090,28 @@ const DeveloperPortal: React.FunctionComponent = () => {
         isOpen={isCreateModalOpen}
         onClose={() => {
           setIsCreateModalOpen(false);
+          setEditingProductName(null);
           setApiProductName('');
           setResourceName('');
           setVersion('');
           setSelectedTag('Aircraft');
           setDescription('');
           setOpenApiSpecUrl('');
+          setDocumentationUrl('');
+          setDocumentationUrlFocused(false);
           setSelectedHttpRoute('');
           setHttpRoutePolicies('');
+          setCreationLifecycle('Production');
+          setCreationPublishStatus('Draft');
           setApiKeyApproval('manual');
         }}
         variant="large"
         style={{ maxWidth: '800px' }}
       >
         <ModalHeader>
-          <Title headingLevel="h2">Create API product</Title>
+          <Title headingLevel="h2">{editingProductName ? 'Edit API product' : 'Create API product'}</Title>
           <p style={{ fontSize: '14px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
-            Create API product by registering existing API, associate route and policy.
+            {editingProductName ? 'Update your API product configuration.' : 'Create API product by registering existing API, associate route and policy.'}
           </p>
         </ModalHeader>
         <ModalBody style={{ padding: '24px', paddingTop: '8px' }}>
@@ -1176,7 +1241,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
             </Title>
             <Tooltip content="Register an existing API and associate an HTTRroute for your API product">
               <Button variant="plain" aria-label="Info" style={{ padding: '4px' }}>
-                <InfoCircleIcon style={{ fontSize: '16px', color: '#151515' }} />
+                <InfoIconOutline size={16} />
               </Button>
             </Tooltip>
           </div>
@@ -1249,6 +1314,24 @@ const DeveloperPortal: React.FunctionComponent = () => {
             )}
           </FormGroup>
 
+          <FormGroup
+            label="Documentation URL"
+            isRequired={false}
+            style={{ marginBottom: '16px' }}
+          >
+            <TextInput
+              value={documentationUrl}
+              onChange={(_, value) => setDocumentationUrl(value)}
+              onFocus={() => setDocumentationUrlFocused(true)}
+              onBlur={() => setDocumentationUrlFocused(false)}
+              placeholder={documentationUrlFocused ? 'https://doc.example.com/api' : ''}
+              style={{ width: '100%' }}
+            />
+            <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
+              Link to external documentation for this API
+            </p>
+          </FormGroup>
+
           <FormGroup 
             label={
               <span>
@@ -1260,7 +1343,10 @@ const DeveloperPortal: React.FunctionComponent = () => {
           >
                 <Dropdown
               isOpen={isHttpRouteDropdownOpen}
-              onOpenChange={(isOpen) => setIsHttpRouteDropdownOpen(isOpen)}
+              onOpenChange={(isOpen) => {
+                setIsHttpRouteDropdownOpen(isOpen);
+                if (!isOpen) setHttpRouteSearchValue('');
+              }}
                   toggle={(toggleRef) => (
                     <MenuToggle 
                       ref={toggleRef} 
@@ -1278,13 +1364,49 @@ const DeveloperPortal: React.FunctionComponent = () => {
                     preventOverflow: true
                   }}
                 >
-                  <DropdownList style={{ maxHeight: '150px', overflowY: 'auto' }}>
-                {availableHttpRoutes.map((route) => (
+                  <div
+                    style={{
+                      padding: '8px 12px',
+                      borderBottom: '1px solid #d0d0d0',
+                      display: 'flex',
+                      gap: '8px',
+                      alignItems: 'center',
+                      backgroundColor: '#fff'
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <SearchInput
+                      placeholder="Search..."
+                      value={httpRouteSearchValue}
+                      onChange={(_, value) => setHttpRouteSearchValue(value)}
+                      onClear={() => setHttpRouteSearchValue('')}
+                      style={{ flex: 1, minWidth: 0 }}
+                    />
+                    <select
+                      value={httpRouteSortBy}
+                      onChange={(e) => setHttpRouteSortBy(e.target.value)}
+                      style={{
+                        padding: '6px 24px 6px 8px',
+                        fontSize: '14px',
+                        color: '#151515',
+                        border: '1px solid #8a8d90',
+                        borderRadius: '4px',
+                        backgroundColor: '#fff',
+                        cursor: 'pointer',
+                        minWidth: '80px'
+                      }}
+                    >
+                      <option value="Name">Name</option>
+                    </select>
+                  </div>
+                  <DropdownList style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                {filteredHttpRoutes.map((route) => (
                     <DropdownItem
                     key={route.name}
                       onClick={() => {
                       setSelectedHttpRoute(route.name);
                       setIsHttpRouteDropdownOpen(false);
+                      setHttpRouteSearchValue('');
                       }}
                       style={{ padding: '8px 12px' }}
                     >
@@ -1313,7 +1435,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
             </Title>
             <Tooltip content="Policies attach to a certain HTTPRoute">
               <Button variant="plain" aria-label="Info" style={{ padding: '4px' }}>
-                <InfoCircleIcon style={{ fontSize: '16px', color: '#151515' }} />
+                <InfoIconOutline size={16} />
               </Button>
             </Tooltip>
           </div>
@@ -1393,7 +1515,82 @@ const DeveloperPortal: React.FunctionComponent = () => {
             </Card>
           )}
 
-          <Divider style={{ marginBottom: '24px' }} />
+          {/* Lifecycle and Visibility */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+            <Title headingLevel="h3" size="md" style={{ marginBottom: 0 }}>
+              Lifecycle and Visibility
+            </Title>
+            <Tooltip content="Configure lifecycle state and catalog visibility for this API product">
+              <Button variant="plain" aria-label="Info" style={{ padding: '4px' }}>
+                <InfoIconOutline size={16} />
+              </Button>
+            </Tooltip>
+          </div>
+          <Grid hasGutter style={{ marginBottom: '24px' }}>
+            <GridItem span={6}>
+              <FormGroup label="Lifecycle" fieldId="creation-lifecycle" style={{ marginBottom: 0 }}>
+                <Dropdown
+                  isOpen={isCreationLifecycleDropdownOpen}
+                  onOpenChange={(isOpen) => setIsCreationLifecycleDropdownOpen(isOpen)}
+                  toggle={(toggleRef) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      onClick={() => setIsCreationLifecycleDropdownOpen(!isCreationLifecycleDropdownOpen)}
+                      isExpanded={isCreationLifecycleDropdownOpen}
+                      style={{ width: '100%' }}
+                    >
+                      {creationLifecycle}
+                    </MenuToggle>
+                  )}
+                >
+                  <DropdownList>
+                    {lifecycleOptions.map((option) => (
+                      <DropdownItem
+                        key={option}
+                        onClick={() => {
+                          setCreationLifecycle(option);
+                          setIsCreationLifecycleDropdownOpen(false);
+                        }}
+                      >
+                        {option}
+                      </DropdownItem>
+                    ))}
+                  </DropdownList>
+                </Dropdown>
+                <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
+                  API lifecycle state
+                </p>
+              </FormGroup>
+            </GridItem>
+            <GridItem span={6}>
+              <FormGroup label="Publish Status" fieldId="creation-publish-status" style={{ marginBottom: 0 }}>
+                <select
+                  id="creation-publish-status"
+                  value={creationPublishStatus}
+                  onChange={(e) => setCreationPublishStatus(e.target.value as 'Draft' | 'Published')}
+                  style={{
+                    width: '100%',
+                    padding: '6px 24px 6px 0',
+                    fontSize: '14px',
+                    color: '#151515',
+                    fontWeight: 500,
+                    border: 'none',
+                    borderBottom: '1px solid #8a8d90',
+                    borderRadius: 0,
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    appearance: 'auto'
+                  }}
+                >
+                  <option value="Draft">Draft</option>
+                  <option value="Published">Published</option>
+                </select>
+                <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '6px', marginBottom: 0 }}>
+                  Controls catalog visibility (Draft = hidden from consumers)
+                </p>
+              </FormGroup>
+            </GridItem>
+          </Grid>
 
           {/* API Key approval */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
@@ -1402,9 +1599,9 @@ const DeveloperPortal: React.FunctionComponent = () => {
             </Title>
             <Tooltip content="Information about API Key approval">
               <Button variant="plain" aria-label="Info" style={{ padding: '4px' }}>
-                <InfoCircleIcon style={{ fontSize: '16px', color: '#151515' }} />
-                    </Button>
-                  </Tooltip>
+                <InfoIconOutline size={16} />
+              </Button>
+            </Tooltip>
                 </div>
 
           <FormGroup style={{ marginBottom: '16px' }}>
@@ -1434,56 +1631,68 @@ const DeveloperPortal: React.FunctionComponent = () => {
           <Button
             variant="primary"
             onClick={() => {
-              // Handle create logic here
               const productName = apiProductName;
-              
-              // Get the selected route object to extract policy
               const routeObject = selectedRouteObject;
               const policy = httpRoutePolicies || routeObject?.planPolicy || 'N/A';
-              
-              // Create new API product object
               const newProduct: APIProduct = {
                 name: productName,
                 version: version,
                 route: selectedHttpRoute,
                 policy: policy,
                 tags: [selectedTag],
-                status: 'Draft',
-                namespace: 'namespace-1', // Default namespace, can be enhanced later
+                status: creationPublishStatus,
+                lifecycle: creationLifecycle,
+                namespace: 'namespace-1',
                 resourceName: resourceName,
                 openApiSpecUrl: openApiSpecUrl,
+                documentationUrl: documentationUrl || undefined,
                 description: description,
                 apiKeyApproval: apiKeyApproval
               };
-              
-              // Add the new product to the list
-              setApiProducts(prev => [...prev, newProduct]);
-              
-              // Save product details to localStorage for APIDetails and EditAPIProduct to access
-              try {
-                const productDetails = {
-                  name: productName,
-                  tag: selectedTag,
-                  productDescription: description,
-                  status: 'Draft',
-                  version: version,
-                  namespace: 'namespace-1',
-                  apiKeyApproval: apiKeyApproval === 'manual' ? 'Need manual approval' : 'Automatic',
-                  api: resourceName,
-                  route: selectedHttpRoute,
-                  policies: policy,
-                  openApiSpecUrl: openApiSpecUrl
-                };
-                const storedProducts = localStorage.getItem('apiProductDetails');
-                const productsMap = storedProducts ? JSON.parse(storedProducts) : {};
-                productsMap[productName] = productDetails;
-                localStorage.setItem('apiProductDetails', JSON.stringify(productsMap));
-              } catch (e) {
-                console.error('Failed to save product details to localStorage:', e);
+              const productDetails = {
+                name: productName,
+                tag: selectedTag,
+                productDescription: description,
+                status: creationPublishStatus,
+                version: version,
+                namespace: 'namespace-1',
+                apiKeyApproval: apiKeyApproval === 'manual' ? 'Need manual approval' : 'Automatic',
+                api: resourceName,
+                route: selectedHttpRoute,
+                policies: policy,
+                openApiSpecUrl: openApiSpecUrl,
+                documentationUrl: documentationUrl || undefined,
+                lifecycle: creationLifecycle
+              };
+              if (editingProductName) {
+                setApiProducts(prev =>
+                  editingProductName === productName
+                    ? prev.map(p => (p.name === editingProductName ? newProduct : p))
+                    : prev.filter(p => p.name !== editingProductName).concat([newProduct])
+                );
+                try {
+                  const storedProducts = localStorage.getItem('apiProductDetails');
+                  const productsMap = storedProducts ? JSON.parse(storedProducts) : {};
+                  if (editingProductName !== productName) delete productsMap[editingProductName];
+                  productsMap[productName] = productDetails;
+                  localStorage.setItem('apiProductDetails', JSON.stringify(productsMap));
+                } catch (e) {
+                  console.error('Failed to save product details to localStorage:', e);
+                }
+              } else {
+                setApiProducts(prev => [...prev, newProduct]);
+                try {
+                  const storedProducts = localStorage.getItem('apiProductDetails');
+                  const productsMap = storedProducts ? JSON.parse(storedProducts) : {};
+                  productsMap[productName] = productDetails;
+                  localStorage.setItem('apiProductDetails', JSON.stringify(productsMap));
+                } catch (e) {
+                  console.error('Failed to save product details to localStorage:', e);
+                }
+                navigate(`/developer-portal/api-details/${encodeURIComponent(productName)}?created=true`);
               }
-              
-              // Reset form
               setIsCreateModalOpen(false);
+              setEditingProductName(null);
               setApiProductName('');
               setResourceName('');
               setVersion('');
@@ -1491,29 +1700,35 @@ const DeveloperPortal: React.FunctionComponent = () => {
               setDescription('');
               setOpenApiSpecUrl('');
               setOpenApiSpecUrlError('');
+              setDocumentationUrl('');
+              setDocumentationUrlFocused(false);
               setSelectedHttpRoute('');
               setHttpRoutePolicies('');
+              setCreationLifecycle('Production');
+              setCreationPublishStatus('Draft');
               setApiKeyApproval('manual');
-              
-              // Navigate to API product details page with created parameter
-              navigate(`/developer-portal/api-details/${encodeURIComponent(productName)}?created=true`);
             }}
             isDisabled={!apiProductName || !resourceName || !version || !openApiSpecUrl || !selectedHttpRoute}
           >
-            Create
+            {editingProductName ? 'Save' : 'Create'}
           </Button>
           <Button
             variant="link"
             onClick={() => {
               setIsCreateModalOpen(false);
+              setEditingProductName(null);
               setApiProductName('');
               setResourceName('');
               setVersion('');
               setSelectedTag('Aircraft');
               setDescription('');
               setOpenApiSpecUrl('');
+              setDocumentationUrl('');
+              setDocumentationUrlFocused(false);
               setSelectedHttpRoute('');
               setHttpRoutePolicies('');
+              setCreationLifecycle('Production');
+              setCreationPublishStatus('Draft');
               setApiKeyApproval('manual');
             }}
           >

@@ -46,8 +46,9 @@ import {
   FormGroup,
   TextInput,
   TextArea,
-  Pagination,
 } from '@patternfly/react-core';
+import { ApiProductsNavIcon } from '../DeveloperPortal/ApiProductsNavIcon';
+import { InfoIconOutline } from '../DeveloperPortal/InfoIconOutline';
 import {
   HomeIcon,
   ArchiveIcon,
@@ -72,7 +73,6 @@ import {
   CaretUpIcon,
   LockIcon,
   LockOpenIcon,
-  InfoCircleIcon,
   ClockIcon,
   TimesCircleIcon,
   TimesIcon,
@@ -80,6 +80,8 @@ import {
   AngleRightIcon,
   AngleDownIcon,
   CheckIcon,
+  KeyIcon,
+  ClipboardCheckIcon,
 } from '@patternfly/react-icons';
 import { apisRequiringApproval } from '../shared/apiData';
 import './APIs.css';
@@ -476,8 +478,6 @@ const APIDetailsPage: React.FunctionComponent = () => {
   const [approvalTiersFilter, setApprovalTiersFilter] = React.useState('All');
   const [approvalClientFilter, setApprovalClientFilter] = React.useState('All');
   const [approvalExpandedRows, setApprovalExpandedRows] = React.useState<Set<number>>(new Set());
-  const [approvalPage, setApprovalPage] = React.useState(1);
-  const [approvalPerPage, setApprovalPerPage] = React.useState(10);
   const [isApprovalInfoPopoverOpen, setIsApprovalInfoPopoverOpen] = React.useState(false);
   const approvalInfoPopoverRef = React.useRef<HTMLButtonElement>(null);
   const approvalTooltipContentRef = React.useRef<HTMLDivElement>(null);
@@ -570,7 +570,14 @@ const APIDetailsPage: React.FunctionComponent = () => {
     // Capitalize first letter
     return tierName.charAt(0).toUpperCase() + tierName.slice(1);
   };
-  
+
+  // Format date for Requested column: e.g. "Jan 20, 2026" -> "2026/1/20"
+  const formatRequestedDate = (dateStr: string): string => {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+  };
+
   const getCurrentRole = (): string => {
     try {
       const role = localStorage.getItem('currentRole');
@@ -617,11 +624,6 @@ const APIDetailsPage: React.FunctionComponent = () => {
     });
   }, [approvalApiKeys, apiDetails.name, decodedApiName, approvalStatusFilter, approvalTiersFilter, approvalClientFilter, approvalSearchValue]);
 
-  const paginatedApprovalApiKeys = React.useMemo(() => {
-    const start = (approvalPage - 1) * approvalPerPage;
-    return filteredApprovalApiKeys.slice(start, start + approvalPerPage);
-  }, [filteredApprovalApiKeys, approvalPage, approvalPerPage]);
-  
   // Check if Tiers field should show error (when user tried to select tier but API is not selected)
   // In API details page, API is always selected, so this will always be false
   const isTierFieldError = hasAttemptedTierSelection && !apiDetails.name;
@@ -788,6 +790,8 @@ const APIDetailsPage: React.FunctionComponent = () => {
       }
     } else if (itemId === 'api-keys') {
       navigate('/developer-portal/api-keys');
+    } else if (itemId === 'api-keys-approval') {
+      navigate('/developer-portal/api-keys-approval');
     } else if (itemId === 'policies') {
       navigate('/policies');
     } else if (itemId === 'observability') {
@@ -892,11 +896,11 @@ const APIDetailsPage: React.FunctionComponent = () => {
               title={
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                    <rect width="16" height="16" rx="3" fill="black"/>
-                    <path d="M 5 6 L 8 4 L 11 6 L 11 10 L 8 12 L 5 10 Z" stroke="white" strokeWidth="1" fill="none" strokeLinejoin="round"/>
-                    <path d="M 6 7 L 9 5 L 12 7 L 12 11 L 9 13 L 6 11 Z" stroke="#CC0000" strokeWidth="1.5" fill="none" strokeLinejoin="round" opacity="0.8"/>
+                    <rect x="2" y="2" width="2" height="12" rx="1" fill="black"/>
+                    <path d="M 6 4 L 6 12 L 14 8 L 6 4 Z" fill="black"/>
+                    <path d="M 8 8 L 14 4 L 14 12 L 8 8 Z" fill="black" opacity="0.85"/>
                   </svg>
-                  Connectivity Link
+                  Kuadrant
                 </span>
               }
               id="connectivity-link-group"
@@ -904,13 +908,18 @@ const APIDetailsPage: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               {currentRole !== 'API consumer' && (
-                <NavItem itemId="dev-portal" icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                <NavItem itemId="dev-portal" icon={<ApiProductsNavIcon />} onClick={() => handleNavClick('dev-portal')}>
                   API products
                 </NavItem>
               )}
-              <NavItem itemId="api-keys" icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
-                API Access
+              <NavItem itemId="api-keys" icon={<KeyIcon />} onClick={() => handleNavClick('api-keys')}>
+                My API keys
               </NavItem>
+              {currentRole === 'API owner' && (
+                <NavItem itemId="api-keys-approval" icon={<ClipboardCheckIcon />} onClick={() => handleNavClick('api-keys-approval')}>
+                  API keys approval
+                </NavItem>
+              )}
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
               </NavItem>
@@ -957,11 +966,9 @@ const APIDetailsPage: React.FunctionComponent = () => {
 
         <Tabs activeKey={activeTab} onSelect={handleTabClick} style={{ marginBottom: '24px' }}>
           <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>} />
-          <Tab eventKey={1} title={<TabTitleText>Definition</TabTitleText>} />
-          <Tab eventKey={2} title={<TabTitleText>My API keys</TabTitleText>} />
-          {currentRole === 'API owner' && (
-            <Tab eventKey={3} title={<TabTitleText>API keys approval</TabTitleText>} />
-          )}
+          <Tab eventKey={1} title={<TabTitleText>API product info</TabTitleText>} />
+          <Tab eventKey={2} title={<TabTitleText>Definition</TabTitleText>} />
+          <Tab eventKey={3} title={<TabTitleText>API keys</TabTitleText>} />
         </Tabs>
 
         {activeTab === 0 && (
@@ -969,7 +976,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
             <Grid hasGutter>
               {/* Left Column */}
               <GridItem span={6}>
-                {/* About Section */}
+                {/* About Section - Overview */}
                 <Card style={{ marginBottom: '24px' }}>
                   <CardBody>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
@@ -1142,6 +1149,123 @@ const APIDetailsPage: React.FunctionComponent = () => {
         )}
 
         {activeTab === 1 && (
+          <>
+            {/* API Product Info - same as API product details Overview */}
+            <Card style={{ marginBottom: '24px' }}>
+              <CardBody>
+                <div style={{ marginBottom: '24px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '6px', textTransform: 'uppercase' }}>PRODUCT NAME</div>
+                  <div style={{ fontSize: '18px', fontWeight: 600, color: '#151515' }}>{apiDetails.name}</div>
+                </div>
+                <div style={{ marginBottom: '24px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '6px', textTransform: 'uppercase' }}>DESCRIPTION</div>
+                  <div style={{ fontSize: '14px', color: '#151515', lineHeight: 1.5 }}>{apiDetails.description || 'Description of the API product.'}</div>
+                </div>
+
+                <Grid hasGutter>
+                  <GridItem span={12} md={2}>
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>PUBLISH STATUS</div>
+                      <div>
+                        <Label
+                          variant="outline"
+                          color="green"
+                          style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}
+                        >
+                          Published
+                        </Label>
+                      </div>
+                    </div>
+                  </GridItem>
+                  <GridItem span={12} md={2}>
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>VERSION</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.version || 'V1'}</div>
+                    </div>
+                  </GridItem>
+                  <GridItem span={12} md={2}>
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>TAGS</div>
+                      <div>
+                        {apiDetails.tags && apiDetails.tags.length > 0 ? (
+                          apiDetails.tags.map((tag: string, i: number) => <Badge key={i} isRead style={{ marginRight: '4px' }}>{tag}</Badge>)
+                        ) : (
+                          <Badge isRead>—</Badge>
+                        )}
+                      </div>
+                    </div>
+                  </GridItem>
+                  <GridItem span={12} md={2}>
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>NAMESPACE</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>namespace-1</div>
+                    </div>
+                  </GridItem>
+                  <GridItem span={12} md={2}>
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>API KEY APPROVAL</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>Need manual approval</div>
+                    </div>
+                  </GridItem>
+                  <GridItem span={12} md={2}>
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>RESOURCE NAME</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.name.toLowerCase().replace(/\s+/g, '-')}</div>
+                    </div>
+                  </GridItem>
+                  <GridItem span={12} md={2} style={{ minWidth: 0 }}>
+                    <div style={{ marginBottom: '16px', paddingRight: '16px', minWidth: 0 }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>OPEN API SPEC URL</div>
+                      <div style={{ fontSize: '14px', wordBreak: 'break-all', overflowWrap: 'break-word' }}>
+                        <span style={{ color: '#6a6e73' }}>Not specified</span>
+                      </div>
+                    </div>
+                  </GridItem>
+                  <GridItem span={12} md={2}>
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>ROUTE</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>route-1</div>
+                    </div>
+                  </GridItem>
+                  <GridItem span={12} md={2}>
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>POLICIES</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>N/A</div>
+                    </div>
+                  </GridItem>
+                </Grid>
+
+                <div style={{ marginTop: '24px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '12px', textTransform: 'uppercase' }}>AVAILABLE TIERS</div>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #d0d0d0', borderRadius: '4px', overflow: 'hidden' }}>
+                    <thead>
+                      <tr style={{ backgroundColor: '#f5f5f5', borderBottom: '1px solid #d0d0d0' }}>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6a6e73', textTransform: 'uppercase' }}>Tier</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6a6e73', textTransform: 'uppercase' }}>Rate Limits</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
+                        <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>
+                          <Badge isRead style={{ backgroundColor: '#f5f5f5', color: '#151515', border: '1px solid #d0d0d0', padding: '4px 10px', borderRadius: '16px', fontSize: '12px' }}>enterprise</Badge>
+                        </td>
+                        <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>100000 per daily</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>
+                          <Badge isRead style={{ backgroundColor: '#f5f5f5', color: '#151515', border: '1px solid #d0d0d0', padding: '4px 10px', borderRadius: '16px', fontSize: '12px' }}>team</Badge>
+                        </td>
+                        <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>10000 per daily</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CardBody>
+            </Card>
+          </>
+        )}
+
+        {activeTab === 2 && (
           <div style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #d0d0d0' }}>
             {/* Swagger Header */}
             <div style={{ backgroundColor: '#3b4151', padding: '20px', color: 'white', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}>
@@ -1241,7 +1365,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
           </div>
         )}
 
-        {activeTab === 2 && (
+        {activeTab === 3 && (
           <>
             <Grid hasGutter style={{ marginBottom: '24px' }}>
               <GridItem span={12} style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
@@ -1414,7 +1538,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
                             className="info-icon-button"
                             onClick={() => setIsInfoPopoverOpen(!isInfoPopoverOpen)}
                           >
-                            <InfoCircleIcon className="info-icon" />
+                            <InfoIconOutline size={16} />
                           </Button>
                         </Tooltip>
                       </div>
@@ -1433,7 +1557,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
                           <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Name</th>
                           <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Status</th>
                           <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Tiers</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Active time</th>
+                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Requested</th>
                           <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Actions</th>
                         </tr>
                       </thead>
@@ -1506,7 +1630,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
                                     {formatTierDisplayForTable(key.tiers)}
                                   </Badge>
                                 </td>
-                                <td style={{ padding: '12px', color: '#6a6e73' }}>{key.activeTime}</td>
+                                <td style={{ padding: '12px', color: '#6a6e73' }}>{formatRequestedDate(key.activeTime)}</td>
                                 <td style={{ padding: '12px' }}>
                                   <div style={{ display: 'flex', gap: '8px' }}>
                                     <Button variant="plain" aria-label="Edit" onClick={() => {}}>
@@ -1551,371 +1675,6 @@ const APIDetailsPage: React.FunctionComponent = () => {
                         })}
                       </tbody>
                     </table>
-                  </CardBody>
-                </Card>
-              </GridItem>
-            </Grid>
-          </>
-        )}
-
-        {activeTab === 3 && currentRole === 'API owner' && (
-          <>
-            <Grid hasGutter>
-              {/* Left Sidebar - Filters */}
-              <GridItem span={3}>
-                <div style={{ background: '#f5f5f5', padding: '24px', borderRadius: '4px' }}>
-                  <Title headingLevel="h3" size="md" style={{ marginBottom: '8px' }}>Status</Title>
-                  <div style={{ marginBottom: '16px' }}>
-                    <div
-                      role="button"
-                      onClick={() => setApprovalStatusFilter('All')}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        gap: '8px',
-                        backgroundColor: '#ffffff',
-                        color: '#151515',
-                        border: approvalStatusFilter === 'All' ? '2px solid #0066CC' : '2px solid transparent',
-                        borderRadius: '6px',
-                        padding: '8px 12px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        marginBottom: '8px',
-                        boxSizing: 'border-box'
-                      }}
-                    >
-                      <span>All</span>
-                      <span style={{ fontWeight: 'bold' }}>{approvalApiKeys.length}</span>
-                    </div>
-                    <div
-                      role="button"
-                      onClick={() => setApprovalStatusFilter('Active')}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        gap: '8px',
-                        backgroundColor: '#ffffff',
-                        color: '#151515',
-                        border: approvalStatusFilter === 'Active' ? '2px solid #0066CC' : '2px solid transparent',
-                        borderRadius: '6px',
-                        padding: '8px 12px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        marginBottom: '8px',
-                        boxSizing: 'border-box'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <CheckCircleIcon style={{ color: '#3e8635', fontSize: '16px' }} />
-                        <span>Active</span>
-                      </div>
-                      <span style={{ fontWeight: 'bold' }}>{approvalApiKeys.filter(k => k.status === 'Active').length}</span>
-                    </div>
-                    <div
-                      role="button"
-                      onClick={() => setApprovalStatusFilter('Pending')}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        gap: '8px',
-                        backgroundColor: '#ffffff',
-                        color: '#151515',
-                        border: approvalStatusFilter === 'Pending' ? '2px solid #0066CC' : '2px solid transparent',
-                        borderRadius: '6px',
-                        padding: '8px 12px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        marginBottom: '8px',
-                        boxSizing: 'border-box'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <ClockIcon style={{ color: '#0066CC', fontSize: '16px' }} />
-                        <span>Pending</span>
-                      </div>
-                      <span style={{ fontWeight: 'bold' }}>{approvalApiKeys.filter(k => k.status === 'Pending').length}</span>
-                    </div>
-                    <div
-                      role="button"
-                      onClick={() => setApprovalStatusFilter('Rejected')}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        gap: '8px',
-                        backgroundColor: '#ffffff',
-                        color: '#151515',
-                        border: approvalStatusFilter === 'Rejected' ? '2px solid #0066CC' : '2px solid transparent',
-                        borderRadius: '6px',
-                        padding: '8px 12px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        boxSizing: 'border-box'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <TimesCircleIcon style={{ color: '#C9190B', fontSize: '16px' }} />
-                        <span>Rejected</span>
-                      </div>
-                      <span style={{ fontWeight: 'bold' }}>{approvalApiKeys.filter(k => k.status === 'Rejected').length}</span>
-                    </div>
-                  </div>
-
-                  <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Tiers</Title>
-                  <select 
-                    style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px', marginBottom: '16px' }}
-                    value={approvalTiersFilter}
-                    onChange={(e) => setApprovalTiersFilter(e.target.value)}
-                  >
-                    <option value="All">All</option>
-                    {Array.from(new Set(approvalApiKeys.map(k => k.tiers))).map(tier => (
-                      <option key={tier} value={tier}>{tier}</option>
-                    ))}
-                  </select>
-
-                  <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Client</Title>
-                  <select 
-                    style={{ width: '100%', padding: '8px', border: '1px solid #d0d0d0', borderRadius: '4px' }}
-                    value={approvalClientFilter}
-                    onChange={(e) => setApprovalClientFilter(e.target.value)}
-                  >
-                    <option value="All">All</option>
-                    {uniqueApprovalClients.map(client => (
-                      <option key={client} value={client}>{client}</option>
-                    ))}
-                  </select>
-                </div>
-              </GridItem>
-
-              {/* Right Content - API keys approval table */}
-              <GridItem span={9}>
-                <Card>
-                  <CardBody>
-                    <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Title headingLevel="h2" size="lg">
-                          API keys approval
-                        </Title>
-                        <Tooltip
-                          triggerRef={approvalInfoPopoverRef}
-                          isVisible={isApprovalInfoPopoverOpen}
-                          content={
-                            <div className="info-tooltip-content" ref={approvalTooltipContentRef}>
-                              <Button
-                                variant="plain"
-                                aria-label="Close"
-                                className="info-tooltip-close"
-                                onClick={() => setIsApprovalInfoPopoverOpen(false)}
-                              >
-                                <TimesIcon />
-                              </Button>
-                              <div className="info-tooltip-text">
-                                Manage keys issued to clients for accessing APIs.
-                              </div>
-                            </div>
-                          }
-                          position="right"
-                          trigger="click"
-                          className="info-tooltip"
-                          appendTo={() => document.body}
-                        >
-                          <Button
-                            ref={approvalInfoPopoverRef}
-                            variant="plain"
-                            aria-label="Info"
-                            className="info-icon-button"
-                            onClick={() => setIsApprovalInfoPopoverOpen(!isApprovalInfoPopoverOpen)}
-                          >
-                            <InfoCircleIcon className="info-icon" />
-                          </Button>
-                        </Tooltip>
-                      </div>
-                      <SearchInput
-                        placeholder="Search"
-                        value={approvalSearchValue}
-                        onChange={(_, value) => setApprovalSearchValue(value)}
-                        onClear={() => setApprovalSearchValue('')}
-                        style={{ width: '100%', maxWidth: '300px' }}
-                      />
-                    </div>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
-                      <thead>
-                        <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                          <th style={{ textAlign: 'left', padding: '12px', paddingRight: '16px', fontSize: '14px', fontWeight: 'bold', width: '48px', minWidth: '48px' }}></th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>Name</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Status</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Tiers</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Client</th>
-                          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Active time</th>
-                          <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {paginatedApprovalApiKeys.map((key, index) => {
-                          const hasExpandableContent = key.useCase || key.rejectionReason;
-                          const originalIndex = filteredApprovalApiKeys.findIndex(k => k.name === key.name);
-                          const isExpanded = approvalExpandedRows.has(originalIndex);
-                          
-                          return (
-                            <React.Fragment key={`${key.name}-${key.api}-${originalIndex}`}>
-                              <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                                <td style={{ padding: '12px', paddingRight: '16px', width: '48px', minWidth: '48px' }}>
-                                  {hasExpandableContent ? (
-                                    <Button
-                                      variant="plain"
-                                      aria-label={isExpanded ? 'Collapse row' : 'Expand row'}
-                                      onClick={() => toggleApprovalRowExpanded(originalIndex)}
-                                      style={{ padding: '4px' }}
-                                    >
-                                      {isExpanded ? (
-                                        <AngleDownIcon style={{ fontSize: '16px', color: '#151515' }} />
-                                      ) : (
-                                        <AngleRightIcon style={{ fontSize: '16px', color: '#151515' }} />
-                                      )}
-                                    </Button>
-                                  ) : null}
-                                </td>
-                                <td style={{ padding: '12px' }}>
-                                  <Button 
-                                    variant="link" 
-                                    isInline
-                                    onClick={() => {
-                                      const decodedApiName = apiName ? decodeURIComponent(apiName) : '';
-                                      navigate(`/developer-portal/api-key-details/${encodeURIComponent(key.name)}?apiName=${encodeURIComponent(decodedApiName)}&source=apis`);
-                                    }}
-                                  >
-                                    {key.name}
-                                  </Button>
-                                </td>
-                                <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
-                                  <Label
-                                    variant="outline"
-                                    icon={
-                                      key.status === 'Active' ? <CheckCircleIcon /> : 
-                                      key.status === 'Pending' ? <ClockIcon /> : 
-                                      <TimesCircleIcon />
-                                    }
-                                    color={
-                                      key.status === 'Active' ? 'green' : 
-                                      key.status === 'Pending' ? 'blue' : 
-                                      'red'
-                                    }
-                                    style={{ display: 'inline-flex', alignItems: 'center' }}
-                                  >
-                                    {key.status}
-                                  </Label>
-                                </td>
-                                <td style={{ padding: '12px' }}>
-                                  <Badge
-                                    isRead
-                                    style={{
-                                      backgroundColor: getTierBackgroundColor(key.tiers),
-                                      color: getTierTextColor(key.tiers),
-                                      border: `1px solid ${getTierTextColor(key.tiers)}`,
-                                      padding: '4px 8px',
-                                      borderRadius: '12px',
-                                      fontSize: '12px'
-                                    }}
-                                  >
-                                    {formatTierDisplayForTable(key.tiers)}
-                                  </Badge>
-                                </td>
-                                <td style={{ padding: '12px' }}>
-                                  <Button 
-                                    variant="link" 
-                                    isInline
-                                    onClick={() => {}}
-                                  >
-                                    {key.client}
-                                  </Button>
-                                </td>
-                                <td style={{ padding: '12px', color: '#6a6e73' }}>{key.activeTime}</td>
-                                <td style={{ padding: '12px', textAlign: 'center' }}>
-                                  <div style={{ display: 'grid', gridTemplateColumns: '32px 32px', gap: '8px', width: '72px', margin: '0 auto', justifyItems: 'center' }}>
-                                    {key.status === 'Active' && (
-                                      <>
-                                        {/* Edit and Delete buttons temporarily hidden */}
-                                      </>
-                                    )}
-                                    {key.status === 'Pending' && (
-                                      <>
-                                        <Tooltip content="Approve">
-                                          <Button 
-                                            variant="plain" 
-                                            aria-label="Approve" 
-                                            onClick={() => handleApprovalApprove(key)}
-                                            className="action-button-outlined"
-                                            style={{ padding: '4px', width: '32px', height: '32px', display: 'flex', justifyContent: 'center', alignItems: 'center', minWidth: '32px' }}
-                                          >
-                                            <CheckIcon className="action-icon-outlined" />
-                                          </Button>
-                                        </Tooltip>
-                                        <Tooltip content="Reject">
-                                          <Button 
-                                            variant="plain" 
-                                            aria-label="Reject" 
-                                            onClick={() => handleApprovalReject(key)}
-                                            className="action-button-outlined"
-                                            style={{ padding: '4px', width: '32px', height: '32px', display: 'flex', justifyContent: 'center', alignItems: 'center', minWidth: '32px' }}
-                                          >
-                                            <TimesIcon className="action-icon-outlined" />
-                                          </Button>
-                                        </Tooltip>
-                                      </>
-                                    )}
-                                  </div>
-                                </td>
-                              </tr>
-                              {hasExpandableContent && isExpanded && (
-                                <tr>
-                                  <td colSpan={7} style={{ padding: '16px', backgroundColor: '#fafafa' }}>
-                                    {key.useCase && (
-                                      <div style={{ marginBottom: '16px' }}>
-                                        <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px' }}>Use case:</div>
-                                        <div style={{ fontSize: '14px', color: '#151515' }}>{key.useCase}</div>
-                                      </div>
-                                    )}
-                                    {key.rejectionReason && (
-                                      <Alert
-                                        variant="danger"
-                                        title="Rejection reason:"
-                                        style={{ marginTop: key.useCase ? '16px' : '0' }}
-                                      >
-                                        {key.rejectionReason}
-                                      </Alert>
-                                    )}
-                                  </td>
-                                </tr>
-                              )}
-                            </React.Fragment>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                    <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
-                      <Pagination
-                        itemCount={filteredApprovalApiKeys.length}
-                        page={approvalPage}
-                        perPage={approvalPerPage}
-                        onSetPage={(_, page) => setApprovalPage(page)}
-                        onPerPageSelect={(_, perPage) => {
-                          setApprovalPerPage(perPage);
-                          setApprovalPage(1);
-                        }}
-                        perPageOptions={[
-                          { title: '10', value: 10 },
-                          { title: '20', value: 20 },
-                          { title: '50', value: 50 },
-                        ]}
-                      />
-                    </div>
                   </CardBody>
                 </Card>
               </GridItem>

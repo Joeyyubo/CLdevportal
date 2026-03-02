@@ -27,9 +27,6 @@ import {
   MenuToggle,
   Divider,
   Label,
-  Tabs,
-  Tab,
-  TabTitleText,
   Alert,
   AlertActionLink,
   AlertActionCloseButton,
@@ -43,12 +40,15 @@ import {
   Badge,
   ClipboardCopy,
   Checkbox,
-  Pagination,
 } from '@patternfly/react-core';
+import { ApiProductsNavIcon } from './ApiProductsNavIcon';
+import { InfoIconOutline } from './InfoIconOutline';
 import {
   HomeIcon,
   ArchiveIcon,
   CogIcon,
+  KeyIcon,
+  ClipboardCheckIcon,
   FileAltIcon,
   GraduationCapIcon,
   PlusCircleIcon,
@@ -63,7 +63,6 @@ import {
   TimesIcon,
   PencilAltIcon,
   TrashIcon,
-  InfoCircleIcon,
   ClockIcon,
   CaretDownIcon,
   AngleRightIcon,
@@ -177,7 +176,7 @@ const APIKeys: React.FunctionComponent = () => {
   };
 
   const [currentRole, setCurrentRole] = React.useState(getCurrentRole());
-  const [activeTab, setActiveTab] = React.useState(0);
+  const isApprovalView = location.pathname.includes('/api-keys-approval');
   const [statusFilter, setStatusFilter] = React.useState('All');
   const [tiersFilter, setTiersFilter] = React.useState<string[]>([]);
   const [isTiersDropdownOpen, setIsTiersDropdownOpen] = React.useState(false);
@@ -280,7 +279,14 @@ const APIKeys: React.FunctionComponent = () => {
     // Capitalize first letter
     return tierName.charAt(0).toUpperCase() + tierName.slice(1);
   };
-  
+
+  // Format date for Requested column: e.g. "Jan 20, 2026" -> "2026/1/20"
+  const formatRequestedDate = (dateStr: string): string => {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+  };
+
   // Check if Tiers field should show error (when user tried to select tier but API is not selected)
   const isTierFieldError = hasAttemptedTierSelection && !selectedApi;
 
@@ -418,8 +424,6 @@ const APIKeys: React.FunctionComponent = () => {
   const [isApprovalClientDropdownOpen, setIsApprovalClientDropdownOpen] = React.useState(false);
   const [approvalSearchValue, setApprovalSearchValue] = React.useState('');
   const [approvalExpandedRows, setApprovalExpandedRows] = React.useState<Set<number>>(new Set());
-  const [approvalPage, setApprovalPage] = React.useState(1);
-  const [approvalPerPage, setApprovalPerPage] = React.useState(10);
 
   // Check for newly rejected API keys and show alert
   React.useEffect(() => {
@@ -558,6 +562,8 @@ const APIKeys: React.FunctionComponent = () => {
       navigate('/developer-portal');
     } else if (itemId === 'api-keys') {
       navigate('/developer-portal/api-keys');
+    } else if (itemId === 'api-keys-approval') {
+      navigate('/developer-portal/api-keys-approval');
     } else if (itemId === 'policies') {
       navigate('/policies');
     } else if (itemId === 'observability') {
@@ -566,6 +572,13 @@ const APIKeys: React.FunctionComponent = () => {
       navigate('/developer-portal');
     }
   };
+
+  // Redirect API consumer from approval page to My API keys
+  React.useEffect(() => {
+    if (isApprovalView && currentRole === 'API consumer') {
+      navigate('/developer-portal/api-keys', { replace: true });
+    }
+  }, [isApprovalView, currentRole, navigate]);
 
   // Listen to storage changes for role updates
   React.useEffect(() => {
@@ -679,11 +692,11 @@ const APIKeys: React.FunctionComponent = () => {
               title={
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                    <rect width="16" height="16" rx="3" fill="black"/>
-                    <path d="M 5 6 L 8 4 L 11 6 L 11 10 L 8 12 L 5 10 Z" stroke="white" strokeWidth="1" fill="none" strokeLinejoin="round"/>
-                    <path d="M 6 7 L 9 5 L 12 7 L 12 11 L 9 13 L 6 11 Z" stroke="#CC0000" strokeWidth="1.5" fill="none" strokeLinejoin="round" opacity="0.8"/>
+                    <rect x="2" y="2" width="2" height="12" rx="1" fill="black"/>
+                    <path d="M 6 4 L 6 12 L 14 8 L 6 4 Z" fill="black"/>
+                    <path d="M 8 8 L 14 4 L 14 12 L 8 8 Z" fill="black" opacity="0.85"/>
                   </svg>
-                  Connectivity Link
+                  Kuadrant
                 </span>
               }
               id="connectivity-link-group"
@@ -691,13 +704,18 @@ const APIKeys: React.FunctionComponent = () => {
               onToggle={() => setConnectivityLinkExpanded(!connectivityLinkExpanded)}
             >
               {currentRole !== 'API consumer' && (
-                <NavItem itemId="dev-portal" isActive={location.pathname === '/developer-portal' && !location.pathname.includes('/api-keys')} icon={<CodeIcon />} onClick={() => handleNavClick('dev-portal')}>
+                <NavItem itemId="dev-portal" isActive={location.pathname === '/developer-portal' && !location.pathname.includes('/api-keys')} icon={<ApiProductsNavIcon />} onClick={() => handleNavClick('dev-portal')}>
                   API products
                 </NavItem>
               )}
-              <NavItem itemId="api-keys" isActive={location.pathname.includes('/api-keys')} icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
-                API Access
+              <NavItem itemId="api-keys" isActive={location.pathname === '/developer-portal/api-keys'} icon={<KeyIcon />} onClick={() => handleNavClick('api-keys')}>
+                My API keys
               </NavItem>
+              {currentRole === 'API owner' && (
+                <NavItem itemId="api-keys-approval" isActive={location.pathname === '/developer-portal/api-keys-approval'} icon={<ClipboardCheckIcon />} onClick={() => handleNavClick('api-keys-approval')}>
+                  API keys approval
+                </NavItem>
+              )}
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
               </NavItem>
@@ -821,20 +839,15 @@ const APIKeys: React.FunctionComponent = () => {
   const uniqueApprovalTiers = Array.from(new Set(approvalApiKeys.map(k => k.tiers)));
   const uniqueApprovalClients = Array.from(new Set(approvalApiKeys.map(k => k.client).filter(Boolean)));
 
-  // Pagination for approval tab
-  const approvalStartIdx = (approvalPage - 1) * approvalPerPage;
-  const approvalEndIdx = approvalStartIdx + approvalPerPage;
-  const paginatedApprovalApiKeys = filteredApprovalApiKeys.slice(approvalStartIdx, approvalEndIdx);
-
   return (
     <Page masthead={masthead} sidebar={sidebar}>
-      <PageSection>
+      <PageSection className="developer-portal-main-content">
         <div style={{ marginBottom: '24px' }}>
           <Title headingLevel="h1" size="2xl" style={{ marginBottom: '16px' }}>
-            API Access
+            {isApprovalView ? 'API key approval' : 'My API keys'}
           </Title>
           <p style={{ fontSize: '14px', color: '#6a6e73', marginBottom: '16px' }}>
-            API Access management for Kubernetes.
+            {isApprovalView ? 'Manage keys issued to requesters for accessing APIs.' : 'Manage your personal API keys for accessing APIs.'}
           </p>
           
           {/* Divider line to match RHDH theme styling */}
@@ -844,22 +857,10 @@ const APIKeys: React.FunctionComponent = () => {
             marginTop: '8px'
           }} />
           
-          <Tabs activeKey={activeTab} onSelect={(_, eventKey) => {
-            setActiveTab(eventKey as number);
-            // Reset pagination when switching tabs
-            if (eventKey === 1) {
-              setApprovalPage(1);
-            }
-          }}>
-            <Tab eventKey={0} title={<TabTitleText>My API keys</TabTitleText>} />
-            {currentRole === 'API owner' && (
-              <Tab eventKey={1} title={<TabTitleText>API keys approval</TabTitleText>} />
-            )}
-          </Tabs>
         </div>
 
-        {/* Actions Row - Only for My API keys tab */}
-        {activeTab === 0 && (
+        {/* Actions Row - Only for My API keys */}
+        {!isApprovalView && (
           <>
             {currentRole !== 'API consumer' && (
               <Grid hasGutter style={{ marginBottom: '24px' }}>
@@ -980,7 +981,7 @@ const APIKeys: React.FunctionComponent = () => {
           </div>
         )}
 
-        {activeTab === 0 && (
+        {!isApprovalView && (
         <Grid hasGutter>
           <GridItem span={3}>
             <div style={{ background: '#f5f5f5', padding: '24px', borderRadius: '4px' }}>
@@ -1228,46 +1229,9 @@ const APIKeys: React.FunctionComponent = () => {
             <Card>
               <CardBody>
                 <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Title headingLevel="h2" size="lg">
-                      My API keys
-                    </Title>
-                    <Tooltip
-                      triggerRef={infoPopoverRef}
-                      isVisible={isInfoPopoverOpen}
-                      content={
-                        <div className="info-tooltip-content" ref={tooltipContentRef}>
-                          <Button
-                            variant="plain"
-                            aria-label="Close"
-                            className="info-tooltip-close"
-                            onClick={() => setIsInfoPopoverOpen(false)}
-                          >
-                            <TimesIcon />
-                          </Button>
-                          <div className="info-tooltip-text">
-                            <div>Manage your personal</div>
-                            <div>API keys for accessing</div>
-                            <div>APIs.</div>
-                          </div>
-                        </div>
-                      }
-                      position="right"
-                      trigger="click"
-                      className="info-tooltip"
-                      appendTo={() => document.body}
-                    >
-                      <Button
-                        ref={infoPopoverRef}
-                        variant="plain"
-                        aria-label="Info"
-                        className="info-icon-button"
-                        onClick={() => setIsInfoPopoverOpen(!isInfoPopoverOpen)}
-                      >
-                        <InfoCircleIcon className="info-icon" />
-                      </Button>
-                    </Tooltip>
-                  </div>
+                  <Title headingLevel="h2" size="lg">
+                    All keys
+                  </Title>
                   <SearchInput
                     placeholder="Search"
                     value={searchValue}
@@ -1284,7 +1248,7 @@ const APIKeys: React.FunctionComponent = () => {
                       <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Status</th>
                       <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Tiers</th>
                       <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '20%' }}>API</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '18%' }}>Active time</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '18%' }}>Requested</th>
                       <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Actions</th>
                     </tr>
                   </thead>
@@ -1363,7 +1327,7 @@ const APIKeys: React.FunctionComponent = () => {
                               {key.api}
                             </Button>
                           </td>
-                          <td style={{ padding: '12px', color: '#6a6e73' }}>{key.activeTime}</td>
+                          <td style={{ padding: '12px', color: '#6a6e73' }}>{formatRequestedDate(key.activeTime)}</td>
                           <td style={{ padding: '12px' }}>
                             <div style={{ display: 'flex', gap: '8px' }}>
                               {(key.status === 'Pending' || key.status === 'Active') && (
@@ -1437,7 +1401,7 @@ const APIKeys: React.FunctionComponent = () => {
         </Grid>
         )}
 
-        {activeTab === 1 && currentRole === 'API owner' && (
+        {isApprovalView && currentRole === 'API owner' && (
         <Grid hasGutter>
           <GridItem span={3}>
             <div style={{ background: '#f5f5f5', padding: '24px', borderRadius: '4px' }}>
@@ -1751,44 +1715,9 @@ const APIKeys: React.FunctionComponent = () => {
             <Card>
               <CardBody>
                 <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Title headingLevel="h2" size="lg">
-                      API keys approval
-                    </Title>
-                    <Tooltip
-                      triggerRef={approvalInfoPopoverRef}
-                      isVisible={isApprovalInfoPopoverOpen}
-                      content={
-                        <div className="info-tooltip-content" ref={approvalTooltipContentRef}>
-                          <Button
-                            variant="plain"
-                            aria-label="Close"
-                            className="info-tooltip-close"
-                            onClick={() => setIsApprovalInfoPopoverOpen(false)}
-                          >
-                            <TimesIcon />
-                          </Button>
-                          <div className="info-tooltip-text">
-                            Manage keys issued to clients for accessing APIs.
-                          </div>
-                        </div>
-                      }
-                      position="right"
-                      trigger="click"
-                      className="info-tooltip"
-                      appendTo={() => document.body}
-                    >
-                      <Button
-                        ref={approvalInfoPopoverRef}
-                        variant="plain"
-                        aria-label="Info"
-                        className="info-icon-button"
-                        onClick={() => setIsApprovalInfoPopoverOpen(!isApprovalInfoPopoverOpen)}
-                      >
-                        <InfoCircleIcon className="info-icon" />
-                      </Button>
-                    </Tooltip>
-                  </div>
+                  <Title headingLevel="h2" size="lg">
+                    All approvals
+                  </Title>
                   <SearchInput
                     placeholder="Search"
                     value={approvalSearchValue}
@@ -1806,14 +1735,14 @@ const APIKeys: React.FunctionComponent = () => {
                       <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Tiers</th>
                       <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>API</th>
                       <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Client</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Active time</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Requested</th>
                       <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedApprovalApiKeys.map((key, index) => {
+                    {filteredApprovalApiKeys.map((key, index) => {
                       const hasExpandableContent = key.useCase || key.rejectionReason;
-                      const originalIndex = filteredApprovalApiKeys.findIndex(k => k.name === key.name);
+                      const originalIndex = index;
                       const isExpanded = approvalExpandedRows.has(originalIndex);
                       
                       return (
@@ -1895,10 +1824,10 @@ const APIKeys: React.FunctionComponent = () => {
                                 {key.client}
                               </Button>
                             </td>
-                            <td style={{ padding: '12px', color: '#6a6e73' }}>{key.activeTime}</td>
-                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                              <div style={{ display: 'grid', gridTemplateColumns: '32px 32px', gap: '8px', width: '72px', margin: '0 auto', justifyItems: 'center' }}>
-                                {key.status === 'Active' && (
+<td style={{ padding: '12px', color: '#6a6e73' }}>{formatRequestedDate(key.activeTime)}</td>
+                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                  <div style={{ display: 'grid', gridTemplateColumns: '32px 32px', gap: '8px', width: '72px', margin: '0 auto', justifyItems: 'center' }}>
+                                    {key.status === 'Active' && (
                                   <>
                                     {/* Edit and Delete buttons temporarily hidden */}
                                   </>
@@ -1958,23 +1887,6 @@ const APIKeys: React.FunctionComponent = () => {
                     })}
                   </tbody>
                 </table>
-                <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
-                  <Pagination
-                    itemCount={filteredApprovalApiKeys.length}
-                    page={approvalPage}
-                    perPage={approvalPerPage}
-                    onSetPage={(_, page) => setApprovalPage(page)}
-                    onPerPageSelect={(_, perPage) => {
-                      setApprovalPerPage(perPage);
-                      setApprovalPage(1);
-                    }}
-                    perPageOptions={[
-                      { title: '10', value: 10 },
-                      { title: '20', value: 20 },
-                      { title: '50', value: 50 },
-                    ]}
-                  />
-                </div>
               </CardBody>
             </Card>
           </GridItem>
