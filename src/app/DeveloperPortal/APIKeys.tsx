@@ -212,9 +212,17 @@ const APIKeys: React.FunctionComponent = () => {
   const [deletingApiKey, setDeletingApiKey] = React.useState<APIKey | null>(null);
   const [deleteConfirmationText, setDeleteConfirmationText] = React.useState('');
   
+  // Approve API key modal state
+  const [isApproveModalOpen, setIsApproveModalOpen] = React.useState(false);
+  const [approvingApiKey, setApprovingApiKey] = React.useState<APIKey | null>(null);
+
+  // Bulk approve modal state
+  const [isBulkApproveModalOpen, setIsBulkApproveModalOpen] = React.useState(false);
+
   // Reject API key modal states
   const [isRejectModalOpen, setIsRejectModalOpen] = React.useState(false);
   const [rejectingApiKey, setRejectingApiKey] = React.useState<APIKey | null>(null);
+  const [bulkRejectKeys, setBulkRejectKeys] = React.useState<APIKey[]>([]);
   const [rejectionReason, setRejectionReason] = React.useState('');
   
   // Available tiers with display text
@@ -415,15 +423,21 @@ const APIKeys: React.FunctionComponent = () => {
     },
   ];
   const [approvalApiKeys, setApprovalApiKeys] = React.useState<APIKey[]>(initialApprovalApiKeys);
-  const [approvalStatusFilter, setApprovalStatusFilter] = React.useState('All');
+  const [approvalStatusFilter, setApprovalStatusFilter] = React.useState<'Active' | 'Pending' | 'Rejected'>('Pending');
   const [approvalTiersFilter, setApprovalTiersFilter] = React.useState<string[]>([]);
   const [isApprovalTiersDropdownOpen, setIsApprovalTiersDropdownOpen] = React.useState(false);
   const [approvalApiFilter, setApprovalApiFilter] = React.useState<string[]>([]);
   const [isApprovalApiDropdownOpen, setIsApprovalApiDropdownOpen] = React.useState(false);
-  const [approvalClientFilter, setApprovalClientFilter] = React.useState<string[]>([]);
-  const [isApprovalClientDropdownOpen, setIsApprovalClientDropdownOpen] = React.useState(false);
   const [approvalSearchValue, setApprovalSearchValue] = React.useState('');
   const [approvalExpandedRows, setApprovalExpandedRows] = React.useState<Set<number>>(new Set());
+  const [selectedApprovalRowIds, setSelectedApprovalRowIds] = React.useState<Set<string>>(new Set());
+
+  // When entering API key approval page, reset expanded rows so header chevron shows right (collapsed) by default
+  React.useEffect(() => {
+    if (location.pathname === '/developer-portal/api-keys-approval') {
+      setApprovalExpandedRows(new Set());
+    }
+  }, [location.pathname]);
 
   // Check for newly rejected API keys and show alert
   React.useEffect(() => {
@@ -508,21 +522,83 @@ const APIKeys: React.FunctionComponent = () => {
     }, 10000);
   };
 
+  const handleApproveClick = (key: APIKey) => {
+    setApprovingApiKey(key);
+    setIsApproveModalOpen(true);
+  };
+
+  const handleConfirmApprove = () => {
+    if (approvingApiKey) {
+      handleApprove(approvingApiKey);
+      setApprovingApiKey(null);
+      setIsApproveModalOpen(false);
+    }
+  };
+
   const handleReject = (key: APIKey) => {
     setRejectingApiKey(key);
+    setBulkRejectKeys([]);
+    setRejectionReason('');
+    setIsRejectModalOpen(true);
+  };
+
+  const getSelectedApprovalKeys = () =>
+    filteredApprovalApiKeys.filter((key, i) => selectedApprovalRowIds.has(getApprovalRowId(key, i)));
+  const selectedApprovalCount = selectedApprovalRowIds.size;
+
+  const getSelectedPendingApprovalKeys = () =>
+    getSelectedApprovalKeys().filter(k => k.status === 'Pending');
+
+  const handleApproveSelectedClick = () => {
+    const toApprove = getSelectedPendingApprovalKeys();
+    if (toApprove.length === 0) return;
+    setIsBulkApproveModalOpen(true);
+  };
+
+  const handleConfirmBulkApprove = () => {
+    const toApprove = getSelectedPendingApprovalKeys();
+    const namesToApprove = new Set(toApprove.map(k => k.name));
+    if (namesToApprove.size > 0) {
+      setApprovalApiKeys(prev => prev.map(k =>
+        namesToApprove.has(k.name) ? { ...k, status: 'Active' as const } : k
+      ));
+      setSelectedApprovalRowIds(new Set());
+    }
+    setIsBulkApproveModalOpen(false);
+  };
+
+  const formatBulkApproveKeyLabel = (key: APIKey) => {
+    const user = key.client || key.user || 'user:default/guest';
+    const tier = formatTierDisplayForTable(key.tiers).toLowerCase();
+    return `${user} - ${key.api} (${tier})`;
+  };
+
+  const handleRejectSelected = () => {
+    const toReject = getSelectedApprovalKeys().filter(k => k.status === 'Pending');
+    if (toReject.length === 0) return;
+    setRejectingApiKey(null);
+    setBulkRejectKeys(toReject);
     setRejectionReason('');
     setIsRejectModalOpen(true);
   };
 
   const handleConfirmReject = () => {
-    if (rejectingApiKey && rejectionReason.trim()) {
-      setApprovalApiKeys(prev => prev.map(k => 
+    if (!rejectionReason.trim()) return;
+    if (bulkRejectKeys.length > 0) {
+      const namesToReject = new Set(bulkRejectKeys.map(k => k.name));
+      setApprovalApiKeys(prev => prev.map(k =>
+        namesToReject.has(k.name) ? { ...k, status: 'Rejected' as const, rejectionReason: rejectionReason.trim() } : k
+      ));
+      setSelectedApprovalRowIds(new Set());
+      setBulkRejectKeys([]);
+    } else if (rejectingApiKey) {
+      setApprovalApiKeys(prev => prev.map(k =>
         k.name === rejectingApiKey.name ? { ...k, status: 'Rejected' as const, rejectionReason: rejectionReason.trim() } : k
       ));
-      setIsRejectModalOpen(false);
       setRejectingApiKey(null);
-      setRejectionReason('');
     }
+    setIsRejectModalOpen(false);
+    setRejectionReason('');
   };
 
   const handleUserDropdownToggle = () => {
@@ -801,29 +877,15 @@ const APIKeys: React.FunctionComponent = () => {
     });
   };
   
-  // Handle approval client selection toggle
-  const handleApprovalClientToggle = (client: string) => {
-    setApprovalClientFilter(prev => {
-      if (prev.includes(client)) {
-        return prev.filter(c => c !== client);
-      } else {
-        return [...prev, client];
-      }
-    });
-  };
-
   // Filter approval API keys
   const filteredApprovalApiKeys = approvalApiKeys.filter(key => {
-    if (approvalStatusFilter !== 'All' && key.status !== approvalStatusFilter) {
+    if (key.status !== approvalStatusFilter) {
       return false;
     }
     if (approvalTiersFilter.length > 0 && !approvalTiersFilter.includes(key.tiers)) {
       return false;
     }
     if (approvalApiFilter.length > 0 && !approvalApiFilter.includes(key.api)) {
-      return false;
-    }
-    if (approvalClientFilter.length > 0 && (!key.client || !approvalClientFilter.includes(key.client))) {
       return false;
     }
     if (approvalSearchValue && !key.name.toLowerCase().includes(approvalSearchValue.toLowerCase()) && 
@@ -837,7 +899,42 @@ const APIKeys: React.FunctionComponent = () => {
   // Get unique values for approval filters
   const uniqueApprovalApis = Array.from(new Set(approvalApiKeys.map(k => k.api)));
   const uniqueApprovalTiers = Array.from(new Set(approvalApiKeys.map(k => k.tiers)));
-  const uniqueApprovalClients = Array.from(new Set(approvalApiKeys.map(k => k.client).filter(Boolean)));
+
+  const getApprovalRowId = (key: APIKey, index: number) => `${key.name}::${key.api}::${index}`;
+  const toggleApprovalRowSelection = (rowId: string) => {
+    setSelectedApprovalRowIds(prev => {
+      const next = new Set(prev);
+      if (next.has(rowId)) next.delete(rowId);
+      else next.add(rowId);
+      return next;
+    });
+  };
+  const isAllApprovalRowsSelected = filteredApprovalApiKeys.length > 0 && filteredApprovalApiKeys.every((key, i) => selectedApprovalRowIds.has(getApprovalRowId(key, i)));
+  const isSomeApprovalRowsSelected = filteredApprovalApiKeys.some((key, i) => selectedApprovalRowIds.has(getApprovalRowId(key, i)));
+  const toggleSelectAllApprovalRows = () => {
+    if (isAllApprovalRowsSelected) {
+      setSelectedApprovalRowIds(new Set());
+    } else {
+      setSelectedApprovalRowIds(new Set(filteredApprovalApiKeys.map((key, i) => getApprovalRowId(key, i))));
+    }
+  };
+  const expandableApprovalRowIndices = React.useMemo(
+    () => new Set(
+      filteredApprovalApiKeys
+        .map((key, i) => (key.useCase || key.rejectionReason ? i : -1))
+        .filter((i) => i >= 0)
+    ),
+    [filteredApprovalApiKeys]
+  );
+  // Header chevron: right = collapsed (default), down = all rows expanded
+  const isAllApprovalRowsExpanded = expandableApprovalRowIndices.size > 0 && [...expandableApprovalRowIndices].every((i) => approvalExpandedRows.has(i));
+  const toggleExpandAllApprovalRows = () => {
+    if (isAllApprovalRowsExpanded) {
+      setApprovalExpandedRows(new Set());
+    } else {
+      setApprovalExpandedRows(new Set(expandableApprovalRowIndices));
+    }
+  };
 
   return (
     <Page masthead={masthead} sidebar={sidebar}>
@@ -1402,62 +1499,53 @@ const APIKeys: React.FunctionComponent = () => {
         )}
 
         {isApprovalView && currentRole === 'API owner' && (
+        <>
+        {selectedApprovalCount > 0 && (
+          <Grid hasGutter style={{ marginBottom: '16px' }}>
+            <GridItem span={3} />
+            <GridItem span={9}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 0'
+                }}
+              >
+                <span style={{ fontSize: '14px', color: '#151515' }}>
+                  {selectedApprovalCount} request{selectedApprovalCount !== 1 ? 's' : ''} selected
+                </span>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <Button
+                    variant="primary"
+                    onClick={handleApproveSelectedClick}
+                    icon={<CheckIcon />}
+                    iconPosition="start"
+                    style={{ whiteSpace: 'nowrap', padding: '4px 12px' }}
+                  >
+                    Approve Selected
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={handleRejectSelected}
+                    icon={<TimesIcon />}
+                    iconPosition="start"
+                    style={{ whiteSpace: 'nowrap', padding: '4px 12px' }}
+                  >
+                    Reject Selected
+                  </Button>
+                </div>
+              </div>
+            </GridItem>
+          </Grid>
+        )}
         <Grid hasGutter>
           <GridItem span={3}>
             <div style={{ background: '#f5f5f5', padding: '24px', borderRadius: '4px' }}>
               <Title headingLevel="h3" size="md" style={{ marginBottom: '8px' }}>Status</Title>
               
-              {/* Status Cards */}
+              {/* Status Cards: Pending first, then Approved (Active), then Rejected */}
               <div style={{ marginBottom: '16px' }}>
-                <div
-                  role="button"
-                  onClick={() => setApprovalStatusFilter('All')}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: '8px',
-                    backgroundColor: '#ffffff',
-                    color: '#151515',
-                    border: approvalStatusFilter === 'All' ? '2px solid #0066CC' : '2px solid transparent',
-                    borderRadius: '6px',
-                    padding: '8px 12px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    marginBottom: '8px',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <span>All</span>
-                  <span style={{ fontWeight: 'bold' }}>{approvalStatusCounts.All}</span>
-                </div>
-                <div
-                  role="button"
-                  onClick={() => setApprovalStatusFilter('Active')}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: '8px',
-                    backgroundColor: '#ffffff',
-                    color: '#151515',
-                    border: approvalStatusFilter === 'Active' ? '2px solid #0066CC' : '2px solid transparent',
-                    borderRadius: '6px',
-                    padding: '8px 12px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    marginBottom: '8px',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CheckCircleIcon style={{ color: '#3e8635', fontSize: '16px' }} />
-                    <span>Active</span>
-                  </div>
-                  <span style={{ fontWeight: 'bold' }}>{approvalStatusCounts.Active}</span>
-                </div>
                 <div
                   role="button"
                   onClick={() => setApprovalStatusFilter('Pending')}
@@ -1483,6 +1571,32 @@ const APIKeys: React.FunctionComponent = () => {
                     <span>Pending</span>
                   </div>
                   <span style={{ fontWeight: 'bold' }}>{approvalStatusCounts.Pending}</span>
+                </div>
+                <div
+                  role="button"
+                  onClick={() => setApprovalStatusFilter('Active')}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: '8px',
+                    backgroundColor: '#ffffff',
+                    color: '#151515',
+                    border: approvalStatusFilter === 'Active' ? '2px solid #0066CC' : '2px solid transparent',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    marginBottom: '8px',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <CheckCircleIcon style={{ color: '#3e8635', fontSize: '16px' }} />
+                    <span>Approved</span>
+                  </div>
+                  <span style={{ fontWeight: 'bold' }}>{approvalStatusCounts.Active}</span>
                 </div>
                 <div
                   role="button"
@@ -1642,72 +1756,6 @@ const APIKeys: React.FunctionComponent = () => {
                   </DropdownList>
                 </Dropdown>
               </div>
-
-              <Title headingLevel="h3" size="md" style={{ marginBottom: '8px', marginTop: '16px' }}>Client</Title>
-              <div style={{ marginBottom: '16px' }}>
-                <Dropdown
-                  isOpen={isApprovalClientDropdownOpen}
-                  onOpenChange={(isOpen) => setIsApprovalClientDropdownOpen(isOpen)}
-                  toggle={(toggleRef) => (
-                    <MenuToggle
-                      ref={toggleRef}
-                      onClick={() => setIsApprovalClientDropdownOpen(!isApprovalClientDropdownOpen)}
-                      isExpanded={isApprovalClientDropdownOpen}
-                      style={{ width: '100%', minHeight: '36px', padding: '4px 8px' }}
-                    >
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center', width: '100%', minHeight: '28px' }}>
-                        {approvalClientFilter.length === 0 ? (
-                          <span style={{ color: '#6a6e73', fontSize: '14px' }}>All</span>
-                        ) : (
-                          <>
-                            {approvalClientFilter.map(client => (
-                              <Label
-                                key={client}
-                                onClose={() => handleApprovalClientToggle(client)}
-                                style={{ margin: 0 }}
-                              >
-                                {client}
-                              </Label>
-                            ))}
-                            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <Button
-                                variant="plain"
-                                aria-label="Clear all"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setApprovalClientFilter([]);
-                                }}
-                                style={{ padding: '2px', minWidth: 'auto' }}
-                              >
-                                <TimesIcon style={{ fontSize: '12px' }} />
-                              </Button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </MenuToggle>
-                  )}
-                >
-                  <DropdownList style={{ maxHeight: '120px', overflowY: 'auto' }}>
-                {uniqueApprovalClients.map(client => (
-                      <DropdownItem
-                        key={client}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleApprovalClientToggle(client || '');
-                        }}
-                      >
-                        <Checkbox
-                          isChecked={client ? approvalClientFilter.includes(client) : false}
-                          id={`approval-client-${client}`}
-                          label={client || ''}
-                          onChange={() => handleApprovalClientToggle(client || '')}
-                        />
-                      </DropdownItem>
-                    ))}
-                  </DropdownList>
-                </Dropdown>
-              </div>
             </div>
           </GridItem>
 
@@ -1726,17 +1774,27 @@ const APIKeys: React.FunctionComponent = () => {
                     style={{ width: '100%', maxWidth: '300px' }}
                   />
                 </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                <div style={{ overflowX: 'auto', width: '100%', marginBottom: 0 }}>
+                <table style={{ width: '100%', minWidth: '800px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                      <th style={{ textAlign: 'left', padding: '12px', paddingRight: '16px', fontSize: '14px', fontWeight: 'bold', width: '48px', minWidth: '48px' }}></th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Name</th>
+                      <th style={{ textAlign: 'left', padding: '12px', paddingRight: '16px', fontSize: '14px', fontWeight: 'bold', width: '80px', minWidth: '80px', verticalAlign: 'middle' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Checkbox
+                            id="approval-select-all"
+                            isChecked={isAllApprovalRowsSelected}
+                            isIndeterminate={isSomeApprovalRowsSelected && !isAllApprovalRowsSelected}
+                            onChange={toggleSelectAllApprovalRows}
+                            aria-label="Select all rows"
+                          />
+                        </div>
+                      </th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>API</th>
                       <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Status</th>
                       <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Tiers</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>API</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Client</th>
-                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Requested</th>
-                      <th style={{ textAlign: 'center', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Actions</th>
+                      <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '12%' }}>Requester</th>
+                      <th style={{ textAlign: 'left', padding: '12px', paddingRight: '16px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>Requested</th>
+                      <th style={{ textAlign: 'left', padding: '12px', paddingLeft: '16px', fontSize: '14px', fontWeight: 'bold', width: '18%', minWidth: '200px' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1748,29 +1806,36 @@ const APIKeys: React.FunctionComponent = () => {
                       return (
                         <React.Fragment key={`${key.name}-${key.api}-${originalIndex}`}>
                           <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                            <td style={{ padding: '12px', paddingRight: '16px', width: '48px', minWidth: '48px' }}>
-                              {hasExpandableContent ? (
+                            <td style={{ padding: '12px', paddingRight: '16px', width: '80px', minWidth: '80px', verticalAlign: 'middle' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <Button
                                   variant="plain"
-                                  aria-label={isExpanded ? 'Collapse row' : 'Expand row'}
-                                  onClick={() => toggleApprovalRowExpanded(originalIndex)}
+                                  aria-label={hasExpandableContent ? (isExpanded ? 'Collapse row' : 'Expand row') : 'Expand row (no details)'}
+                                  onClick={() => hasExpandableContent && toggleApprovalRowExpanded(originalIndex)}
                                   style={{ padding: '4px' }}
+                                  isDisabled={!hasExpandableContent}
                                 >
                                   {isExpanded ? (
-                                    <AngleDownIcon style={{ fontSize: '16px', color: '#151515' }} />
+                                    <AngleDownIcon style={{ fontSize: '16px', color: hasExpandableContent ? '#151515' : '#8a8d90' }} />
                                   ) : (
-                                    <AngleRightIcon style={{ fontSize: '16px', color: '#151515' }} />
+                                    <AngleRightIcon style={{ fontSize: '16px', color: hasExpandableContent ? '#151515' : '#8a8d90' }} />
                                   )}
                                 </Button>
-                              ) : null}
+                                <Checkbox
+                                  id={`approval-row-${originalIndex}`}
+                                  isChecked={selectedApprovalRowIds.has(getApprovalRowId(key, originalIndex))}
+                                  onChange={() => toggleApprovalRowSelection(getApprovalRowId(key, originalIndex))}
+                                  aria-label={`Select row ${key.name}`}
+                                />
+                              </div>
                             </td>
                             <td style={{ padding: '12px' }}>
                               <Button 
                                 variant="link" 
                                 isInline
-                                onClick={() => navigate(`/developer-portal/api-key-details/${encodeURIComponent(key.name)}`)}
+                                onClick={() => navigate(`/apis/api-details/${encodeURIComponent(key.api)}`)}
                               >
-                                {key.name}
+                                {key.api}
                               </Button>
                             </td>
                             <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
@@ -1806,27 +1871,12 @@ const APIKeys: React.FunctionComponent = () => {
                                 {formatTierDisplayForTable(key.tiers)}
                               </Badge>
                             </td>
-                            <td style={{ padding: '12px' }}>
-                              <Button 
-                                variant="link" 
-                                isInline
-                                onClick={() => navigate(`/apis/api-details/${encodeURIComponent(key.api)}`)}
-                              >
-                                {key.api}
-                              </Button>
+                            <td style={{ padding: '12px', color: '#151515', fontWeight: 400 }}>
+                              {key.client || ''}
                             </td>
-                            <td style={{ padding: '12px' }}>
-                              <Button 
-                                variant="link" 
-                                isInline
-                                onClick={() => {}}
-                              >
-                                {key.client}
-                              </Button>
-                            </td>
-<td style={{ padding: '12px', color: '#6a6e73' }}>{formatRequestedDate(key.activeTime)}</td>
-                                <td style={{ padding: '12px', textAlign: 'center' }}>
-                                  <div style={{ display: 'grid', gridTemplateColumns: '32px 32px', gap: '8px', width: '72px', margin: '0 auto', justifyItems: 'center' }}>
+<td style={{ padding: '12px', paddingRight: '16px', color: '#6a6e73' }}>{formatRequestedDate(key.activeTime)}</td>
+                                <td style={{ padding: '12px', paddingLeft: '16px', textAlign: 'left', minWidth: '200px' }}>
+                                  <div style={{ display: 'flex', flexDirection: 'row', gap: '8px', flexWrap: 'nowrap', justifyContent: 'flex-start', alignItems: 'center' }}>
                                     {key.status === 'Active' && (
                                   <>
                                     {/* Edit and Delete buttons temporarily hidden */}
@@ -1834,28 +1884,26 @@ const APIKeys: React.FunctionComponent = () => {
                                 )}
                                 {key.status === 'Pending' && (
                                   <>
-                                    <Tooltip content="Approve">
-                                      <Button 
-                                        variant="plain" 
-                                        aria-label="Approve" 
-                                        onClick={() => handleApprove(key)}
-                                        className="action-button-outlined"
-                                        style={{ padding: '4px', width: '32px', height: '32px', display: 'flex', justifyContent: 'center', alignItems: 'center', minWidth: '32px' }}
-                                      >
-                                        <CheckIcon className="action-icon-outlined" />
-                                      </Button>
-                                    </Tooltip>
-                                    <Tooltip content="Reject">
-                                      <Button 
-                                        variant="plain" 
-                                        aria-label="Reject" 
-                                        onClick={() => handleReject(key)}
-                                        className="action-button-outlined"
-                                        style={{ padding: '4px', width: '32px', height: '32px', display: 'flex', justifyContent: 'center', alignItems: 'center', minWidth: '32px' }}
-                                      >
-                                        <TimesIcon className="action-icon-outlined" />
-                                      </Button>
-                                    </Tooltip>
+                                    <Button
+                                      variant="secondary"
+                                      aria-label="Approve"
+                                      onClick={() => handleApproveClick(key)}
+                                      icon={<CheckIcon />}
+                                      iconPosition="start"
+                                      style={{ minWidth: '90px', flexShrink: 0, whiteSpace: 'nowrap', padding: '4px 12px' }}
+                                    >
+                                      Approve
+                                    </Button>
+                                    <Button
+                                      variant="secondary"
+                                      aria-label="Reject"
+                                      onClick={() => handleReject(key)}
+                                      icon={<TimesIcon />}
+                                      iconPosition="start"
+                                      style={{ minWidth: '90px', flexShrink: 0, whiteSpace: 'nowrap', padding: '4px 12px' }}
+                                    >
+                                      Reject
+                                    </Button>
                                   </>
                                 )}
                               </div>
@@ -1863,7 +1911,7 @@ const APIKeys: React.FunctionComponent = () => {
                           </tr>
                           {hasExpandableContent && isExpanded && (
                             <tr>
-                              <td colSpan={8} style={{ padding: '16px', backgroundColor: '#fafafa' }}>
+                              <td colSpan={7} style={{ padding: '16px', backgroundColor: '#fafafa' }}>
                                 {key.useCase && (
                                   <div style={{ marginBottom: '16px' }}>
                                     <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px' }}>Use case:</div>
@@ -1887,10 +1935,12 @@ const APIKeys: React.FunctionComponent = () => {
                     })}
                   </tbody>
                 </table>
+                </div>
               </CardBody>
             </Card>
           </GridItem>
         </Grid>
+        </>
         )}
       
       {/* Request API key modal */}
@@ -2555,12 +2605,98 @@ const APIKeys: React.FunctionComponent = () => {
         </ModalFooter>
       </Modal>
 
+      {/* Approve API Key modal */}
+      <Modal
+        isOpen={isApproveModalOpen}
+        onClose={() => {
+          setIsApproveModalOpen(false);
+          setApprovingApiKey(null);
+        }}
+        variant="small"
+        style={{ maxWidth: '500px' }}
+      >
+        <ModalHeader>
+          <Title headingLevel="h2">Approve API Key</Title>
+        </ModalHeader>
+        <ModalBody style={{ padding: '24px' }}>
+          {approvingApiKey && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px' }}>
+              <div>
+                <span style={{ fontWeight: 'bold', marginRight: '4px' }}>User:</span>
+                <span>{approvingApiKey.client || approvingApiKey.user || 'user:default/guest'}</span>
+              </div>
+              <div>
+                <span style={{ fontWeight: 'bold', marginRight: '4px' }}>API:</span>
+                <span>{approvingApiKey.api}</span>
+              </div>
+              <div>
+                <span style={{ fontWeight: 'bold', marginRight: '4px' }}>Tier:</span>
+                <span>{formatTierDisplayForTable(approvingApiKey.tiers)}</span>
+              </div>
+              <div>
+                <span style={{ fontWeight: 'bold', marginRight: '4px' }}>Use Case:</span>
+                <span>{approvingApiKey.useCase || '-'}</span>
+              </div>
+            </div>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="primary" onClick={handleConfirmApprove}>
+            Approve
+          </Button>
+          <Button
+            variant="link"
+            onClick={() => {
+              setIsApproveModalOpen(false);
+              setApprovingApiKey(null);
+            }}
+          >
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+
+      {/* Bulk Approve API Keys modal */}
+      <Modal
+        isOpen={isBulkApproveModalOpen}
+        onClose={() => setIsBulkApproveModalOpen(false)}
+        variant="small"
+        style={{ maxWidth: '500px' }}
+      >
+        <ModalHeader>
+          <Title headingLevel="h2">
+            Approve {getSelectedPendingApprovalKeys().length} API Key{getSelectedPendingApprovalKeys().length !== 1 ? 's' : ''}
+          </Title>
+        </ModalHeader>
+        <ModalBody style={{ padding: '24px' }}>
+          <p style={{ marginBottom: '16px', fontSize: '14px', color: '#151515' }}>
+            You are about to approve the following API keys:
+          </p>
+          <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', color: '#151515' }}>
+            {getSelectedPendingApprovalKeys().map((key, index) => (
+              <li key={`${key.name}-${key.api}-${index}`} style={{ marginBottom: '8px' }}>
+                {formatBulkApproveKeyLabel(key)}
+              </li>
+            ))}
+          </ul>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="primary" onClick={handleConfirmBulkApprove}>
+            Approve All
+          </Button>
+          <Button variant="link" onClick={() => setIsBulkApproveModalOpen(false)}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+
       {/* Reject API key modal */}
       <Modal
         isOpen={isRejectModalOpen}
         onClose={() => {
           setIsRejectModalOpen(false);
           setRejectingApiKey(null);
+          setBulkRejectKeys([]);
           setRejectionReason('');
         }}
         variant="small"
@@ -2569,29 +2705,37 @@ const APIKeys: React.FunctionComponent = () => {
         <ModalHeader>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <ExclamationTriangleIcon style={{ color: '#F0AB00', fontSize: '24px' }} />
-            <Title headingLevel="h2">Reject API key</Title>
+            <Title headingLevel="h2">
+              {bulkRejectKeys.length > 0 ? `Reject ${bulkRejectKeys.length} request${bulkRejectKeys.length !== 1 ? 's' : ''}` : 'Reject API key'}
+            </Title>
           </div>
         </ModalHeader>
         <ModalBody style={{ padding: '24px' }}>
           <p style={{ marginBottom: '24px', fontSize: '14px', color: '#151515' }}>
-            This will deny this API key request. The applicant will be notified of the reason and can submit a new request.
+            {bulkRejectKeys.length > 0
+              ? 'This will deny the selected API key requests. The applicants will be notified of the reason and can submit new requests.'
+              : 'This will deny this API key request. The applicant will be notified of the reason and can submit a new request.'}
           </p>
 
-          <FormGroup label="API key name" style={{ marginBottom: '16px' }}>
-            <TextInput
-              value={rejectingApiKey?.name || ''}
-              readOnly
-              style={{ backgroundColor: '#f5f5f5' }}
-            />
-          </FormGroup>
+          {bulkRejectKeys.length === 0 && (
+            <>
+              <FormGroup label="API key name" style={{ marginBottom: '16px' }}>
+                <TextInput
+                  value={rejectingApiKey?.name || ''}
+                  readOnly
+                  style={{ backgroundColor: '#f5f5f5' }}
+                />
+              </FormGroup>
 
-          <FormGroup label="Use case" style={{ marginBottom: '16px' }}>
-            <TextInput
-              value={rejectingApiKey?.useCase || ''}
-              readOnly
-              style={{ backgroundColor: '#f5f5f5' }}
-            />
-          </FormGroup>
+              <FormGroup label="Use case" style={{ marginBottom: '16px' }}>
+                <TextInput
+                  value={rejectingApiKey?.useCase || ''}
+                  readOnly
+                  style={{ backgroundColor: '#f5f5f5' }}
+                />
+              </FormGroup>
+            </>
+          )}
 
           <FormGroup 
             label={
@@ -2626,6 +2770,7 @@ const APIKeys: React.FunctionComponent = () => {
             onClick={() => {
               setIsRejectModalOpen(false);
               setRejectingApiKey(null);
+              setBulkRejectKeys([]);
               setRejectionReason('');
             }}
           >

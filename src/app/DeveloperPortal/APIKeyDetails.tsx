@@ -70,6 +70,7 @@ import {
   ArrowUpIcon,
   UsersIcon,
   PencilAltIcon,
+  TrashIcon,
   CodeBranchIcon,
   CheckCircleIcon,
   TimesCircleIcon,
@@ -359,11 +360,17 @@ const APIKeyDetails: React.FunctionComponent = () => {
   const [isReapplyPlanDropdownOpen, setIsReapplyPlanDropdownOpen] = React.useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
   const userToggleRef = React.useRef<HTMLButtonElement>(null);
-  const [isKebabMenuOpen, setIsKebabMenuOpen] = React.useState(false);
   const [isOwnerKebabMenuOpen, setIsOwnerKebabMenuOpen] = React.useState(false);
-  const kebabMenuRef = React.useRef<HTMLButtonElement>(null);
   const [isRejectModalOpen, setIsRejectModalOpen] = React.useState(false);
   const [rejectionReason, setRejectionReason] = React.useState('');
+  
+  // Edit API key modal state
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+  const [editApiKeyName, setEditApiKeyName] = React.useState('');
+  const [editSelectedTier, setEditSelectedTier] = React.useState('');
+  const [editUseCase, setEditUseCase] = React.useState('');
+  const [isEditTierDropdownOpen, setIsEditTierDropdownOpen] = React.useState(false);
+  const editTierOptions = ['Gold(100/day)', 'Silver(50/day)', 'Bronze(10/day)'];
   
   // Approve notification state
   const [showApproveNotification, setShowApproveNotification] = React.useState(false);
@@ -718,51 +725,34 @@ const APIKeyDetails: React.FunctionComponent = () => {
                   Reapply
                 </Button>
               )}
-              {/* Kebab menu for API consumer and API owner (my API keys) - only show for Active or Pending status, but not for API owner with Pending status */}
+              {/* Edit and Delete icon buttons for API consumer and API owner (my API keys) - only show for Active or Pending status, but not for API owner with Pending status */}
               {((currentRole === 'API consumer') || (currentRole === 'API owner' && keyDetails.status !== 'Pending')) && keyDetails.status !== 'Rejected' && keyDetails.status !== 'Disabled' && (
-                <Dropdown
-                  isOpen={isKebabMenuOpen}
-                  onSelect={() => setIsKebabMenuOpen(false)}
-                  onOpenChange={(isOpen) => setIsKebabMenuOpen(isOpen)}
-                  toggle={(toggleRef) => (
-                    <MenuToggle
-                      ref={toggleRef}
+                <>
+                  <Tooltip content={keyDetails.status === 'Pending' ? 'Edit pending API key' : 'Edit active API key'}>
+                    <Button
                       variant="plain"
-                      onClick={() => setIsKebabMenuOpen(!isKebabMenuOpen)}
-                      isExpanded={isKebabMenuOpen}
-                      aria-label="API key actions"
-                    >
-                      <EllipsisVIcon />
-                    </MenuToggle>
-                  )}
-                  popperProps={{ 
-                    appendTo: () => document.body,
-                    position: 'right',
-                    enableFlip: true,
-                    preventOverflow: true
-                  }}
-                >
-                  <DropdownList>
-                    <DropdownItem
-                      key="edit"
+                      aria-label={keyDetails.status === 'Pending' ? 'Edit pending API key' : 'Edit active API key'}
                       onClick={() => {
-                        // TODO: Implement edit functionality
-                        setIsKebabMenuOpen(false);
+                        setEditApiKeyName(keyDetails.name);
+                        const tierMatch = keyDetails.plan?.match(/(Gold|Silver|Bronze)/i);
+                        setEditSelectedTier(tierMatch ? (tierMatch[1].toLowerCase() === 'gold' ? 'Gold(100/day)' : tierMatch[1].toLowerCase() === 'silver' ? 'Silver(50/day)' : 'Bronze(10/day)') : 'Silver(50/day)');
+                        setEditUseCase(keyDetails.description || '');
+                        setIsEditModalOpen(true);
                       }}
                     >
-                      {keyDetails.status === 'Pending' ? 'Edit pending API key' : 'Edit active API key'}
-                    </DropdownItem>
-                    <DropdownItem
-                      key="delete"
-                      onClick={() => {
-                        setIsDeleteModalOpen(true);
-                        setIsKebabMenuOpen(false);
-                      }}
+                      <PencilAltIcon />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip content={keyDetails.status === 'Pending' ? 'Delete pending API key' : 'Delete active API key'}>
+                    <Button
+                      variant="plain"
+                      aria-label={keyDetails.status === 'Pending' ? 'Delete pending API key' : 'Delete active API key'}
+                      onClick={() => setIsDeleteModalOpen(true)}
                     >
-                      {keyDetails.status === 'Pending' ? 'Delete pending API key' : 'Delete active API key'}
-                    </DropdownItem>
-                  </DropdownList>
-                </Dropdown>
+                      <TrashIcon />
+                    </Button>
+                  </Tooltip>
+                </>
               )}
               {/* Kebab menu for API owner - only show for Pending status in API key details page */}
               {currentRole === 'API owner' && keyDetails.status === 'Pending' && (
@@ -834,15 +824,10 @@ const APIKeyDetails: React.FunctionComponent = () => {
 
           {activeTab === 0 && (
             <Grid hasGutter>
-              <GridItem span={12}>
+              <GridItem span={12} md={6}>
                 <Card style={{ height: '100%' }}>
                   <CardBody>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-                      <Title headingLevel="h3" size="lg">About</Title>
-                      <Button variant="plain" aria-label="Edit">
-                        <PencilAltIcon />
-                      </Button>
-                    </div>
+                    <Title headingLevel="h3" size="lg" style={{ marginBottom: '24px' }}>About</Title>
 
                     <ActionGroup style={{ marginBottom: '24px' }}>
                       <Button variant="link">
@@ -892,7 +877,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
                       </DescriptionListGroup>
 
                       <DescriptionListGroup>
-                        <DescriptionListTerm>API key plan</DescriptionListTerm>
+                        <DescriptionListTerm>Tier</DescriptionListTerm>
                         <DescriptionListDescription>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span>{keyDetails.plan}</span>
@@ -902,7 +887,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
                       </DescriptionListGroup>
 
                       <DescriptionListGroup>
-                        <DescriptionListTerm>Last used</DescriptionListTerm>
+                        <DescriptionListTerm>Requested</DescriptionListTerm>
                         <DescriptionListDescription>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#67b350' }}>
                             <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#67b350' }}></div>
@@ -911,6 +896,18 @@ const APIKeyDetails: React.FunctionComponent = () => {
                         </DescriptionListDescription>
                       </DescriptionListGroup>
                     </DescriptionList>
+                  </CardBody>
+                </Card>
+              </GridItem>
+              <GridItem span={12} md={6}>
+                <Card style={{ height: '100%' }}>
+                  <CardBody>
+                    <Title headingLevel="h3" size="lg" style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #d0d0d0' }}>
+                      Use Case
+                    </Title>
+                    <div style={{ fontSize: '14px', color: '#151515' }}>
+                      {keyDetails.description && keyDetails.description.trim() ? keyDetails.description : 'No use case provided'}
+                    </div>
                   </CardBody>
                 </Card>
               </GridItem>
@@ -1333,6 +1330,131 @@ const APIKeyDetails: React.FunctionComponent = () => {
                   setReapplyDescriptionText('');
                   setSelectedReapplyPlan('Silver plan: 100 reqs/day; 500 reqs/week; 3000 reqs/month;');
                   setIsReapplyPlanDropdownOpen(false);
+                }}
+              >
+                Cancel
+              </Button>
+            </ModalFooter>
+          </Modal>
+
+          {/* Edit API key modal */}
+          <Modal
+            isOpen={isEditModalOpen}
+            onClose={() => {
+              setIsEditModalOpen(false);
+              setEditApiKeyName('');
+              setEditSelectedTier('');
+              setEditUseCase('');
+            }}
+            variant="small"
+            style={{ maxWidth: '500px' }}
+          >
+            <ModalHeader>
+              <Title headingLevel="h2">
+                {keyDetails.status === 'Active' ? 'Edit active API key' : 'Edit pending API key'}
+              </Title>
+            </ModalHeader>
+            <ModalBody style={{ padding: '24px' }}>
+              <p style={{ marginBottom: '16px', fontSize: '14px', color: '#6a6e73' }}>
+                {keyDetails.status === 'Active'
+                  ? 'You can edit active API keys to change tiers or add more details.'
+                  : 'You can edit the pending API keys to correct mistakes or add more details.'}
+              </p>
+              <Alert
+                variant="warning"
+                isInline
+                title={
+                  keyDetails.status === 'Active'
+                    ? 'This API key will become pending approval after the update.'
+                    : 'This API key will remain pending approval after updates.'
+                }
+                style={{ marginBottom: '16px' }}
+              />
+              <FormGroup label="API" style={{ marginBottom: '16px' }}>
+                <TextInput
+                  value={keyDetails.apiName || ''}
+                  readOnly
+                  style={{ backgroundColor: '#f5f5f5', userSelect: 'none', outline: 'none', cursor: 'default' }}
+                />
+              </FormGroup>
+              <FormGroup
+                label={
+                  <span>
+                    API key name <span style={{ color: '#C9190B' }}>*</span>
+                  </span>
+                }
+                style={{ marginBottom: '16px' }}
+              >
+                <TextInput
+                  value={editApiKeyName}
+                  onChange={(_, value) => setEditApiKeyName(value)}
+                />
+              </FormGroup>
+              <FormGroup
+                label={
+                  <span>
+                    Tiers <span style={{ color: '#C9190B' }}>*</span>
+                  </span>
+                }
+                style={{ marginBottom: '16px' }}
+              >
+                <Dropdown
+                  isOpen={isEditTierDropdownOpen}
+                  onOpenChange={(isOpen) => setIsEditTierDropdownOpen(isOpen)}
+                  toggle={(toggleRef) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      onClick={() => setIsEditTierDropdownOpen(!isEditTierDropdownOpen)}
+                      isExpanded={isEditTierDropdownOpen}
+                      style={{ width: '100%' }}
+                    >
+                      {editSelectedTier || ''}
+                    </MenuToggle>
+                  )}
+                >
+                  <DropdownList>
+                    {editTierOptions.map((tier) => (
+                      <DropdownItem
+                        key={tier}
+                        onClick={() => {
+                          setEditSelectedTier(tier);
+                          setIsEditTierDropdownOpen(false);
+                        }}
+                      >
+                        {tier}
+                      </DropdownItem>
+                    ))}
+                  </DropdownList>
+                </Dropdown>
+              </FormGroup>
+              <FormGroup label="Use case" style={{ marginBottom: '16px' }}>
+                <TextArea
+                  value={editUseCase}
+                  onChange={(_, value) => setEditUseCase(value)}
+                  rows={4}
+                />
+              </FormGroup>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setEditApiKeyName('');
+                  setEditSelectedTier('');
+                  setEditUseCase('');
+                }}
+                isDisabled={!editApiKeyName.trim() || !editSelectedTier}
+              >
+                Save
+              </Button>
+              <Button
+                variant="link"
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setEditApiKeyName('');
+                  setEditSelectedTier('');
+                  setEditUseCase('');
                 }}
               >
                 Cancel

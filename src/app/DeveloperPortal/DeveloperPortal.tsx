@@ -178,6 +178,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const [apiKeyApproval, setApiKeyApproval] = React.useState<'manual' | 'automatic'>('manual');
   const [creationLifecycle, setCreationLifecycle] = React.useState<string>('Production');
   const [isCreationLifecycleDropdownOpen, setIsCreationLifecycleDropdownOpen] = React.useState(false);
+  const [isCreationPublishStatusDropdownOpen, setIsCreationPublishStatusDropdownOpen] = React.useState(false);
   const [creationPublishStatus, setCreationPublishStatus] = React.useState<'Draft' | 'Published'>('Draft');
   const [editingProductName, setEditingProductName] = React.useState<string | null>(null);
   
@@ -1564,28 +1565,30 @@ const DeveloperPortal: React.FunctionComponent = () => {
             </GridItem>
             <GridItem span={6}>
               <FormGroup label="Publish Status" fieldId="creation-publish-status" style={{ marginBottom: 0 }}>
-                <select
-                  id="creation-publish-status"
-                  value={creationPublishStatus}
-                  onChange={(e) => setCreationPublishStatus(e.target.value as 'Draft' | 'Published')}
-                  style={{
-                    width: '100%',
-                    padding: '6px 24px 6px 0',
-                    fontSize: '14px',
-                    color: '#151515',
-                    fontWeight: 500,
-                    border: 'none',
-                    borderBottom: '1px solid #8a8d90',
-                    borderRadius: 0,
-                    backgroundColor: 'transparent',
-                    cursor: 'pointer',
-                    appearance: 'auto'
-                  }}
+                <Dropdown
+                  isOpen={isCreationPublishStatusDropdownOpen}
+                  onOpenChange={(isOpen) => setIsCreationPublishStatusDropdownOpen(isOpen)}
+                  toggle={(toggleRef) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      onClick={() => setIsCreationPublishStatusDropdownOpen(!isCreationPublishStatusDropdownOpen)}
+                      isExpanded={isCreationPublishStatusDropdownOpen}
+                      style={{ width: '100%' }}
+                    >
+                      {creationPublishStatus}
+                    </MenuToggle>
+                  )}
                 >
-                  <option value="Draft">Draft</option>
-                  <option value="Published">Published</option>
-                </select>
-                <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '6px', marginBottom: 0 }}>
+                  <DropdownList>
+                    <DropdownItem onClick={() => { setCreationPublishStatus('Draft'); setIsCreationPublishStatusDropdownOpen(false); }}>
+                      Draft
+                    </DropdownItem>
+                    <DropdownItem onClick={() => { setCreationPublishStatus('Published'); setIsCreationPublishStatusDropdownOpen(false); }}>
+                      Published
+                    </DropdownItem>
+                  </DropdownList>
+                </Dropdown>
+                <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '8px', marginBottom: 0 }}>
                   Controls catalog visibility (Draft = hidden from consumers)
                 </p>
               </FormGroup>
@@ -1604,28 +1607,36 @@ const DeveloperPortal: React.FunctionComponent = () => {
             </Tooltip>
                 </div>
 
-          <FormGroup style={{ marginBottom: '16px' }}>
-            <Radio
-              isChecked={apiKeyApproval === 'manual'}
-              name="apiKeyApproval"
-              onChange={() => setApiKeyApproval('manual')}
-              label="Need manual approval"
-              id="manual-approval"
-            />
-            <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '4px', marginLeft: '24px', marginBottom: '16px' }}>
-              Requires approval for requesting this API.
-            </p>
-            <Radio
-              isChecked={apiKeyApproval === 'automatic'}
-              name="apiKeyApproval"
-              onChange={() => setApiKeyApproval('automatic')}
-              label="Automatic"
-              id="automatic-approval"
-            />
-            <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '4px', marginLeft: '24px', marginBottom: 0 }}>
-              Keys are created without need to be approved.
-            </p>
+          <Grid hasGutter style={{ marginBottom: '16px' }}>
+            <GridItem span={6}>
+              <FormGroup style={{ marginBottom: 0 }}>
+                <Radio
+                  isChecked={apiKeyApproval === 'manual'}
+                  name="apiKeyApproval"
+                  onChange={() => setApiKeyApproval('manual')}
+                  label="Need manual approval"
+                  id="manual-approval"
+                />
+                <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '4px', marginLeft: '24px', marginBottom: 0 }}>
+                  Requires approval for requesting this API.
+                </p>
               </FormGroup>
+            </GridItem>
+            <GridItem span={6}>
+              <FormGroup style={{ marginBottom: 0 }}>
+                <Radio
+                  isChecked={apiKeyApproval === 'automatic'}
+                  name="apiKeyApproval"
+                  onChange={() => setApiKeyApproval('automatic')}
+                  label="Automatic"
+                  id="automatic-approval"
+                />
+                <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '4px', marginLeft: '24px', marginBottom: 0 }}>
+                  Keys are created without need to be approved.
+                </p>
+              </FormGroup>
+            </GridItem>
+          </Grid>
         </ModalBody>
         <ModalFooter>
           <Button

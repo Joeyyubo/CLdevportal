@@ -27,6 +27,8 @@ import {
   HomeIcon,
   ArchiveIcon,
   CogIcon,
+  KeyIcon,
+  ClipboardCheckIcon,
   FileAltIcon,
   GraduationCapIcon,
   PlusCircleIcon,
@@ -92,6 +94,8 @@ const Catalog: React.FunctionComponent = () => {
       }
     } else if (itemId === 'api-keys') {
       navigate('/developer-portal/api-keys');
+    } else if (itemId === 'api-keys-approval') {
+      navigate('/developer-portal/api-keys-approval');
     } else if (itemId === 'policies') {
       navigate('/policies');
     } else if (itemId === 'observability') {
@@ -212,9 +216,14 @@ const Catalog: React.FunctionComponent = () => {
                   API products
                 </NavItem>
               )}
-              <NavItem itemId="api-keys" icon={<CogIcon />} onClick={() => handleNavClick('api-keys')}>
-                API Access
+              <NavItem itemId="api-keys" icon={<KeyIcon />} onClick={() => handleNavClick('api-keys')}>
+                My API keys
               </NavItem>
+              {currentRole === 'API owner' && (
+                <NavItem itemId="api-keys-approval" icon={<ClipboardCheckIcon />} onClick={() => handleNavClick('api-keys-approval')}>
+                  API keys approval
+                </NavItem>
+              )}
               <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
                 Observability
               </NavItem>

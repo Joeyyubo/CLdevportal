@@ -897,28 +897,36 @@ const EditAPIProduct: React.FunctionComponent = () => {
           </Tooltip>
         </div>
 
-        <FormGroup style={{ marginBottom: '24px' }}>
-          <Radio
-            isChecked={apiKeyApproval === 'manual'}
-            name="apiKeyApproval"
-            onChange={() => setApiKeyApproval('manual')}
-            label="Need manual approval"
-            id="manual-approval"
-          />
-          <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '4px', marginLeft: '24px', marginBottom: '16px' }}>
-            Requires approval for requesting this API.
-          </p>
-          <Radio
-            isChecked={apiKeyApproval === 'automatic'}
-            name="apiKeyApproval"
-            onChange={() => setApiKeyApproval('automatic')}
-            label="Automatic"
-            id="automatic-approval"
-          />
-          <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '4px', marginLeft: '24px', marginBottom: 0 }}>
-            Keys are created without need to be approved.
-          </p>
-        </FormGroup>
+        <Grid hasGutter style={{ marginBottom: '24px' }}>
+          <GridItem span={6}>
+            <FormGroup style={{ marginBottom: 0 }}>
+              <Radio
+                isChecked={apiKeyApproval === 'manual'}
+                name="apiKeyApproval"
+                onChange={() => setApiKeyApproval('manual')}
+                label="Need manual approval"
+                id="manual-approval"
+              />
+              <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '4px', marginLeft: '24px', marginBottom: 0 }}>
+                Requires approval for requesting this API.
+              </p>
+            </FormGroup>
+          </GridItem>
+          <GridItem span={6}>
+            <FormGroup style={{ marginBottom: 0 }}>
+              <Radio
+                isChecked={apiKeyApproval === 'automatic'}
+                name="apiKeyApproval"
+                onChange={() => setApiKeyApproval('automatic')}
+                label="Automatic"
+                id="automatic-approval"
+              />
+              <p style={{ fontSize: '12px', color: '#6a6e73', marginTop: '4px', marginLeft: '24px', marginBottom: 0 }}>
+                Keys are created without need to be approved.
+              </p>
+            </FormGroup>
+          </GridItem>
+        </Grid>
 
         {/* Action Buttons */}
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end', marginTop: '32px' }}>
