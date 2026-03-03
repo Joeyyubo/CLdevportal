@@ -927,7 +927,7 @@ const APIKeys: React.FunctionComponent = () => {
     [filteredApprovalApiKeys]
   );
   // Header chevron: right = collapsed (default), down = all rows expanded
-  const isAllApprovalRowsExpanded = expandableApprovalRowIndices.size > 0 && [...expandableApprovalRowIndices].every((i) => approvalExpandedRows.has(i));
+  const isAllApprovalRowsExpanded = expandableApprovalRowIndices.size > 0 && Array.from(expandableApprovalRowIndices).every((i) => approvalExpandedRows.has(i));
   const toggleExpandAllApprovalRows = () => {
     if (isAllApprovalRowsExpanded) {
       setApprovalExpandedRows(new Set());
@@ -1783,7 +1783,6 @@ const APIKeys: React.FunctionComponent = () => {
                           <Checkbox
                             id="approval-select-all"
                             isChecked={isAllApprovalRowsSelected}
-                            isIndeterminate={isSomeApprovalRowsSelected && !isAllApprovalRowsSelected}
                             onChange={toggleSelectAllApprovalRows}
                             aria-label="Select all rows"
                           />

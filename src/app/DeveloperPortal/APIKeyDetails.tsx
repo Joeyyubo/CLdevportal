@@ -688,7 +688,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
             {source !== 'apis' && (
               <BreadcrumbItem>
                 <Button variant="link" isInline onClick={() => navigate('/developer-portal/api-keys')}>
-                  API Access
+                  My API keys
                 </Button>
               </BreadcrumbItem>
             )}
