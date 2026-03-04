@@ -377,8 +377,6 @@ const DeveloperPortal: React.FunctionComponent = () => {
       navigate('/developer-portal/api-keys-approval');
     } else if (itemId === 'policies') {
       navigate('/policies');
-    } else if (itemId === 'observability') {
-      navigate('/observability');
     } else {
       navigate('/developer-portal');
     }
@@ -521,9 +519,6 @@ const DeveloperPortal: React.FunctionComponent = () => {
                   API keys approval
                 </NavItem>
               )}
-              <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
-                Observability
-              </NavItem>
             </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>

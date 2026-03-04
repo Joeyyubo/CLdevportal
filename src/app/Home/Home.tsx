@@ -106,8 +106,6 @@ const Home: React.FunctionComponent = () => {
       navigate('/developer-portal/api-keys-approval');
     } else if (itemId === 'policies') {
       navigate('/policies');
-    } else if (itemId === 'observability') {
-      navigate('/observability');
     } else {
       navigate('/');
     }
@@ -232,9 +230,6 @@ const Home: React.FunctionComponent = () => {
                   API keys approval
                 </NavItem>
               )}
-              <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
-                Observability
-              </NavItem>
             </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>
@@ -422,7 +417,7 @@ const Home: React.FunctionComponent = () => {
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ marginBottom: '16px', color: '#151515', fontSize: '14px', lineHeight: '1.5' }}>
-                      Browse the Kuadrant services, observability, developer portal in the Kuadrant portion.
+                      Browse the Kuadrant services, developer portal in the Kuadrant portion.
                     </p>
                     <Button 
                       variant="link" 

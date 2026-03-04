@@ -6,7 +6,6 @@ import { DeveloperPortal } from '@app/DeveloperPortal/DeveloperPortal';
 import { APIDetails } from '@app/DeveloperPortal/APIDetails';
 import { EditAPIProductModalProvider } from '@app/DeveloperPortal/EditAPIProductModalContext';
 import { APIKeys } from '@app/DeveloperPortal/APIKeys';
-import { Observability } from '@app/DeveloperPortal/Observability';
 import { APIKeyDetails } from '@app/DeveloperPortal/APIKeyDetails';
 import { APIKeyRequestDetails } from '@app/DeveloperPortal/APIKeyRequestDetails';
 import CreateAPIProduct from '@app/DeveloperPortal/CreateAPIProduct';
@@ -77,9 +76,6 @@ const App: React.FunctionComponent = () => {
         
         {/* Learning Paths page without AppLayout (has its own layout) */}
         <Route path="/learning" element={<LearningPaths />} />
-        
-        {/* Observability page without AppLayout (has its own layout) */}
-        <Route path="/observability" element={<Observability />} />
         
         {/* Developer portal page without AppLayout (has its own layout) */}
         <Route path="/developer-portal" element={<DeveloperPortal />} />

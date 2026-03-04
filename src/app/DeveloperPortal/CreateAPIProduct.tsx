@@ -233,9 +233,6 @@ const CreateAPIProduct: React.FunctionComponent = () => {
               <NavItem itemId="dev-portal" isActive icon={<ApiProductsNavIcon />} onClick={() => handleNavClick('dev-portal')}>
                 API products
               </NavItem>
-              <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
-                Observability
-              </NavItem>
             </NavExpandable>
             <Divider />
             <NavItem itemId="administration" icon={<ExclamationCircleIcon />} onClick={() => handleNavClick('administration')}>

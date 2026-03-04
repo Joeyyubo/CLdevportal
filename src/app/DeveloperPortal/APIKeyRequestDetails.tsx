@@ -205,8 +205,6 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
       navigate('/developer-portal');
     } else if (itemId === 'policies') {
       navigate('/policies');
-    } else if (itemId === 'observability') {
-      navigate('/observability');
     } else if (itemId === 'administration') {
       navigate('/administration');
     } else if (itemId === 'settings') {
@@ -361,9 +359,6 @@ const APIKeyRequestDetails: React.FunctionComponent = () => {
             >
               <NavItem itemId="dev-portal" isActive icon={<ApiProductsNavIcon />} onClick={() => handleNavClick('dev-portal')}>
                 API products
-              </NavItem>
-              <NavItem itemId="observability" icon={<StarIcon />} onClick={() => handleNavClick('observability')}>
-                Observability
               </NavItem>
             </NavExpandable>
             <Divider />
