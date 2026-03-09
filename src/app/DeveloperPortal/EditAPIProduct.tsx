@@ -56,40 +56,25 @@ import {
   PlusIcon,
 } from '@patternfly/react-icons';
 import { InfoIconOutline } from './InfoIconOutline';
+import { apiProductOverviewByApiName } from '../shared/apiData';
 import './DeveloperPortal.css';
 
-// Import apiDetailsData from APIDetails.tsx
-// For now, we'll define a simplified version here
+// Fallback product details when not in shared apiProductOverviewByApiName (e.g. Ticket API)
 const apiDetailsData: Record<string, any> = {
-  'Flights API': {
-    name: 'Flights API',
+  'Ticket API': {
+    name: 'Ticket API',
     tag: 'Ticket',
-    description: 'Description of the API. Validated aggregated stream activity fact table, used for metrics.',
-    productDescription: 'Description of the API product.',
-    status: 'Draft',
+    description: 'Ticket API description.',
+    productDescription: 'Ticket API product description.',
+    status: 'Published',
     version: 'V1',
     apiKeyApproval: 'Need manual approval',
-    api: 'Air-flight-api',
-    resourceName: 'air-flight-api',
-    route: 'Airflight-1',
-    policies: 'Airflight-plans',
-    openApiSpecUrl: 'https://github.com/backstage/flights-api/blob/main/openapi.yaml',
+    api: 'ticket-api',
+    resourceName: 'ticket-api',
+    route: 'petstore-3',
+    policies: 'toystore-plans',
+    openApiSpecUrl: '',
   },
-  'Booking API': {
-    name: 'Booking API',
-    tag: 'Payment',
-    description: 'Retrieve detailed information about flight bookings including passenger details and payment status.',
-    productDescription: 'Description of the API product.',
-    status: 'Draft',
-    version: 'V1',
-    apiKeyApproval: 'Need manual approval',
-    api: 'Booking-api',
-    resourceName: 'booking-api',
-    route: 'Booking-1',
-    policies: 'Booking-plans',
-    openApiSpecUrl: 'https://github.com/backstage/booking-api/blob/main/openapi.yaml',
-  },
-  // Add more as needed
 };
 
 // HTTPRoute interface
@@ -153,24 +138,41 @@ const EditAPIProduct: React.FunctionComponent = () => {
   
   const storedProductDetails = getStoredProductDetails();
   
+  // Prefer shared API product overview when API name matches (same as API details page API product info tab)
+  const sharedOverview = decodedApiName ? apiProductOverviewByApiName[decodedApiName] : null;
+  const baseDetails = sharedOverview
+    ? {
+        name: sharedOverview.name,
+        tag: Array.isArray(sharedOverview.tags) && sharedOverview.tags.length > 0 ? sharedOverview.tags[0] : 'Aircraft',
+        productDescription: sharedOverview.description,
+        description: sharedOverview.description,
+        status: sharedOverview.status,
+        version: sharedOverview.version,
+        apiKeyApproval: sharedOverview.apiKeyApproval,
+        api: sharedOverview.resourceName,
+        resourceName: sharedOverview.resourceName,
+        route: sharedOverview.route,
+        policies: sharedOverview.policies,
+        openApiSpecUrl: sharedOverview.openApiSpecUrl || '',
+      }
+    : (decodedApiName && apiDetailsData[decodedApiName] ? apiDetailsData[decodedApiName] : null);
+  
   const apiDetails = storedProductDetails 
-    ? { ...apiDetailsData[decodedApiName] || {}, ...storedProductDetails }
-    : (decodedApiName && apiDetailsData[decodedApiName] 
-      ? apiDetailsData[decodedApiName] 
-      : {
-          name: decodedApiName || '',
-          tag: 'Aircraft',
-          description: '',
-          productDescription: '',
-          status: 'Draft',
-          version: 'V1',
-          apiKeyApproval: 'Need manual approval',
-          api: '',
-          resourceName: '',
-          route: '',
-          policies: '',
-          openApiSpecUrl: '',
-        });
+    ? { ...baseDetails, ...storedProductDetails }
+    : (baseDetails || {
+        name: decodedApiName || '',
+        tag: 'Aircraft',
+        description: '',
+        productDescription: '',
+        status: 'Draft',
+        version: 'V1',
+        apiKeyApproval: 'Need manual approval',
+        api: '',
+        resourceName: '',
+        route: '',
+        policies: '',
+        openApiSpecUrl: '',
+      });
 
   // Form states - initialize with existing data
   const [apiProductName, setApiProductName] = React.useState(apiDetails.name || '');
@@ -191,26 +193,40 @@ const EditAPIProduct: React.FunctionComponent = () => {
   
   // Update form fields when apiDetails changes (e.g., when navigating to edit page)
   React.useEffect(() => {
-    // Re-read from localStorage in case it was updated
+    const sharedOverview = decodedApiName ? apiProductOverviewByApiName[decodedApiName] : null;
+    const baseDetails = sharedOverview
+      ? {
+          name: sharedOverview.name,
+          tag: Array.isArray(sharedOverview.tags) && sharedOverview.tags.length > 0 ? sharedOverview.tags[0] : 'Aircraft',
+          productDescription: sharedOverview.description,
+          description: sharedOverview.description,
+          status: sharedOverview.status,
+          version: sharedOverview.version,
+          apiKeyApproval: sharedOverview.apiKeyApproval,
+          api: sharedOverview.resourceName,
+          resourceName: sharedOverview.resourceName,
+          route: sharedOverview.route,
+          policies: sharedOverview.policies,
+          openApiSpecUrl: sharedOverview.openApiSpecUrl || '',
+        }
+      : (decodedApiName && apiDetailsData[decodedApiName] ? apiDetailsData[decodedApiName] : null);
     const currentStoredProductDetails = getStoredProductDetails();
     const currentApiDetails = currentStoredProductDetails 
-      ? { ...apiDetailsData[decodedApiName] || {}, ...currentStoredProductDetails }
-      : (decodedApiName && apiDetailsData[decodedApiName] 
-        ? apiDetailsData[decodedApiName] 
-        : {
-            name: decodedApiName || '',
-            tag: 'Aircraft',
-            description: '',
-            productDescription: '',
-            status: 'Draft',
-            version: 'V1',
-            apiKeyApproval: 'Need manual approval',
-            api: '',
-            resourceName: '',
-            route: '',
-            policies: '',
-            openApiSpecUrl: '',
-          });
+      ? { ...baseDetails, ...currentStoredProductDetails }
+      : (baseDetails || {
+          name: decodedApiName || '',
+          tag: 'Aircraft',
+          description: '',
+          productDescription: '',
+          status: 'Draft',
+          version: 'V1',
+          apiKeyApproval: 'Need manual approval',
+          api: '',
+          resourceName: '',
+          route: '',
+          policies: '',
+          openApiSpecUrl: '',
+        });
     
     if (currentApiDetails) {
       setApiProductName(currentApiDetails.name || '');
@@ -290,6 +306,7 @@ const EditAPIProduct: React.FunctionComponent = () => {
       console.error('Failed to save role to localStorage:', e);
     }
     setIsUserDropdownOpen(false);
+    setTimeout(() => navigate('/home'), 0);
   };
 
   const handleNavClick = (itemId: string) => {

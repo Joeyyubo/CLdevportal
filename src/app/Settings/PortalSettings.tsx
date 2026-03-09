@@ -157,8 +157,8 @@ const PortalSettings: React.FunctionComponent = () => {
             )}
           >
             <DropdownList>
-              <DropdownItem onClick={() => { localStorage.setItem('currentRole', 'API consumer'); setCurrentRole('API consumer'); window.dispatchEvent(new Event('storage')); }}>API consumer</DropdownItem>
-              <DropdownItem onClick={() => { localStorage.setItem('currentRole', 'API owner'); setCurrentRole('API owner'); window.dispatchEvent(new Event('storage')); }}>API owner</DropdownItem>
+              <DropdownItem onClick={() => { localStorage.setItem('currentRole', 'API consumer'); setCurrentRole('API consumer'); window.dispatchEvent(new Event('storage')); setTimeout(() => navigate('/home'), 0); }}>API consumer</DropdownItem>
+              <DropdownItem onClick={() => { localStorage.setItem('currentRole', 'API owner'); setCurrentRole('API owner'); window.dispatchEvent(new Event('storage')); setTimeout(() => navigate('/home'), 0); }}>API owner</DropdownItem>
             </DropdownList>
           </Dropdown>
         </div>

@@ -617,7 +617,7 @@ const APIKeys: React.FunctionComponent = () => {
       console.error('Failed to save role to localStorage:', e);
     }
     setIsUserDropdownOpen(false);
-    // Focus will be returned to the toggle button
+    setTimeout(() => navigate('/home'), 0);
     userToggleRef.current?.focus();
   };
 

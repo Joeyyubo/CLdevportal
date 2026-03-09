@@ -161,6 +161,138 @@ export const initialApiData: API[] = [
   },
 ];
 
+// API product overview: shared between API details page (API product info tab) and API product details (EditAPIProduct Overview)
+// When an API name matches a key here, both pages show the same product info.
+export interface APIProductOverview {
+  name: string;
+  description: string;
+  status: 'Draft' | 'Published';
+  version: string;
+  tags: string[];
+  namespace: string;
+  apiKeyApproval: string;
+  resourceName: string;
+  route: string;
+  policies: string;
+  openApiSpecUrl?: string;
+  availableTiers?: { tier: string; rateLimits: string }[];
+}
+
+export const apiProductOverviewByApiName: Record<string, APIProductOverview> = {
+  'Flights API': {
+    name: 'Flights API',
+    description: 'Flight ticket information API for users to get flight details',
+    status: 'Draft',
+    version: 'V1',
+    tags: ['Ticket'],
+    namespace: 'namespace-1',
+    apiKeyApproval: 'Need manual approval',
+    resourceName: 'air-flight-api',
+    route: 'Airflight-1',
+    policies: 'Airflight-plans',
+    openApiSpecUrl: 'https://github.com/backstage/flights-api/blob/main/openapi.yaml',
+    availableTiers: [
+      { tier: 'enterprise', rateLimits: '100000 per daily' },
+      { tier: 'team', rateLimits: '10000 per daily' },
+    ],
+  },
+  'Booking API': {
+    name: 'Booking API',
+    description: 'API for flight payment processing and transactions',
+    status: 'Draft',
+    version: 'V1',
+    tags: ['Payment'],
+    namespace: 'namespace-1',
+    apiKeyApproval: 'Need manual approval',
+    resourceName: 'booking-api',
+    route: 'Booking-1',
+    policies: 'Booking-plans',
+    openApiSpecUrl: 'https://github.com/backstage/booking-api/blob/main/openapi.yaml',
+    availableTiers: [
+      { tier: 'enterprise', rateLimits: '100000 per daily' },
+      { tier: 'team', rateLimits: '10000 per daily' },
+    ],
+  },
+  'Create Booking API': {
+    name: 'Create Booking API',
+    description: 'Aircraft application data and maintenance information',
+    status: 'Draft',
+    version: 'V1',
+    tags: ['Aircraft'],
+    namespace: 'namespace-1',
+    apiKeyApproval: 'Need manual approval',
+    resourceName: 'create-booking-api',
+    route: 'Create-Booking-1',
+    policies: 'Create-Booking-plans',
+    openApiSpecUrl: 'https://github.com/backstage/create-booking-api/blob/main/openapi.yaml',
+    availableTiers: [
+      { tier: 'enterprise', rateLimits: '100000 per daily' },
+      { tier: 'team', rateLimits: '10000 per daily' },
+    ],
+  },
+  'Payment API': {
+    name: 'Payment API',
+    description: 'API for flight payment processing and transactions',
+    status: 'Published',
+    version: 'V1',
+    tags: ['Payment'],
+    namespace: 'namespace-1',
+    apiKeyApproval: 'Need manual approval',
+    resourceName: 'payment-api',
+    route: 'petstore-5',
+    policies: 'toystore-plans',
+    openApiSpecUrl: 'https://github.com/backstage/payment-api/blob/main/openapi.yaml',
+    availableTiers: [
+      { tier: 'enterprise', rateLimits: '100000 per daily' },
+      { tier: 'team', rateLimits: '10000 per daily' },
+    ],
+  },
+  'Aircraft API': {
+    name: 'Aircraft API',
+    description: 'Aircraft application data and maintenance information',
+    status: 'Published',
+    version: 'V2',
+    tags: ['Aircraft'],
+    namespace: 'namespace-3',
+    apiKeyApproval: 'Need manual approval',
+    resourceName: 'aircraft-api',
+    route: 'petstore-4',
+    policies: 'N/A',
+    openApiSpecUrl: 'https://github.com/backstage/aircraft-api/blob/main/openapi.yaml',
+    availableTiers: [
+      { tier: 'enterprise', rateLimits: '100000 per daily' },
+      { tier: 'team', rateLimits: '10000 per daily' },
+    ],
+  },
+};
+
+const API_PRODUCT_STATUSES_KEY = 'apiProductStatuses';
+
+/** Get API product publish status (shared: APIs page visibility, API products table, product details page). */
+export function getApiProductStatus(name: string): 'Draft' | 'Published' {
+  try {
+    const raw = localStorage.getItem(API_PRODUCT_STATUSES_KEY);
+    if (raw) {
+      const map: Record<string, string> = JSON.parse(raw);
+      if (map[name] === 'Published' || map[name] === 'Draft') return map[name] as 'Draft' | 'Published';
+    }
+  } catch (_) {}
+  return (apiProductOverviewByApiName[name]?.status as 'Draft' | 'Published') ?? 'Draft';
+}
+
+/** Set API product publish status (persists so APIs page, table, and details stay in sync). */
+export function setApiProductStatus(name: string, status: 'Draft' | 'Published'): void {
+  try {
+    const raw = localStorage.getItem(API_PRODUCT_STATUSES_KEY);
+    const map: Record<string, string> = raw ? JSON.parse(raw) : {};
+    map[name] = status;
+    localStorage.setItem(API_PRODUCT_STATUSES_KEY, JSON.stringify(map));
+    window.dispatchEvent(new Event('storage'));
+  } catch (e) {
+    console.error('Failed to save API product status:', e);
+  }
+}
+
 // APIs that require approval alert
 export const apisRequiringApproval = [
   'Flights API',

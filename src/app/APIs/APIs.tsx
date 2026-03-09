@@ -47,7 +47,7 @@ import {
   KeyIcon,
   ClipboardCheckIcon,
 } from '@patternfly/react-icons';
-import { initialApiData } from '../shared/apiData';
+import { initialApiData, getApiProductStatus } from '../shared/apiData';
 import './APIs.css';
 
 const APIs: React.FunctionComponent = () => {
@@ -77,15 +77,15 @@ const APIs: React.FunctionComponent = () => {
   const handleUserDropdownSelect = (_event?: React.MouseEvent | undefined, role?: string | number | undefined) => {
     const newRole = String(role);
     setCurrentRole(newRole);
-    // Save to localStorage
     try {
       localStorage.setItem('currentRole', newRole);
-      // Trigger storage event
       window.dispatchEvent(new Event('storage'));
     } catch (e) {
       console.error('Failed to save role to localStorage:', e);
     }
     setIsUserDropdownOpen(false);
+    // Defer navigation so it runs after dropdown close and state updates
+    setTimeout(() => navigate('/home'), 0);
   };
 
   const handleNavClick = (itemId: string) => {
@@ -157,9 +157,9 @@ const APIs: React.FunctionComponent = () => {
   const starredCount = apiData.filter(api => api.starred).length;
   const totalApiCount = apiData.length;
 
-  // Filter APIs based on activeFilter
+  // Filter APIs based on activeFilter; only show APIs whose API product status is Published
   const filteredApiData = React.useMemo(() => {
-    let filtered = apiData;
+    let filtered = apiData.filter(api => getApiProductStatus(api.name) === 'Published');
     
     // Apply search filter
     if (searchValue) {

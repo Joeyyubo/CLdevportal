@@ -51,6 +51,7 @@ import {
 } from '@patternfly/react-core';
 import { ApiProductsNavIcon } from './ApiProductsNavIcon';
 import { useEditAPIProductModal, type SavePayload } from './EditAPIProductModalContext';
+import { getApiProductStatus, setApiProductStatus as persistApiProductStatus } from '../shared/apiData';
 import {
   UserIcon,
   HomeIcon,
@@ -537,12 +538,12 @@ const APIDetails: React.FunctionComponent = () => {
           ],
         } : apiDetailsData['Flights API']));
 
-  // Initialize status from apiDetails
+  // Initialize status from shared source (same as API products table)
   React.useEffect(() => {
-    if (apiDetails.status) {
-      setApiProductStatus(apiDetails.status);
+    if (decodedApiName) {
+      setApiProductStatus(getApiProductStatus(decodedApiName));
     }
-  }, [apiDetails.status]);
+  }, [decodedApiName]);
 
   // When user saves from edit modal: stay on details page (navigate to new product URL only if name changed)
   React.useEffect(() => {
@@ -604,6 +605,7 @@ const APIDetails: React.FunctionComponent = () => {
       console.error('Failed to save role to localStorage:', e);
     }
     setIsUserDropdownOpen(false);
+    setTimeout(() => navigate('/home'), 0);
     userToggleRef.current?.focus();
   };
 
@@ -794,13 +796,19 @@ const APIDetails: React.FunctionComponent = () => {
     </PageSidebar>
   );
 
-  // Handle publish API product
+  // Handle publish API product (persist so table and APIs page stay in sync)
   const handlePublish = () => {
+    persistApiProductStatus(decodedApiName, 'Published');
     setApiProductStatus('Published');
     setShowPublishNotification(true);
     setTimeout(() => {
       setShowPublishNotification(false);
     }, 10000);
+  };
+
+  const handleUnpublish = () => {
+    persistApiProductStatus(decodedApiName, 'Draft');
+    setApiProductStatus('Draft');
   };
 
   return (
@@ -897,7 +905,7 @@ const APIDetails: React.FunctionComponent = () => {
                   Publish API product
                 </Button>
               ) : (
-                <Button variant="secondary" onClick={() => setApiProductStatus('Draft')}>
+                <Button variant="secondary" onClick={handleUnpublish}>
                   Unpublish API product
                 </Button>
               )}

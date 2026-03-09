@@ -114,6 +114,7 @@ const SelfService: React.FunctionComponent = () => {
       console.error('Failed to save role to localStorage:', e);
     }
     setIsUserDropdownOpen(false);
+    setTimeout(() => navigate('/home'), 0);
   };
 
   const handleNavClick = (itemId: string) => {

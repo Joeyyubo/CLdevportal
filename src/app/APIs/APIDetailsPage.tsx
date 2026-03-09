@@ -83,7 +83,7 @@ import {
   KeyIcon,
   ClipboardCheckIcon,
 } from '@patternfly/react-icons';
-import { apisRequiringApproval } from '../shared/apiData';
+import { apisRequiringApproval, apiProductOverviewByApiName } from '../shared/apiData';
 import './APIs.css';
 
 // API details data for APIs module
@@ -767,6 +767,7 @@ const APIDetailsPage: React.FunctionComponent = () => {
       console.error('Failed to save role to localStorage:', e);
     }
     setIsUserDropdownOpen(false);
+    setTimeout(() => navigate('/home'), 0);
   };
 
   const handleNavClick = (itemId: string) => {
@@ -1143,18 +1144,20 @@ const APIDetailsPage: React.FunctionComponent = () => {
           </>
         )}
 
-        {activeTab === 1 && (
+        {activeTab === 1 && (() => {
+          const productOverview = apiProductOverviewByApiName[apiDetails.name];
+          return (
           <>
-            {/* API Product Info - same as API product details Overview */}
+            {/* API Product Info - same as API product details Overview (shared apiProductOverviewByApiName) */}
             <Card style={{ marginBottom: '24px' }}>
               <CardBody>
                 <div style={{ marginBottom: '24px' }}>
                   <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '6px', textTransform: 'uppercase' }}>PRODUCT NAME</div>
-                  <div style={{ fontSize: '18px', fontWeight: 600, color: '#151515' }}>{apiDetails.name}</div>
+                  <div style={{ fontSize: '18px', fontWeight: 600, color: '#151515' }}>{productOverview?.name ?? apiDetails.name}</div>
                 </div>
                 <div style={{ marginBottom: '24px' }}>
                   <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '6px', textTransform: 'uppercase' }}>DESCRIPTION</div>
-                  <div style={{ fontSize: '14px', color: '#151515', lineHeight: 1.5 }}>{apiDetails.description || 'Description of the API product.'}</div>
+                  <div style={{ fontSize: '14px', color: '#151515', lineHeight: 1.5 }}>{productOverview?.description ?? apiDetails.description ?? 'Description of the API product.'}</div>
                 </div>
 
                 <Grid hasGutter>
@@ -1164,10 +1167,10 @@ const APIDetailsPage: React.FunctionComponent = () => {
                       <div>
                         <Label
                           variant="outline"
-                          color="green"
+                          color={productOverview?.status === 'Published' ? 'green' : 'grey'}
                           style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}
                         >
-                          Published
+                          {productOverview?.status ?? 'Published'}
                         </Label>
                       </div>
                     </div>
@@ -1175,15 +1178,15 @@ const APIDetailsPage: React.FunctionComponent = () => {
                   <GridItem span={12} md={2}>
                     <div style={{ marginBottom: '16px' }}>
                       <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>VERSION</div>
-                      <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.version || 'V1'}</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>{productOverview?.version ?? apiDetails.version ?? 'V1'}</div>
                     </div>
                   </GridItem>
                   <GridItem span={12} md={2}>
                     <div style={{ marginBottom: '16px' }}>
                       <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>TAGS</div>
                       <div>
-                        {apiDetails.tags && apiDetails.tags.length > 0 ? (
-                          apiDetails.tags.map((tag: string, i: number) => <Badge key={i} isRead style={{ marginRight: '4px' }}>{tag}</Badge>)
+                        {((productOverview?.tags ?? apiDetails.tags)?.length > 0) ? (
+                          (productOverview?.tags ?? apiDetails.tags).map((tag: string, i: number) => <Badge key={i} isRead style={{ marginRight: '4px' }}>{tag}</Badge>)
                         ) : (
                           <Badge isRead>—</Badge>
                         )}
@@ -1193,39 +1196,39 @@ const APIDetailsPage: React.FunctionComponent = () => {
                   <GridItem span={12} md={2}>
                     <div style={{ marginBottom: '16px' }}>
                       <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>NAMESPACE</div>
-                      <div style={{ fontSize: '14px', color: '#151515' }}>namespace-1</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>{productOverview?.namespace ?? 'namespace-1'}</div>
                     </div>
                   </GridItem>
                   <GridItem span={12} md={2}>
                     <div style={{ marginBottom: '16px' }}>
                       <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>API KEY APPROVAL</div>
-                      <div style={{ fontSize: '14px', color: '#151515' }}>Need manual approval</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>{productOverview?.apiKeyApproval ?? 'Need manual approval'}</div>
                     </div>
                   </GridItem>
                   <GridItem span={12} md={2}>
                     <div style={{ marginBottom: '16px' }}>
                       <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>RESOURCE NAME</div>
-                      <div style={{ fontSize: '14px', color: '#151515' }}>{apiDetails.name.toLowerCase().replace(/\s+/g, '-')}</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>{productOverview?.resourceName ?? apiDetails.name.toLowerCase().replace(/\s+/g, '-')}</div>
                     </div>
                   </GridItem>
                   <GridItem span={12} md={2} style={{ minWidth: 0 }}>
                     <div style={{ marginBottom: '16px', paddingRight: '16px', minWidth: 0 }}>
                       <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>OPEN API SPEC URL</div>
                       <div style={{ fontSize: '14px', wordBreak: 'break-all', overflowWrap: 'break-word' }}>
-                        <span style={{ color: '#6a6e73' }}>Not specified</span>
+                        {productOverview?.openApiSpecUrl ? <span style={{ color: '#0066CC' }}>{productOverview.openApiSpecUrl}</span> : <span style={{ color: '#6a6e73' }}>Not specified</span>}
                       </div>
                     </div>
                   </GridItem>
                   <GridItem span={12} md={2}>
                     <div style={{ marginBottom: '16px' }}>
                       <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>ROUTE</div>
-                      <div style={{ fontSize: '14px', color: '#151515' }}>route-1</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>{productOverview?.route ?? 'route-1'}</div>
                     </div>
                   </GridItem>
                   <GridItem span={12} md={2}>
                     <div style={{ marginBottom: '16px' }}>
                       <div style={{ fontSize: '12px', fontWeight: 600, color: '#6a6e73', marginBottom: '4px', textTransform: 'uppercase' }}>POLICIES</div>
-                      <div style={{ fontSize: '14px', color: '#151515' }}>N/A</div>
+                      <div style={{ fontSize: '14px', color: '#151515' }}>{productOverview?.policies ?? 'N/A'}</div>
                     </div>
                   </GridItem>
                 </Grid>
@@ -1240,25 +1243,25 @@ const APIDetailsPage: React.FunctionComponent = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
-                        <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>
-                          <Badge isRead style={{ backgroundColor: '#f5f5f5', color: '#151515', border: '1px solid #d0d0d0', padding: '4px 10px', borderRadius: '16px', fontSize: '12px' }}>enterprise</Badge>
-                        </td>
-                        <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>100000 per daily</td>
-                      </tr>
-                      <tr>
-                        <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>
-                          <Badge isRead style={{ backgroundColor: '#f5f5f5', color: '#151515', border: '1px solid #d0d0d0', padding: '4px 10px', borderRadius: '16px', fontSize: '12px' }}>team</Badge>
-                        </td>
-                        <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>10000 per daily</td>
-                      </tr>
+                      {(productOverview?.availableTiers ?? [
+                        { tier: 'enterprise', rateLimits: '100000 per daily' },
+                        { tier: 'team', rateLimits: '10000 per daily' },
+                      ]).map((row: { tier: string; rateLimits: string }, i: number) => (
+                        <tr key={i} style={{ borderBottom: i < (productOverview?.availableTiers?.length ?? 2) - 1 ? '1px solid #d0d0d0' : undefined }}>
+                          <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>
+                            <Badge isRead style={{ backgroundColor: '#f5f5f5', color: '#151515', border: '1px solid #d0d0d0', padding: '4px 10px', borderRadius: '16px', fontSize: '12px' }}>{row.tier}</Badge>
+                          </td>
+                          <td style={{ padding: '12px 16px', fontSize: '14px', color: '#151515' }}>{row.rateLimits}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
               </CardBody>
             </Card>
           </>
-        )}
+          );
+        })()}
 
         {activeTab === 2 && (
           <div style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #d0d0d0' }}>

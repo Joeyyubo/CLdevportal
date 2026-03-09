@@ -77,6 +77,7 @@ const RegisterComponent: React.FunctionComponent = () => {
       console.error('Failed to save role to localStorage:', e);
     }
     setIsUserDropdownOpen(false);
+    setTimeout(() => navigate('/home'), 0);
   };
 
   // Listen to storage changes for role updates

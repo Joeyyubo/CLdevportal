@@ -464,7 +464,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
       console.error('Failed to save role to localStorage:', e);
     }
     setIsUserDropdownOpen(false);
-    // Focus will be returned to the toggle button
+    setTimeout(() => navigate('/home'), 0);
     userToggleRef.current?.focus();
   };
 
@@ -864,7 +864,7 @@ const APIKeyDetails: React.FunctionComponent = () => {
                           <Button 
                             variant="link" 
                             isInline 
-                            onClick={() => navigate(`/developer-portal/api-details/${encodeURIComponent(keyDetails.apiName)}`)}
+                            onClick={() => navigate(`/apis/api-details/${encodeURIComponent(keyDetails.apiName)}`)}
                           >
                             {keyDetails.apiName}
                           </Button>

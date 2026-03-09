@@ -68,6 +68,7 @@ import {
 } from '@patternfly/react-icons';
 import { ApiProductsNavIcon } from './ApiProductsNavIcon';
 import { InfoIconOutline } from './InfoIconOutline';
+import { getApiProductStatus, setApiProductStatus } from '../shared/apiData';
 import './DeveloperPortal.css';
 
 // Clipboard icon components
@@ -105,12 +106,12 @@ interface APIProduct {
   apiKeyApproval?: 'manual' | 'automatic';
 }
 
-// Initial API products data
+// Initial API products data (names aligned with APIs page: Flights API, Booking API, etc.)
 const initialApiProducts: APIProduct[] = [
-  { name: 'Flight ticket API', version: 'V1', route: 'petstore-1', policy: 'toystore-plans', tags: ['analytics', 'metrics'], status: 'Draft', lifecycle: 'Production', namespace: 'namespace-1' },
-  { name: 'Flight API', version: 'V2', route: 'petstore-2', policy: 'N/A', tags: [], status: 'Published', lifecycle: 'Production', namespace: 'namespace-1' },
+  { name: 'Flights API', version: 'V1', route: 'petstore-1', policy: 'toystore-plans', tags: ['analytics', 'metrics'], status: 'Draft', lifecycle: 'Production', namespace: 'namespace-1' },
+  { name: 'Booking API', version: 'V2', route: 'petstore-2', policy: 'N/A', tags: [], status: 'Published', lifecycle: 'Production', namespace: 'namespace-1' },
   { name: 'Ticket API', version: 'V1', route: 'petstore-3', policy: 'toystore-plans', tags: ['payments', 'billing'], status: 'Published', lifecycle: 'Production', namespace: 'namespace-2' },
-  { name: 'Flight API', version: 'V2', route: 'petstore-4', policy: 'N/A', tags: ['ecommerce', 'retail'], status: 'Published', lifecycle: 'Production', namespace: 'namespace-3' },
+  { name: 'Aircraft API', version: 'V2', route: 'petstore-4', policy: 'N/A', tags: ['ecommerce', 'retail'], status: 'Published', lifecycle: 'Production', namespace: 'namespace-3' },
   { name: 'Payment API', version: 'V1', route: 'petstore-5', policy: 'toystore-plans', tags: ['identity', 'auth'], status: 'Published', lifecycle: 'Production', namespace: 'namespace-1' },
 ];
 
@@ -120,8 +121,10 @@ const DeveloperPortal: React.FunctionComponent = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
   const userToggleRef = React.useRef<HTMLButtonElement>(null);
   
-  // API Product states
-  const [apiProducts, setApiProducts] = React.useState<APIProduct[]>(initialApiProducts);
+  // API Product states (status synced with getApiProductStatus for table/details consistency)
+  const [apiProducts, setApiProducts] = React.useState<APIProduct[]>(() =>
+    initialApiProducts.map(p => ({ ...p, status: getApiProductStatus(p.name) }))
+  );
   const [statusFilter, setStatusFilter] = React.useState('All'); // 'All', 'Draft', 'Published'
   const [policyFilter, setPolicyFilter] = React.useState<string[]>([]);
   const [routeFilter, setRouteFilter] = React.useState<string[]>([]);
@@ -311,7 +314,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
       console.error('Failed to save role to localStorage:', e);
     }
     setIsUserDropdownOpen(false);
-    // Focus will be returned to the toggle button
+    setTimeout(() => navigate('/home'), 0);
     userToggleRef.current?.focus();
   };
 
@@ -645,7 +648,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                         <DraftClipboardIcon size={20} />
                         <span>Draft</span>
                       </div>
-                      <span style={{ fontWeight: 'bold', color: '#6a6e73' }}>{apiProducts.filter(p => p.status === 'Draft').length}</span>
+                      <span style={{ fontWeight: 'bold', color: '#6a6e73' }}>{apiProducts.filter(p => getApiProductStatus(p.name) === 'Draft').length}</span>
                 </div>
                 <div
                   role="button"
@@ -670,7 +673,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                         <PublishedClipboardIcon size={20} />
                         <span style={{ color: '#3e8635' }}>Published</span>
                       </div>
-                      <span style={{ fontWeight: 'bold', color: '#3e8635' }}>{apiProducts.filter(p => p.status === 'Published').length}</span>
+                      <span style={{ fontWeight: 'bold', color: '#3e8635' }}>{apiProducts.filter(p => getApiProductStatus(p.name) === 'Published').length}</span>
                 </div>
               </div>
 
@@ -981,7 +984,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                         <tbody>
                         {apiProducts
                           .filter(product => {
-                            if (statusFilter !== 'All' && product.status !== statusFilter) return false;
+                            if (statusFilter !== 'All' && getApiProductStatus(product.name) !== statusFilter) return false;
                             if (policyFilter.length > 0 && !policyFilter.includes(product.policy)) return false;
                             if (routeFilter.length > 0 && !routeFilter.includes(product.route)) return false;
                             if (namespaceFilter.length > 0 && !namespaceFilter.includes(product.namespace)) return false;
@@ -1015,7 +1018,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                 </div>
                               </td>
                               <td style={{ padding: '16px 20px' }}>
-                                {product.status === 'Draft' ? (
+                                {getApiProductStatus(product.name) === 'Draft' ? (
                                   <span style={{ display: 'inline-block', padding: '2px 8px', fontSize: '12px', borderRadius: '16px', border: '1px solid #8a8d90', color: '#151515', backgroundColor: 'transparent' }}>Draft</span>
                                 ) : (
                                   <span style={{ display: 'inline-block', padding: '2px 8px', fontSize: '12px', borderRadius: '16px', border: 'none', color: '#fff', backgroundColor: '#0066cc' }}>Published</span>
@@ -1031,8 +1034,9 @@ const DeveloperPortal: React.FunctionComponent = () => {
                             <td style={{ padding: '16px 20px 16px 8px', textAlign: 'left' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                  {product.status === 'Draft' ? (
+                                  {getApiProductStatus(product.name) === 'Draft' ? (
                                     <Button variant="link" isInline onClick={() => {
+                                      setApiProductStatus(product.name, 'Published');
                                       setApiProducts(prev => prev.map(p => 
                                         p.name === product.name ? { ...p, status: 'Published' as const } : p
                                       ));
@@ -1041,6 +1045,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                                     </Button>
                                   ) : (
                                     <Button variant="link" isInline onClick={() => {
+                                      setApiProductStatus(product.name, 'Draft');
                                       setApiProducts(prev => prev.map(p => 
                                         p.name === product.name ? { ...p, status: 'Draft' as const } : p
                                       ));
@@ -1670,6 +1675,7 @@ const DeveloperPortal: React.FunctionComponent = () => {
                 documentationUrl: documentationUrl || undefined,
                 lifecycle: creationLifecycle
               };
+              setApiProductStatus(productName, creationPublishStatus);
               if (editingProductName) {
                 setApiProducts(prev =>
                   editingProductName === productName
