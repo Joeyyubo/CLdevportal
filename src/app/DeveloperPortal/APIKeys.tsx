@@ -1495,7 +1495,7 @@ const APIKeys: React.FunctionComponent = () => {
 
         {isApprovalView && currentRole === 'API owner' && (
         <>
-        {selectedApprovalCount > 0 && (
+        {approvalStatusFilter === 'Pending' && selectedApprovalCount > 0 && (
           <Grid hasGutter style={{ marginBottom: '16px' }}>
             <GridItem span={3} />
             <GridItem span={9}>
@@ -1775,12 +1775,14 @@ const APIKeys: React.FunctionComponent = () => {
                     <tr style={{ borderBottom: '1px solid #d0d0d0' }}>
                       <th style={{ textAlign: 'left', padding: '12px', paddingRight: '16px', fontSize: '14px', fontWeight: 'bold', width: '80px', minWidth: '80px', verticalAlign: 'middle' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <Checkbox
-                            id="approval-select-all"
-                            isChecked={isAllApprovalRowsSelected}
-                            onChange={toggleSelectAllApprovalRows}
-                            aria-label="Select all rows"
-                          />
+                          {approvalStatusFilter === 'Pending' && (
+                            <Checkbox
+                              id="approval-select-all"
+                              isChecked={isAllApprovalRowsSelected}
+                              onChange={toggleSelectAllApprovalRows}
+                              aria-label="Select all rows"
+                            />
+                          )}
                         </div>
                       </th>
                       <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 'bold', width: '15%' }}>API</th>
@@ -1815,12 +1817,14 @@ const APIKeys: React.FunctionComponent = () => {
                                     <AngleRightIcon style={{ fontSize: '16px', color: hasExpandableContent ? '#151515' : '#8a8d90' }} />
                                   )}
                                 </Button>
-                                <Checkbox
-                                  id={`approval-row-${originalIndex}`}
-                                  isChecked={selectedApprovalRowIds.has(getApprovalRowId(key, originalIndex))}
-                                  onChange={() => toggleApprovalRowSelection(getApprovalRowId(key, originalIndex))}
-                                  aria-label={`Select row ${key.name}`}
-                                />
+                                {approvalStatusFilter === 'Pending' && (
+                                  <Checkbox
+                                    id={`approval-row-${originalIndex}`}
+                                    isChecked={selectedApprovalRowIds.has(getApprovalRowId(key, originalIndex))}
+                                    onChange={() => toggleApprovalRowSelection(getApprovalRowId(key, originalIndex))}
+                                    aria-label={`Select row ${key.name}`}
+                                  />
+                                )}
                               </div>
                             </td>
                             <td style={{ padding: '12px' }}>
